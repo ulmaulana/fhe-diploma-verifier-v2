@@ -195,6 +195,25 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
     await (await send(await request())).wait();
   });
 
+  it('S-09: maps malformed and malleable signatures to the contract domain errors', async () => {
+    const SECP256K1_N = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141n;
+    const malleable = (signature) => {
+      const parsed = ethers.Signature.from(signature);
+      const s = ethers.toBeHex(SECP256K1_N - BigInt(parsed.s), 32);
+      return ethers.concat([parsed.r, s, parsed.v === 27 ? '0x1c' : '0x1b']);
+    };
+    const req = await authorization();
+    for (const signature of ['0x', '0xdeadbeef', ethers.hexlify(new Uint8Array(65)), malleable(req.signature)]) {
+      await assert.rejects(sendIssuance({ ...req, signature }), /InvalidCredentialAuthorization/);
+    }
+    await (await sendIssuance(req)).wait();
+    const attestation = await request();
+    for (const signature of ['0x', '0xdeadbeef', ethers.hexlify(new Uint8Array(65)), malleable(attestation.signature)]) {
+      await assert.rejects(send({ ...attestation, signature }), /InvalidAttestation/);
+    }
+    await (await send(attestation)).wait();
+  });
+
   it('rolls back both nonce and record when FHE input proof fails', async () => {
     const req = await authorization();
     await assert.rejects(sendIssuance({ ...req, encrypted: { ...req.encrypted, inputProof: '0xdeadbeef' } }));

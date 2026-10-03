@@ -165,7 +165,7 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
             keccak256(abi.encode(authorization.encodingVersion, inputs)) != authorization.encryptedAttributesHash)
             revert InvalidCredentialAuthorization();
         bytes32 digest = hashCredentialAuthorization(authorization);
-        if (ECDSA.recover(digest, signature) != msg.sender) revert InvalidCredentialAuthorization();
+        if (_recover(digest, signature) != msg.sender) revert InvalidCredentialAuthorization();
 
         issuanceNonceUsed[msg.sender][authorization.nonce] = true;
         Credential storage credential = credentials[authorization.credentialId];
@@ -233,8 +233,8 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
             keccak256(bytes(attestation.encodingVersion)) != keccak256(bytes(ENCODING_VERSION)) ||
             keccak256(bytes(attestation.normalizerVersion)) != keccak256(bytes(NORMALIZER_VERSION))) revert InvalidVersion();
         if (keccak256(abi.encode(inputs)) != attestation.inputHandlesHash) revert InvalidAttestation();
-        address attestor = ECDSA.recover(_hashTypedDataV4(_attestationHash(attestation)), signature);
-        if (!hasRole(ATTESTOR_ROLE, attestor)) revert InvalidAttestation();
+        address attestor = _recover(_hashTypedDataV4(_attestationHash(attestation)), signature);
+        if (attestor == address(0) || !hasRole(ATTESTOR_ROLE, attestor)) revert InvalidAttestation();
         if (nonceUsed[attestor][attestation.nonce]) revert ReplayedNonce();
         Credential storage credential = credentials[attestation.credentialId];
         if (credential.signer == address(0)) revert InvalidCredential();
@@ -260,6 +260,13 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
         FHE.allow(allMatch, attestation.resultReader);
         emit ComparisonRequested(attestation.requestId, attestation.credentialId,
             attestation.uploadCommitment, attestation.resultReader);
+    }
+
+    /// @dev Malformed, malleable (high-s) or unrecoverable signatures return address(0), which never
+    /// matches an authorized signer or attestor, so callers revert with their own domain error (S-09).
+    function _recover(bytes32 digest, bytes calldata signature) private pure returns (address) {
+        (address recovered, ECDSA.RecoverError error,) = ECDSA.tryRecoverCalldata(digest, signature);
+        return error == ECDSA.RecoverError.NoError ? recovered : address(0);
     }
 
     function _attestationHash(Verification calldata a) private pure returns (bytes32) {

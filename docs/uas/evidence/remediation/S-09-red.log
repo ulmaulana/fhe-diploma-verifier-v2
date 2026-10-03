@@ -1,0 +1,31 @@
+# command : pnpm --filter @verifikasi/contracts exec hardhat test --grep S-09
+# cwd     : 
+# commit  : 8bb71ce tracked-changes=1
+# started : 2026-10-03T20:25:14Z (UTC) / 2026-10-04T03:25:14 WIB
+# node    : v24.21.0  pnpm: 10.19.0  os: MINGW64_NT-10.0-26300
+# ----------------------------------------------------------------
+
+
+  VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+    1) S-09: maps malformed and malleable signatures to the contract domain errors
+
+
+  0 passing (54ms)
+  1 failing
+
+  1) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+       S-09: maps malformed and malleable signatures to the contract domain errors:
+     AssertionError [ERR_ASSERTION]: The input did not match the regular expression /InvalidCredentialAuthorization/. Input:
+
+"Error: VM Exception while processing transaction: reverted with custom error 'ECDSAInvalidSignatureLength(0)'"
+
+      at Context.<anonymous> (test\VerifikasiIjazah.cjs:207:7)
+
+
+
+undefined
+C:\Users\Maulana\Pictures\Matkul IF\Semester 7\Blockchain\UAS\Degree-E-Sign-and-Verifier-ZamaFHE-main\contracts:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "hardhat" not found
+# ----------------------------------------------------------------
+# finished: 2026-10-03T20:25:17Z (UTC) duration=3s
+EXIT_CODE=1
