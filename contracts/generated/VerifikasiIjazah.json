@@ -95,6 +95,17 @@
       "type": "error"
     },
     {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        }
+      ],
+      "name": "InvalidRole",
+      "type": "error"
+    },
+    {
       "inputs": [],
       "name": "InvalidShortString",
       "type": "error"
@@ -106,12 +117,33 @@
     },
     {
       "inputs": [],
+      "name": "LastAdminRemoval",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "ReplayedNonce",
       "type": "error"
     },
     {
       "inputs": [],
       "name": "ReplayedRequest",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "RoleConflict",
       "type": "error"
     },
     {
@@ -522,6 +554,19 @@
           "internalType": "bytes32",
           "name": "",
           "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "adminCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",

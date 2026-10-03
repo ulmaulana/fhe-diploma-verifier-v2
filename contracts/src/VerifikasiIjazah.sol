@@ -88,6 +88,8 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
     mapping(bytes32 => bool) public requestUsed;
     mapping(address => mapping(uint256 => bool)) public nonceUsed;
     mapping(address => mapping(uint256 => bool)) public issuanceNonceUsed;
+    /// @notice Number of DEFAULT_ADMIN_ROLE holders; the last one cannot be revoked or renounced.
+    uint256 public adminCount;
 
     error UnauthorizedIssuer();
     error InvalidCredential();
@@ -104,6 +106,9 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
     error InvalidIssuer();
     error SignerAlreadyActive();
     error SignerNotActive();
+    error RoleConflict(bytes32 role, address account);
+    error InvalidRole(bytes32 role);
+    error LastAdminRemoval();
     event IssuerUpdated(bytes32 indexed issuerId, string name, bool active);
     event SignerUpdated(bytes32 indexed issuerId, address indexed signer, uint64 indexed authorizationId, bool active);
     event CredentialIssued(bytes32 indexed credentialId, bytes32 indexed issuerId, address indexed signer,
@@ -138,6 +143,8 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
         if (currentlyActive && previous.issuerId != issuerId) revert UnauthorizedIssuer();
         if (active) {
             if (currentlyActive) revert SignerAlreadyActive();
+            (bool held, bytes32 role) = _heldRole(wallet);
+            if (held) revert RoleConflict(role, wallet);
             uint64 authorizationId = ++signerAuthorizationCount;
             signerAuthorizations[authorizationId] = SignerAuthorization(issuerId, wallet, uint64(block.timestamp), 0);
             signerAuthorizationIds[wallet] = authorizationId;
@@ -265,6 +272,40 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
         FHE.allow(allMatch, attestation.resultReader);
         emit ComparisonRequested(attestation.requestId, attestation.credentialId,
             attestation.uploadCommitment, attestation.resultReader);
+    }
+
+    /// @dev Role separation (S-01): the administrator, attestor, relayer and result reader are four
+    /// different accounts, and none of them may be an active institution signer. Checked on every grant,
+    /// including the constructor, and in setSigner, so no path can combine authorities.
+    function _grantRole(bytes32 role, address account) internal override returns (bool granted) {
+        if (role != DEFAULT_ADMIN_ROLE && role != ATTESTOR_ROLE && role != RELAYER_ROLE && role != RESULT_READER_ROLE) {
+            revert InvalidRole(role);
+        }
+        if (!hasRole(role, account)) {
+            (bool held, bytes32 other) = _heldRole(account);
+            if (held) revert RoleConflict(other, account);
+            if (_isActiveSigner(account)) revert RoleConflict(role, account);
+        }
+        granted = super._grantRole(role, account);
+        if (granted && role == DEFAULT_ADMIN_ROLE) ++adminCount;
+    }
+
+    /// @dev Administrator continuity (S-02): a transfer must grant the new administrator first.
+    function _revokeRole(bytes32 role, address account) internal override returns (bool revoked) {
+        if (role == DEFAULT_ADMIN_ROLE && hasRole(role, account) && adminCount == 1) revert LastAdminRemoval();
+        revoked = super._revokeRole(role, account);
+        if (revoked && role == DEFAULT_ADMIN_ROLE) --adminCount;
+    }
+
+    function _heldRole(address account) private view returns (bool, bytes32) {
+        bytes32[4] memory roles = [DEFAULT_ADMIN_ROLE, ATTESTOR_ROLE, RELAYER_ROLE, RESULT_READER_ROLE];
+        for (uint256 i; i < 4; ++i) if (hasRole(roles[i], account)) return (true, roles[i]);
+        return (false, bytes32(0));
+    }
+
+    function _isActiveSigner(address account) private view returns (bool) {
+        uint64 authorizationId = signerAuthorizationIds[account];
+        return authorizationId != 0 && signerAuthorizations[authorizationId].revokedAt == 0;
     }
 
     /// @dev Malformed, malleable (high-s) or unrecoverable signatures return address(0), which never

@@ -16,7 +16,7 @@ const credentialTypes = { CredentialAuthorization: [
 
 describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', function () {
   this.timeout(120000);
-  let admin, issuer, attestor, relayer, reader, outsider, contract, address, id, issuerId;
+  let admin, issuer, attestor, relayer, reader, outsider, spares, contract, address, id, issuerId;
   const values = [(1n << 255n) + 91n, (1n << 200n) + 42n, (1n << 128n) + 7n, (1n << 64n) + 33n];
   const random = () => ethers.hexlify(ethers.randomBytes(32));
   async function encrypt(signer, inputs = values) {
@@ -42,14 +42,14 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
     await (await sendIssuance(req)).wait();
     return req;
   }
-  async function request(inputs = values, overrides = {}, signer) {
-    const encrypted = await encrypt(relayer, inputs);
+  async function request(inputs = values, overrides = {}, signer, caller = relayer) {
+    const encrypted = await encrypt(caller, inputs);
     const block = await ethers.provider.getBlock('latest');
     const attestation = {
       requestId: random(), credentialId: id, uploadCommitment: random(), schemaVersion: 'academic-diploma-v1',
       encodingVersion: 'sha256-euint256-v1', normalizerVersion: 'academic-normalizer-v1', ocrConfigHash: random(),
       inputHandlesHash: ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(['bytes32[4]'], [encrypted.handles])),
-      relayer: relayer.address, resultReader: reader.address, nonce: BigInt(random()), deadline: block.timestamp + 600,
+      relayer: caller.address, resultReader: reader.address, nonce: BigInt(random()), deadline: block.timestamp + 600,
       ...overrides,
     };
     const signature = await (signer || attestor).signTypedData(
@@ -61,7 +61,7 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
   }
   beforeEach(async () => {
     assert.equal(fhevm.isMock, true, 'This suite must never execute against a public network');
-    [admin, issuer, attestor, relayer, reader, outsider] = await ethers.getSigners();
+    [admin, issuer, attestor, relayer, reader, outsider, ...spares] = await ethers.getSigners();
     contract = await ethers.deployContract('VerifikasiIjazah', [admin.address, attestor.address, relayer.address, reader.address]);
     await contract.waitForDeployment();
     address = await contract.getAddress(); id = random(); issuerId = random();
@@ -240,6 +240,73 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
     // An active signer of another institution is neither re-assigned nor deactivated through this issuer.
     await assert.rejects(contract.setSigner(issuerId, outsider.address, false), /UnauthorizedIssuer/);
     await assert.rejects(contract.setSigner(issuerId, outsider.address, true), /UnauthorizedIssuer/);
+  });
+
+  describe('S-01/S-02: role separation, rotation and administrator continuity', () => {
+    const ADMIN = ethers.ZeroHash;
+    const role = name => ethers.id(name);
+
+    it('rejects a deployment that places two roles on one address', async () => {
+      for (const roles of [[admin, admin, relayer, reader], [admin, attestor, attestor, reader], [admin, attestor, relayer, relayer], [admin, attestor, relayer, admin]]) {
+        await assert.rejects(ethers.deployContract('VerifikasiIjazah', roles.map(account => account.address)), /RoleConflict/);
+      }
+    });
+
+    it('rejects grants that combine roles or make a signer a service account, in both directions', async () => {
+      await assert.rejects(contract.grantRole(role('RELAYER_ROLE'), attestor.address), /RoleConflict/);
+      await assert.rejects(contract.grantRole(role('RESULT_READER_ROLE'), relayer.address), /RoleConflict/);
+      await assert.rejects(contract.grantRole(ADMIN, reader.address), /RoleConflict/);
+      await assert.rejects(contract.grantRole(role('ATTESTOR_ROLE'), admin.address), /RoleConflict/);
+      // An active institution signer cannot receive a service role, and a service account cannot become a signer.
+      await assert.rejects(contract.grantRole(role('RELAYER_ROLE'), issuer.address), /RoleConflict/);
+      await assert.rejects(contract.grantRole(ADMIN, issuer.address), /RoleConflict/);
+      for (const service of [admin, attestor, relayer, reader]) {
+        await assert.rejects(contract.setSigner(issuerId, service.address, true), /RoleConflict/);
+      }
+      await assert.rejects(contract.grantRole(role('UNKNOWN_ROLE'), spares[0].address), /InvalidRole/);
+      // Once deactivated, the former signer may hold a service role; it then cannot be reactivated as signer.
+      await (await contract.setSigner(issuerId, issuer.address, false)).wait();
+      await (await contract.grantRole(role('RELAYER_ROLE'), issuer.address)).wait();
+      await assert.rejects(contract.setSigner(issuerId, issuer.address, true), /RoleConflict/);
+    });
+
+    it('rotates relayer, attestor and reader: revoked accounts fail and replacements work', async () => {
+      await issue();
+      const [newRelayer, newAttestor, newReader] = spares;
+      for (const [name, account] of [['RELAYER_ROLE', newRelayer], ['ATTESTOR_ROLE', newAttestor], ['RESULT_READER_ROLE', newReader]]) {
+        await (await contract.grantRole(role(name), account.address)).wait();
+      }
+      const before = await request();
+      await (await send(before)).wait();
+      await (await contract.revokeRole(role('RELAYER_ROLE'), relayer.address)).wait();
+      await (await contract.revokeRole(role('ATTESTOR_ROLE'), attestor.address)).wait();
+      await (await contract.revokeRole(role('RESULT_READER_ROLE'), reader.address)).wait();
+      await assert.rejects(send(await request()), /AccessControlUnauthorizedAccount/);
+      // Revoked attestor (with valid relayer and reader), then revoked reader (with valid relayer and attestor).
+      await assert.rejects(send(await request(values, { resultReader: newReader.address }, attestor, newRelayer), newRelayer), /InvalidAttestation/);
+      await assert.rejects(send(await request(values, {}, newAttestor, newRelayer), newRelayer), /InvalidAttestation/);
+      const after = await request(values, { resultReader: newReader.address }, newAttestor, newRelayer);
+      await (await send(after, newRelayer)).wait();
+      const fresh = await contract.getComparison(after.attestation.requestId);
+      assert.equal(await fhevm.userDecryptEbool(fresh.allMatch, address, newReader), true);
+      await assert.rejects(fhevm.userDecryptEbool(fresh.allMatch, address, reader));
+      // Residual risk, documented: revoking RESULT_READER_ROLE does not remove ACL grants on earlier results.
+      const old = await contract.getComparison(before.attestation.requestId);
+      assert.equal(await fhevm.userDecryptEbool(old.allMatch, address, reader), true);
+    });
+
+    it('transfers the administrator without ever leaving the contract without one', async () => {
+      const newAdmin = spares[3];
+      await assert.rejects(contract.renounceRole(ADMIN, admin.address), /LastAdminRemoval/);
+      await assert.rejects(contract.revokeRole(ADMIN, admin.address), /LastAdminRemoval/);
+      await (await contract.grantRole(ADMIN, newAdmin.address)).wait();
+      assert.equal(await contract.adminCount(), 2n);
+      await (await contract.renounceRole(ADMIN, admin.address)).wait();
+      assert.equal(await contract.adminCount(), 1n);
+      await assert.rejects(contract.setIssuer(issuerId, 'Admin lama', true), /AccessControlUnauthorizedAccount/);
+      await (await contract.connect(newAdmin).setIssuer(issuerId, 'Universitas Contoh — sintetis', true)).wait();
+      await assert.rejects(contract.connect(newAdmin).renounceRole(ADMIN, newAdmin.address), /LastAdminRemoval/);
+    });
   });
 
   it('rolls back both nonce and record when FHE input proof fails', async () => {
