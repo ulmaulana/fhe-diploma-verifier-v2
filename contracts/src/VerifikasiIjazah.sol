@@ -109,6 +109,7 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
     error RoleConflict(bytes32 role, address account);
     error InvalidRole(bytes32 role);
     error LastAdminRemoval();
+    error CredentialIdMismatch();
     event IssuerUpdated(bytes32 indexed issuerId, string name, bool active);
     event SignerUpdated(bytes32 indexed issuerId, address indexed signer, uint64 indexed authorizationId, bool active);
     event CredentialIssued(bytes32 indexed credentialId, bytes32 indexed issuerId, address indexed signer,
@@ -178,6 +179,9 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
             revert InvalidCredentialAuthorization();
         bytes32 digest = hashCredentialAuthorization(authorization);
         if (_recover(digest, signature) != msg.sender) revert InvalidCredentialAuthorization();
+        // S-03: an ID is derived from this contract, the institution, the signer and the signer's nonce,
+        // so a signer of another institution cannot front-run and occupy an ID seen in the mempool.
+        if (authorization.credentialId != credentialIdFor(issuerId, msg.sender, authorization.nonce)) revert CredentialIdMismatch();
 
         issuanceNonceUsed[msg.sender][authorization.nonce] = true;
         Credential storage credential = credentials[authorization.credentialId];
@@ -214,6 +218,11 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
         credential.revokedAt = uint64(block.timestamp);
         credential.revokedBlock = uint64(block.number);
         emit CredentialRevoked(credentialId, issuerId, credential.revokedAt);
+    }
+
+    /// @notice The only credential ID that issueCredential accepts for this institution, signer and nonce.
+    function credentialIdFor(bytes32 issuerId, address signer, uint256 nonce) public view returns (bytes32) {
+        return keccak256(abi.encode(block.chainid, address(this), issuerId, signer, nonce));
     }
 
     function getCredential(bytes32 credentialId) external view returns (Credential memory) {

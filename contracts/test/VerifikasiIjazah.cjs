@@ -16,7 +16,7 @@ const credentialTypes = { CredentialAuthorization: [
 
 describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', function () {
   this.timeout(120000);
-  let admin, issuer, attestor, relayer, reader, outsider, spares, contract, address, id, issuerId;
+  let admin, issuer, attestor, relayer, reader, outsider, spares, contract, address, id, issuerId, nonce0;
   const values = [(1n << 255n) + 91n, (1n << 200n) + 42n, (1n << 128n) + 7n, (1n << 64n) + 33n];
   const random = () => ethers.hexlify(ethers.randomBytes(32));
   async function encrypt(signer, inputs = values) {
@@ -25,12 +25,17 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
     return builder.encrypt();
   }
   const domain = () => ({ name: 'VerifikasiIjazah', version: '1', chainId: 31337, verifyingContract: address });
+  /** Off-chain counterpart of credentialIdFor (S-03). */
+  const deriveId = (issuer_, signer_, nonce_) => ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
+    ['uint256', 'address', 'bytes32', 'address', 'uint256'], [31337, address, issuer_, signer_, nonce_]));
   async function authorization(overrides = {}, signer = issuer) {
     const encrypted = await encrypt(signer);
     const block = await ethers.provider.getBlock('latest');
-    const payload = { credentialId: id, issuerId, signer: signer.address, publicDataHash: random(),
+    const nonce = overrides.nonce ?? nonce0;
+    const payloadIssuer = overrides.issuerId ?? issuerId;
+    const payload = { credentialId: deriveId(payloadIssuer, signer.address, nonce), issuerId: payloadIssuer, signer: signer.address, publicDataHash: random(),
       encryptedAttributesHash: ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(['uint32', 'bytes32[4]'], [1, encrypted.handles])),
-      schemaVersion: 1, encodingVersion: 1, disclosurePolicyVersion: 1, nonce: BigInt(random()), issuanceDeadline: block.timestamp + 600,
+      schemaVersion: 1, encodingVersion: 1, disclosurePolicyVersion: 1, nonce, issuanceDeadline: block.timestamp + 600,
       ...overrides };
     return { payload, encrypted, signature: await signer.signTypedData(domain(), credentialTypes, payload) };
   }
@@ -64,7 +69,8 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
     [admin, issuer, attestor, relayer, reader, outsider, ...spares] = await ethers.getSigners();
     contract = await ethers.deployContract('VerifikasiIjazah', [admin.address, attestor.address, relayer.address, reader.address]);
     await contract.waitForDeployment();
-    address = await contract.getAddress(); id = random(); issuerId = random();
+    address = await contract.getAddress(); issuerId = random(); nonce0 = BigInt(random());
+    id = deriveId(issuerId, issuer.address, nonce0);
     await (await contract.setIssuer(issuerId, 'Universitas Contoh — sintetis', true)).wait();
     await (await contract.setSigner(issuerId, issuer.address, true)).wait();
   });
@@ -240,6 +246,22 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
     // An active signer of another institution is neither re-assigned nor deactivated through this issuer.
     await assert.rejects(contract.setSigner(issuerId, outsider.address, false), /UnauthorizedIssuer/);
     await assert.rejects(contract.setSigner(issuerId, outsider.address, true), /UnauthorizedIssuer/);
+  });
+
+  it('S-03: binds the credential ID to institution, signer and nonce so another signer cannot occupy it', async () => {
+    const otherIssuer = random();
+    await (await contract.setIssuer(otherIssuer, 'Kampus lain', true)).wait();
+    await (await contract.setSigner(otherIssuer, outsider.address, true)).wait();
+    // A prepares an issuance; its credential ID is visible in the mempool before inclusion.
+    const victim = await authorization();
+    // B front-runs with A's ID inside B's own, correctly signed authorization for B's institution.
+    const squat = await authorization({ issuerId: otherIssuer, credentialId: victim.payload.credentialId }, outsider);
+    await assert.rejects(sendIssuance(squat, outsider), /CredentialIdMismatch/);
+    await (await sendIssuance(victim)).wait();
+    assert.equal((await contract.getCredential(victim.payload.credentialId)).issuerId, issuerId);
+    assert.equal(await contract.credentialIdFor(issuerId, issuer.address, victim.payload.nonce), victim.payload.credentialId);
+    // B can still issue its own credential under its own derived ID.
+    await (await sendIssuance(await authorization({ issuerId: otherIssuer, nonce: 7n }, outsider), outsider)).wait();
   });
 
   describe('S-01/S-02: role separation, rotation and administrator continuity', () => {
