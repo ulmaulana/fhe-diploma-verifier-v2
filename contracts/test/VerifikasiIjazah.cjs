@@ -9,7 +9,7 @@ const types = { Verification: [
   ['resultReader', 'address'], ['nonce', 'uint256'], ['deadline', 'uint256'],
 ].map(([name, type]) => ({ name, type })) };
 const credentialTypes = { CredentialAuthorization: [
-  ['credentialId', 'bytes32'], ['issuerId', 'bytes32'], ['signer', 'address'], ['publicDataHash', 'bytes32'],
+  ['credentialId', 'bytes32'], ['issuerId', 'bytes32'], ['signer', 'address'], ['issuerNameHash', 'bytes32'], ['publicDataHash', 'bytes32'],
   ['encryptedAttributesHash', 'bytes32'], ['schemaVersion', 'uint32'], ['encodingVersion', 'uint32'],
   ['disclosurePolicyVersion', 'uint32'], ['nonce', 'uint256'], ['issuanceDeadline', 'uint256'],
 ].map(([name, type]) => ({ name, type })) };
@@ -24,7 +24,7 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
     inputs.forEach(value => builder.add256(value));
     return builder.encrypt();
   }
-  const domain = () => ({ name: 'VerifikasiIjazah', version: '1', chainId: 31337, verifyingContract: address });
+  const domain = () => ({ name: 'VerifikasiIjazah', version: '2', chainId: 31337, verifyingContract: address });
   /** Off-chain counterpart of credentialIdFor (S-03). */
   const deriveId = (issuer_, signer_, nonce_) => ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
     ['uint256', 'address', 'bytes32', 'address', 'uint256'], [31337, address, issuer_, signer_, nonce_]));
@@ -33,7 +33,9 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
     const block = await ethers.provider.getBlock('latest');
     const nonce = overrides.nonce ?? nonce0;
     const payloadIssuer = overrides.issuerId ?? issuerId;
-    const payload = { credentialId: deriveId(payloadIssuer, signer.address, nonce), issuerId: payloadIssuer, signer: signer.address, publicDataHash: random(),
+    const payload = { credentialId: deriveId(payloadIssuer, signer.address, nonce), issuerId: payloadIssuer, signer: signer.address,
+      // Like the portal, read the reviewed institution name from the registry while preparing (S-04).
+      issuerNameHash: ethers.keccak256(ethers.toUtf8Bytes((await contract.issuers(payloadIssuer)).name)), publicDataHash: random(),
       encryptedAttributesHash: ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(['uint32', 'bytes32[4]'], [1, encrypted.handles])),
       schemaVersion: 1, encodingVersion: 1, disclosurePolicyVersion: 1, nonce, issuanceDeadline: block.timestamp + 600,
       ...overrides };
@@ -58,7 +60,7 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
       ...overrides,
     };
     const signature = await (signer || attestor).signTypedData(
-      { name: 'VerifikasiIjazah', version: '1', chainId: 31337, verifyingContract: address }, types, attestation);
+      { name: 'VerifikasiIjazah', version: '2', chainId: 31337, verifyingContract: address }, types, attestation);
     return { attestation, encrypted, signature };
   }
   async function send(req, caller = relayer) {
@@ -133,7 +135,7 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
     await assert.rejects(send(await request(values, { deadline: 1 })), /ExpiredAttestation/);
     await assert.rejects(send(await request(values, { inputHandlesHash: random() })), /InvalidAttestation/);
     const wrongDomain = await request();
-    wrongDomain.signature = await attestor.signTypedData({ name: 'VerifikasiIjazah', version: '1', chainId: 1,
+    wrongDomain.signature = await attestor.signTypedData({ name: 'VerifikasiIjazah', version: '2', chainId: 1,
       verifyingContract: address }, types, wrongDomain.attestation);
     await assert.rejects(send(wrongDomain), /InvalidAttestation/);
     const wrongProof = await request(); wrongProof.encrypted.inputProof = '0xdeadbeef';
@@ -175,7 +177,7 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
     for (const changed of [{ publicDataHash: random() }, { credentialId: random() }, { nonce: 1n }, { issuanceDeadline: req.payload.issuanceDeadline + 1 }]) {
       await assert.rejects(sendIssuance({ ...req, payload: { ...req.payload, ...changed } }), /InvalidCredentialAuthorization/);
     }
-    for (const changed of [{ chainId: 1 }, { verifyingContract: outsider.address }, { version: '2' }, { name: 'OtherApp' }]) {
+    for (const changed of [{ chainId: 1 }, { verifyingContract: outsider.address }, { version: '1' }, { name: 'OtherApp' }]) {
       const signature = await issuer.signTypedData({ ...domain(), ...changed }, credentialTypes, req.payload);
       await assert.rejects(sendIssuance({ ...req, signature }), /InvalidCredentialAuthorization/);
     }
@@ -262,6 +264,23 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
     assert.equal(await contract.credentialIdFor(issuerId, issuer.address, victim.payload.nonce), victim.payload.credentialId);
     // B can still issue its own credential under its own derived ID.
     await (await sendIssuance(await authorization({ issuerId: otherIssuer, nonce: 7n }, outsider), outsider)).wait();
+  });
+
+  it('S-04: binds the reviewed institution name into the e-signed payload (protocol v2)', async () => {
+    const reviewed = await authorization();
+    await (await contract.setIssuer(issuerId, 'Nama Kampus Baru', true)).wait();
+    // The rename while the issuance is pending makes the transaction revert; nothing is stored or consumed.
+    await assert.rejects(sendIssuance(reviewed), /IssuerNameChanged/);
+    assert.equal(await contract.issuanceNonceUsed(issuer.address, reviewed.payload.nonce), false);
+    assert.equal((await contract.getCredential(id)).signer, ethers.ZeroAddress);
+    // Changing the hash without a new e-sign is tampering.
+    const tampered = { ...reviewed, payload: { ...reviewed.payload, issuerNameHash: ethers.keccak256(ethers.toUtf8Bytes('Nama Kampus Baru')) } };
+    await assert.rejects(sendIssuance(tampered), /InvalidCredentialAuthorization/);
+    // A fresh review of the new name succeeds and stores exactly the signed name hash.
+    const fresh = await authorization();
+    await (await sendIssuance(fresh)).wait();
+    assert.equal((await contract.getCredential(id)).issuerNameHash, ethers.keccak256(ethers.toUtf8Bytes('Nama Kampus Baru')));
+    assert.equal(await contract.hashCredentialAuthorization(fresh.payload), ethers.TypedDataEncoder.hash(domain(), credentialTypes, fresh.payload));
   });
 
   describe('S-01/S-02: role separation, rotation and administrator continuity', () => {

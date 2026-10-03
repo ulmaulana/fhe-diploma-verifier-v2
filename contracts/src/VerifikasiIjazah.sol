@@ -22,7 +22,7 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
         "Verification(bytes32 requestId,bytes32 credentialId,bytes32 uploadCommitment,string schemaVersion,string encodingVersion,string normalizerVersion,bytes32 ocrConfigHash,bytes32 inputHandlesHash,address relayer,address resultReader,uint256 nonce,uint256 deadline)"
     );
     bytes32 public constant CREDENTIAL_AUTHORIZATION_TYPEHASH = keccak256(
-        "CredentialAuthorization(bytes32 credentialId,bytes32 issuerId,address signer,bytes32 publicDataHash,bytes32 encryptedAttributesHash,uint32 schemaVersion,uint32 encodingVersion,uint32 disclosurePolicyVersion,uint256 nonce,uint256 issuanceDeadline)"
+        "CredentialAuthorization(bytes32 credentialId,bytes32 issuerId,address signer,bytes32 issuerNameHash,bytes32 publicDataHash,bytes32 encryptedAttributesHash,uint32 schemaVersion,uint32 encodingVersion,uint32 disclosurePolicyVersion,uint256 nonce,uint256 issuanceDeadline)"
     );
 
     struct Issuer { string name; bool active; bool exists; }
@@ -31,6 +31,8 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
         bytes32 credentialId;
         bytes32 issuerId;
         address signer;
+        /// @dev keccak256 of the institution name the signer reviewed (S-04, protocol v2).
+        bytes32 issuerNameHash;
         bytes32 publicDataHash;
         bytes32 encryptedAttributesHash;
         uint32 schemaVersion;
@@ -110,6 +112,7 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
     error InvalidRole(bytes32 role);
     error LastAdminRemoval();
     error CredentialIdMismatch();
+    error IssuerNameChanged();
     event IssuerUpdated(bytes32 indexed issuerId, string name, bool active);
     event SignerUpdated(bytes32 indexed issuerId, address indexed signer, uint64 indexed authorizationId, bool active);
     event CredentialIssued(bytes32 indexed credentialId, bytes32 indexed issuerId, address indexed signer,
@@ -118,7 +121,7 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
     event ComparisonRequested(bytes32 indexed requestId, bytes32 indexed credentialId,
         bytes32 uploadCommitment, address indexed resultReader);
 
-    constructor(address admin, address attestor, address relayer, address reader) EIP712("VerifikasiIjazah", "1") {
+    constructor(address admin, address attestor, address relayer, address reader) EIP712("VerifikasiIjazah", "2") {
         if (admin == address(0) || attestor == address(0) || relayer == address(0) || reader == address(0)) revert InvalidAddress();
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(ATTESTOR_ROLE, attestor);
@@ -182,6 +185,10 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
         // S-03: an ID is derived from this contract, the institution, the signer and the signer's nonce,
         // so a signer of another institution cannot front-run and occupy an ID seen in the mempool.
         if (authorization.credentialId != credentialIdFor(issuerId, msg.sender, authorization.nonce)) revert CredentialIdMismatch();
+        // S-04: the reviewed institution name is part of the e-signed payload. A rename between review and
+        // inclusion reverts instead of storing a name that the signed public profile can never match.
+        bytes32 issuerNameHash = keccak256(bytes(issuers[issuerId].name));
+        if (authorization.issuerNameHash != issuerNameHash) revert IssuerNameChanged();
 
         issuanceNonceUsed[msg.sender][authorization.nonce] = true;
         Credential storage credential = credentials[authorization.credentialId];
@@ -196,7 +203,7 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
         credential.credentialDigest = digest;
         credential.publicDataHash = authorization.publicDataHash;
         credential.encryptedAttributesHash = authorization.encryptedAttributesHash;
-        credential.issuerNameHash = keccak256(bytes(issuers[issuerId].name));
+        credential.issuerNameHash = issuerNameHash;
         issuerCredentials[issuerId].push(authorization.credentialId);
         for (uint256 i; i < 4; ++i) {
             euint256 referenceValue = FHE.fromExternal(inputs[i], inputProof);
@@ -332,7 +339,7 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
 
     function hashCredentialAuthorization(CredentialAuthorization calldata a) public view returns (bytes32) {
         return _hashTypedDataV4(keccak256(abi.encode(CREDENTIAL_AUTHORIZATION_TYPEHASH, a.credentialId,
-            a.issuerId, a.signer, a.publicDataHash, a.encryptedAttributesHash, a.schemaVersion,
+            a.issuerId, a.signer, a.issuerNameHash, a.publicDataHash, a.encryptedAttributesHash, a.schemaVersion,
             a.encodingVersion, a.disclosurePolicyVersion, a.nonce, a.issuanceDeadline)));
     }
 }
