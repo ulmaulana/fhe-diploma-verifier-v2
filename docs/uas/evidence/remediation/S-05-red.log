@@ -1,0 +1,25 @@
+# command : npx hardhat test --grep S-05
+# cwd     : /contracts
+# commit  : 96b4a08 tracked-changes=1
+# started : 2026-10-03T20:21:02Z (UTC) / 2026-10-04T03:21:02 WIB
+# node    : v24.21.0  pnpm: 10.19.0  os: MINGW64_NT-10.0-26300
+# ----------------------------------------------------------------
+
+
+  VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+    1) S-05: grants no account a decrypt permission on reference values, including the issuing signer
+
+
+  0 passing (105ms)
+  1 failing
+
+  1) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+       S-05: grants no account a decrypt permission on reference values, including the issuing signer:
+     AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at Context.<anonymous> (test\VerifikasiIjazah.cjs:95:9)
+
+
+
+# ----------------------------------------------------------------
+# finished: 2026-10-03T20:21:05Z (UTC) duration=3s
+EXIT_CODE=1

@@ -86,11 +86,20 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
       await assert.rejects(fhevm.userDecryptEbool(handle, address, outsider));
       await assert.rejects(fhevm.userDecryptEbool(handle, address, relayer));
     }
+  });
+  it('S-05: grants no account a decrypt permission on reference values, including the issuing signer', async () => {
+    await issue();
     const credential = await contract.getCredential(id);
-    assert.equal(await fhevm.userDecryptEuint(FhevmType.euint256, credential.attributes[0], address, issuer), values[0]);
-    for (const denied of [reader, relayer, admin, outsider]) {
-      await assert.rejects(fhevm.userDecryptEuint(FhevmType.euint256, credential.attributes[0], address, denied));
+    for (const attribute of credential.attributes) {
+      for (const denied of [issuer, reader, relayer, admin, attestor, outsider]) {
+        await assert.rejects(fhevm.userDecryptEuint(FhevmType.euint256, attribute, address, denied));
+      }
     }
+    // The contract keeps its own permission: comparisons against the references still work.
+    const req = await request();
+    await (await send(req)).wait();
+    const result = await contract.getComparison(req.attestation.requestId);
+    assert.equal(await fhevm.userDecryptEbool(result.allMatch, address, reader), true);
   });
   it('detects a change in each field, including high digest bits', async () => {
     await issue();

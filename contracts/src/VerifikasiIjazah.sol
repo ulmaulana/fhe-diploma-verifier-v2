@@ -185,8 +185,9 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
         for (uint256 i; i < 4; ++i) {
             euint256 referenceValue = FHE.fromExternal(inputs[i], inputProof);
             credential.attributes[i] = referenceValue;
+            // Only this contract may use a reference (S-05). No account, including the issuing
+            // signer, receives a persistent decrypt permission that a later rotation could not revoke.
             FHE.allowThis(referenceValue);
-            FHE.allow(referenceValue, msg.sender);
         }
         emit CredentialIssued(authorization.credentialId, issuerId, msg.sender, digest, signerAuthorizationId, credential.issuedAt);
     }
