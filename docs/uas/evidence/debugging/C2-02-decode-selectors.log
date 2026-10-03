@@ -1,0 +1,15 @@
+# command : node -e const {ethers}=require('ethers');for(const d of ['0xb41ba2d6','0x8359a0f3','0x724efe91','0xbd8ba84d','0xfbfe6850','0xecdd46eb']){const e=new ethers.Interface(require('./generated/VerifikasiIjazah.json').abi).parseError(d);console.log(d,'=>',e?e.signature:'unknown')}
+# cwd     : /contracts
+# commit  : 8bb71ce tracked-changes=4
+# started : 2026-10-03T20:28:03Z (UTC) / 2026-10-04T03:28:03 WIB
+# node    : v24.21.0  pnpm: 10.19.0  os: MINGW64_NT-10.0-26300
+# ----------------------------------------------------------------
+0xb41ba2d6 => UnauthorizedIssuer()
+0x8359a0f3 => InvalidCredentialAuthorization()
+0x724efe91 => CredentialAlreadyExists()
+0xbd8ba84d => InvalidAttestation()
+0xfbfe6850 => CredentialInactive()
+0xecdd46eb => ReplayedRequest()
+# ----------------------------------------------------------------
+# finished: 2026-10-03T20:28:04Z (UTC) duration=1s
+EXIT_CODE=0

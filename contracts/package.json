@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node scripts/build.cjs",
     "typecheck": "node scripts/build.cjs",
-    "test": "hardhat test",
+    "test": "node scripts/build.cjs --quiet && hardhat test --no-compile",
     "deploy:sepolia": "hardhat run scripts/deploy.cjs --network sepolia"
   },
   "dependencies": {
