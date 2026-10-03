@@ -1,0 +1,145 @@
+# command : env CI=1 pnpm test:e2e
+# cwd     : /c/Users/Maulana/AppData/Local/Temp/uasw/base
+# commit  : 96b4a08 tracked-changes=1
+# started : 2026-10-03T20:19:22Z (UTC) / 2026-10-04T03:19:22 WIB
+# node    : v24.21.0  pnpm: 10.19.0  os: MINGW64_NT-10.0-26300
+# ----------------------------------------------------------------
+
+> verifikasi-monorepo@ test:e2e C:\Users\Maulana\AppData\Local\Temp\uasw\base
+> pnpm --filter @verifikasi/web exec playwright test
+
+
+Running 22 tests using 1 worker
+
+  ok  1 tests\e2e\record.spec.ts:14:5 › QR shows a verified public record without session, upload, wallet or OCR; upload is optional (575ms)
+  ok  2 tests\e2e\record.spec.ts:40:5 › record statuses fail closed, hide an invalid snapshot, and keep revocation separate from signature validity (1.0s)
+  ok  3 tests\e2e\record.spec.ts:60:5 › record loading and RPC failure are explicit; retry rereads current status (375ms)
+  ok  4 tests\e2e\record.spec.ts:78:5 › mobile QR remains readable and optional upload carries the expected record ID (594ms)
+  ok  5 tests\e2e\record.spec.ts:93:5 › unconfigured QR and portal state remain explicit without synthetic issuance (858ms)
+  ok  6 tests\e2e\search.spec.ts:4:7 › guide recommendations, typo search and repeated navigation at 1280px (799ms)
+  ok  7 tests\e2e\search.spec.ts:4:7 › guide recommendations, typo search and repeated navigation at 390px (675ms)
+  ok  8 tests\e2e\search.spec.ts:43:5 › guide search ranks related words and offers category and no-result recovery (487ms)
+  x   9 tests\e2e\wallet.spec.ts:13:3 › private diploma controls and browser download at 1280px (mock document API) (1.0m)
+  x  10 tests\e2e\wallet.spec.ts:13:3 › private diploma controls and browser download at 800px (mock document API) (1.0m)
+  x  11 tests\e2e\wallet.spec.ts:13:3 › private diploma controls and browser download at 390px (mock document API) (1.0m)
+  ok 12 tests\e2e\wallet.spec.ts:222:1 › RainbowKit authenticates the selected EIP-6963 wallet and disconnect clears the server session (2.0s)
+  ok 13 tests\e2e\wallet.spec.ts:241:1 › the topbar wallet button signs in from any page and the portal reuses that session (1.5s)
+  ok 14 tests\e2e\wallet.spec.ts:253:1 › changing accounts invalidates portal authentication and requires a new signature for the new wallet (1.7s)
+  ok 15 tests\e2e\wallet.spec.ts:264:1 › reloading restores a matching wallet without another signature and clears a mismatched wallet session (1.8s)
+  ok 16 tests\e2e\wallet.spec.ts:300:1 › leaving Sepolia invalidates the session and switching back still requires sign-in (1.9s)
+  ok 17 tests\e2e\wallet.spec.ts:314:1 › rejecting a wallet message leaves the portal anonymous and permits a later retry (1.0s)
+  ok 18 tests\e2e\wallet.spec.ts:333:3 › without an installed wallet or WalletConnect project › RainbowKit offers a usable browser-wallet installation link (1.3s)
+  ok 19 tests\e2e\workspace.spec.ts:3:5 › desktop upload, labelled sample, private PDF, history and deletion (3.4s)
+  ok 20 tests\e2e\workspace.spec.ts:28:5 › mobile navigation, search and horizontal overflow at 390 and 360 (897ms)
+  ok 21 tests\e2e\workspace.spec.ts:41:5 › file selection, replacing, validation and removing (405ms)
+  ok 22 tests\e2e\workspace.spec.ts:52:5 › real upload passes through in-process tesseract.js OCR and fails closed without testnet (3.4s)
+
+
+  1) tests\e2e\wallet.spec.ts:13:3 › private diploma controls and browser download at 1280px (mock document API) 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.fill: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Tanggal lulus', { exact: true })
+
+
+      68 |     }
+      69 |     await page.getByRole('button', { name: 'Buat PDF ijazah', exact: true }).click();
+    > 70 |     await page.getByLabel('Tanggal lulus', { exact: true }).fill('2026-08-15');
+         |                                                             ^
+      71 |     await page.getByRole('button', { name: 'Buat PDF ijazah', exact: true }).click();
+      72 |     await expect(page.getByText('Memeriksa dokumen', { exact: true })).toBeVisible();
+      73 |     await expect(page.getByRole('button', { name: 'Unduh PDF', exact: true })).toBeVisible({ timeout: 20000 });
+        at C:\Users\Maulana\AppData\Local\Temp\uasw\base\apps\web\tests\e2e\wallet.spec.ts:70:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\wallet-private-diploma-con-18182-t-1280px-mock-document-API-\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\wallet-private-diploma-con-18182-t-1280px-mock-document-API-\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\wallet-private-diploma-con-18182-t-1280px-mock-document-API-\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\wallet-private-diploma-con-18182-t-1280px-mock-document-API-\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests\e2e\wallet.spec.ts:13:3 › private diploma controls and browser download at 800px (mock document API) 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.fill: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Tanggal lulus', { exact: true })
+
+
+      68 |     }
+      69 |     await page.getByRole('button', { name: 'Buat PDF ijazah', exact: true }).click();
+    > 70 |     await page.getByLabel('Tanggal lulus', { exact: true }).fill('2026-08-15');
+         |                                                             ^
+      71 |     await page.getByRole('button', { name: 'Buat PDF ijazah', exact: true }).click();
+      72 |     await expect(page.getByText('Memeriksa dokumen', { exact: true })).toBeVisible();
+      73 |     await expect(page.getByRole('button', { name: 'Unduh PDF', exact: true })).toBeVisible({ timeout: 20000 });
+        at C:\Users\Maulana\AppData\Local\Temp\uasw\base\apps\web\tests\e2e\wallet.spec.ts:70:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\wallet-private-diploma-con-07be2-at-800px-mock-document-API-\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\wallet-private-diploma-con-07be2-at-800px-mock-document-API-\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\wallet-private-diploma-con-07be2-at-800px-mock-document-API-\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\wallet-private-diploma-con-07be2-at-800px-mock-document-API-\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests\e2e\wallet.spec.ts:13:3 › private diploma controls and browser download at 390px (mock document API) 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.fill: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Tanggal lulus', { exact: true })
+
+
+      68 |     }
+      69 |     await page.getByRole('button', { name: 'Buat PDF ijazah', exact: true }).click();
+    > 70 |     await page.getByLabel('Tanggal lulus', { exact: true }).fill('2026-08-15');
+         |                                                             ^
+      71 |     await page.getByRole('button', { name: 'Buat PDF ijazah', exact: true }).click();
+      72 |     await expect(page.getByText('Memeriksa dokumen', { exact: true })).toBeVisible();
+      73 |     await expect(page.getByRole('button', { name: 'Unduh PDF', exact: true })).toBeVisible({ timeout: 20000 });
+        at C:\Users\Maulana\AppData\Local\Temp\uasw\base\apps\web\tests\e2e\wallet.spec.ts:70:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\wallet-private-diploma-con-142e7-at-390px-mock-document-API-\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\wallet-private-diploma-con-142e7-at-390px-mock-document-API-\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\wallet-private-diploma-con-142e7-at-390px-mock-document-API-\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\wallet-private-diploma-con-142e7-at-390px-mock-document-API-\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests\e2e\wallet.spec.ts:13:3 › private diploma controls and browser download at 1280px (mock document API) 
+    tests\e2e\wallet.spec.ts:13:3 › private diploma controls and browser download at 800px (mock document API) 
+    tests\e2e\wallet.spec.ts:13:3 › private diploma controls and browser download at 390px (mock document API) 
+  19 passed (3.6m)
+undefined
+C:\Users\Maulana\AppData\Local\Temp\uasw\base\apps\web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "playwright" not found
+ ELIFECYCLE  Command failed with exit code 1.
+# ----------------------------------------------------------------
+# finished: 2026-10-03T20:22:59Z (UTC) duration=216s
+EXIT_CODE=1

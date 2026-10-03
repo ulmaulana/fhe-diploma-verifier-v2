@@ -32,3 +32,5 @@ graphify-out/memory/
 
 .vercel
 .env*
+# UAS evidence logs are deliverables (sanitized command output with exit codes).
+!docs/uas/evidence/**/*.log

@@ -1,0 +1,27 @@
+# command : pnpm typecheck
+# cwd     : 
+# commit  : 96b4a08 tracked-changes=0
+# started : 2026-10-03T20:13:51Z (UTC) / 2026-10-04T03:13:51 WIB
+# node    : v24.21.0  pnpm: 10.19.0  os: MINGW64_NT-10.0-26300
+# ----------------------------------------------------------------
+
+> verifikasi-monorepo@ typecheck C:\Users\Maulana\Pictures\Matkul IF\Semester 7\Blockchain\UAS\Degree-E-Sign-and-Verifier-ZamaFHE-main
+> pnpm -r --if-present typecheck
+
+Scope: 7 of 8 workspace projects
+contracts typecheck$ node scripts/build.cjs
+contracts typecheck: Compiled 24 Solidity files successfully (evm target: cancun).
+contracts typecheck: Done
+packages/domain typecheck$ tsc --noEmit
+packages/domain typecheck: Done
+packages/credentials typecheck$ tsc --noEmit
+packages/ocr typecheck$ tsc --noEmit
+packages/credentials typecheck: Done
+packages/ocr typecheck: Done
+packages/chain typecheck$ tsc --noEmit
+packages/chain typecheck: Done
+apps/web typecheck$ tsc --noEmit
+apps/web typecheck: Done
+# ----------------------------------------------------------------
+# finished: 2026-10-03T20:14:24Z (UTC) duration=32s
+EXIT_CODE=0
