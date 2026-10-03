@@ -91,6 +91,11 @@
     },
     {
       "inputs": [],
+      "name": "InvalidIssuer",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "InvalidShortString",
       "type": "error"
     },
@@ -123,6 +128,16 @@
         }
       ],
       "name": "SenderNotAllowedToUseHandle",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SignerAlreadyActive",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SignerNotActive",
       "type": "error"
     },
     {
@@ -429,6 +444,19 @@
           "internalType": "string",
           "name": "",
           "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_ISSUER_NAME_BYTES",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",

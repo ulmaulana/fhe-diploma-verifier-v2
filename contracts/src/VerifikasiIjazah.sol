@@ -16,6 +16,8 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
     string public constant SCHEMA_VERSION = "academic-diploma-v1";
     string public constant ENCODING_VERSION = "sha256-euint256-v1";
     string public constant NORMALIZER_VERSION = "academic-normalizer-v1";
+    /// @notice UTF-8 byte limit (not characters) for an institution name.
+    uint256 public constant MAX_ISSUER_NAME_BYTES = 200;
     bytes32 public constant VERIFICATION_TYPEHASH = keccak256(
         "Verification(bytes32 requestId,bytes32 credentialId,bytes32 uploadCommitment,string schemaVersion,string encodingVersion,string normalizerVersion,bytes32 ocrConfigHash,bytes32 inputHandlesHash,address relayer,address resultReader,uint256 nonce,uint256 deadline)"
     );
@@ -99,6 +101,9 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
     error InvalidAddress();
     error InvalidCredentialAuthorization();
     error ExpiredCredentialAuthorization();
+    error InvalidIssuer();
+    error SignerAlreadyActive();
+    error SignerNotActive();
     event IssuerUpdated(bytes32 indexed issuerId, string name, bool active);
     event SignerUpdated(bytes32 indexed issuerId, address indexed signer, uint64 indexed authorizationId, bool active);
     event CredentialIssued(bytes32 indexed credentialId, bytes32 indexed issuerId, address indexed signer,
@@ -116,30 +121,30 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
     }
 
     function setIssuer(bytes32 issuerId, string calldata name, bool active) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        if (issuerId == bytes32(0) || bytes(name).length == 0 || bytes(name).length > 200) revert InvalidAddress();
+        if (issuerId == bytes32(0) || bytes(name).length == 0 || bytes(name).length > MAX_ISSUER_NAME_BYTES) revert InvalidIssuer();
         issuers[issuerId] = Issuer(name, active, true);
         emit IssuerUpdated(issuerId, name, active);
     }
 
     /// @notice Disabling or replacing a signer retains its complete authorization period.
+    /// @dev A call that would not change state reverts (S-10), so a confirmed transaction always
+    /// corresponds to a SignerUpdated event.
     function setSigner(bytes32 issuerId, address wallet, bool active) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        if (!issuers[issuerId].exists || wallet == address(0)) revert InvalidAddress();
+        if (!issuers[issuerId].exists) revert InvalidIssuer();
+        if (wallet == address(0)) revert InvalidAddress();
         uint64 previousId = signerAuthorizationIds[wallet];
         SignerAuthorization storage previous = signerAuthorizations[previousId];
-        if (previousId != 0 && previous.revokedAt == 0) {
-            if (previous.issuerId != issuerId) revert UnauthorizedIssuer();
-            if (active) return;
-            previous.revokedAt = uint64(block.timestamp);
-        } else if (!active) {
-            if (previousId == 0 || previous.issuerId != issuerId) revert UnauthorizedIssuer();
-            return;
-        }
+        bool currentlyActive = previousId != 0 && previous.revokedAt == 0;
+        if (currentlyActive && previous.issuerId != issuerId) revert UnauthorizedIssuer();
         if (active) {
+            if (currentlyActive) revert SignerAlreadyActive();
             uint64 authorizationId = ++signerAuthorizationCount;
             signerAuthorizations[authorizationId] = SignerAuthorization(issuerId, wallet, uint64(block.timestamp), 0);
             signerAuthorizationIds[wallet] = authorizationId;
             emit SignerUpdated(issuerId, wallet, authorizationId, true);
         } else {
+            if (!currentlyActive) revert SignerNotActive();
+            previous.revokedAt = uint64(block.timestamp);
             emit SignerUpdated(issuerId, wallet, previousId, false);
         }
     }

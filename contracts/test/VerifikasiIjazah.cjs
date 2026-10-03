@@ -214,6 +214,34 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
     await (await send(attestation)).wait();
   });
 
+  it('S-10: validates registry input by byte length with specific errors', async () => {
+    await assert.rejects(contract.setIssuer(ethers.ZeroHash, 'Kampus', true), /InvalidIssuer/);
+    await assert.rejects(contract.setIssuer(random(), '', true), /InvalidIssuer/);
+    await (await contract.setIssuer(random(), 'a'.repeat(200), true)).wait();
+    await assert.rejects(contract.setIssuer(random(), 'a'.repeat(201), true), /InvalidIssuer/);
+    // Two-byte UTF-8: 100 characters fit (200 bytes), 101 characters exceed the byte limit.
+    await (await contract.setIssuer(random(), 'é'.repeat(100), true)).wait();
+    await assert.rejects(contract.setIssuer(random(), 'é'.repeat(101), true), /InvalidIssuer/);
+    // Four-byte UTF-8: 50 characters fit, 51 do not, although both are far below 200 characters.
+    await (await contract.setIssuer(random(), '🎓'.repeat(50), true)).wait();
+    await assert.rejects(contract.setIssuer(random(), '🎓'.repeat(51), true), /InvalidIssuer/);
+    await assert.rejects(contract.setSigner(random(), outsider.address, true), /InvalidIssuer/);
+    await assert.rejects(contract.setSigner(issuerId, ethers.ZeroAddress, true), /InvalidAddress/);
+  });
+
+  it('S-10: rejects signer updates that would not change state instead of succeeding silently', async () => {
+    await assert.rejects(contract.setSigner(issuerId, issuer.address, true), /SignerAlreadyActive/);
+    await assert.rejects(contract.setSigner(issuerId, outsider.address, false), /SignerNotActive/);
+    await (await contract.setSigner(issuerId, issuer.address, false)).wait();
+    await assert.rejects(contract.setSigner(issuerId, issuer.address, false), /SignerNotActive/);
+    const otherIssuer = random();
+    await (await contract.setIssuer(otherIssuer, 'Kampus lain', true)).wait();
+    await (await contract.setSigner(otherIssuer, outsider.address, true)).wait();
+    // An active signer of another institution is neither re-assigned nor deactivated through this issuer.
+    await assert.rejects(contract.setSigner(issuerId, outsider.address, false), /UnauthorizedIssuer/);
+    await assert.rejects(contract.setSigner(issuerId, outsider.address, true), /UnauthorizedIssuer/);
+  });
+
   it('rolls back both nonce and record when FHE input proof fails', async () => {
     const req = await authorization();
     await assert.rejects(sendIssuance({ ...req, encrypted: { ...req.encrypted, inputProof: '0xdeadbeef' } }));
