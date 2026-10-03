@@ -3,7 +3,7 @@ import { Wallet, keccak256, toUtf8Bytes } from 'ethers';
 import type { Hex32 } from '@verifikasi/domain';
 import type { CredentialMetadata } from '@verifikasi/chain';
 import {
-  credentialAuthorizationTypes, credentialDigest, credentialDomain, hashEncryptedAttributes, hashPublicProfile,
+  credentialAuthorizationTypes, credentialDigest, credentialDomain, deriveCredentialId, hashEncryptedAttributes, hashIssuerName, hashPublicProfile,
   type CredentialPublicProfile, type SignedCredential,
 } from '@verifikasi/credentials';
 import type { CredentialDraft, Session, State, StoredCredential } from '../../src/server/types';
@@ -38,9 +38,11 @@ import { GET as readPublicVerification } from '../../src/app/api/credentials/[id
 
 const wallet = new Wallet(`0x${'11'.repeat(32)}`);
 const secondWallet = new Wallet(`0x${'22'.repeat(32)}`);
-const id = `0x${'ab'.repeat(32)}` as Hex32;
 const issuerId = `0x${'cd'.repeat(32)}` as Hex32;
-const domain = credentialDomain({ chainId: 11155111, contractAddress: `0x${'56'.repeat(20)}` });
+const chain = { chainId: 11155111, contractAddress: `0x${'56'.repeat(20)}` };
+const domain = credentialDomain(chain);
+const nonce = '123456789012345678901234567890';
+const id = deriveCredentialId(chain, issuerId, wallet.address, nonce);
 const inputHandles = [1, 2, 3, 4].map(n => `0x${n.toString(16).padStart(64, '0')}`);
 const txHash = `0x${'78'.repeat(32)}`;
 const profile: CredentialPublicProfile = { schemaVersion: 1, disclosurePolicyVersion: 1, issuerId,
@@ -51,9 +53,9 @@ let metadata: CredentialMetadata;
 
 async function makeProof(deadline = '1', override: Partial<CredentialPublicProfile> = {}): Promise<SignedCredential> {
   const publicProfile = { ...profile, ...override };
-  const authorization = { credentialId: id, issuerId, signer: wallet.address,
+  const authorization = { credentialId: id, issuerId, signer: wallet.address, issuerNameHash: hashIssuerName(publicProfile.issuerDisplayName),
     publicDataHash: hashPublicProfile(publicProfile), encryptedAttributesHash: hashEncryptedAttributes(inputHandles),
-    schemaVersion: 1, encodingVersion: 1, disclosurePolicyVersion: 1, nonce: '123456789012345678901234567890', issuanceDeadline: deadline };
+    schemaVersion: 1, encodingVersion: 1, disclosurePolicyVersion: 1, nonce, issuanceDeadline: deadline };
   return { authorization, profile: publicProfile, domain,
     signature: await wallet.signTypedData(domain, credentialAuthorizationTypes, authorization) };
 }

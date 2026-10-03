@@ -2,13 +2,14 @@ import { BrowserProvider, ZeroAddress, getAddress, hexlify, isError, randomBytes
 import { FIELD_KEYS, attributeDigests, digestToUint256, normalizeAttributes, requireHex32, type DiplomaAttributes } from '@verifikasi/domain';
 import {
   CREDENTIAL_ENCODING_VERSION, CREDENTIAL_SCHEMA_VERSION, DISCLOSURE_POLICY_VERSION,
-  credentialAuthorizationTypes, credentialDomain, credentialDigest, hashEncryptedAttributes, hashPublicProfile,
+  credentialAuthorizationTypes, credentialDomain, credentialDigest, deriveCredentialId, hashEncryptedAttributes, hashIssuerName, hashPublicProfile,
   validateSignedCredential, type CredentialAuthorization, type CredentialDomain, type CredentialPublicProfile as PublicProfile,
 } from '@verifikasi/credentials';
 import { ChainConfigurationError, contractInterface, credentialContract, readIssuer } from './shared';
 
 export interface BrowserChainConfig { chainId: number; contractAddress: string; confirmations?: number }
-export interface PrepareCredentialInput { credentialId: string; attributes: DiplomaAttributes; profile: PublicProfile }
+/** The credential ID is derived on-chain from institution, signer and nonce (S-03); callers do not choose it. */
+export interface PrepareCredentialInput { attributes: DiplomaAttributes; profile: PublicProfile }
 export interface PreparedCredential {
   readonly authorization: CredentialAuthorization;
   readonly domain: CredentialDomain;
@@ -41,6 +42,8 @@ function checkedPrepared(config: BrowserChainConfig, prepared: PreparedCredentia
     hashPublicProfile(frozen.profile) !== frozen.authorization.publicDataHash ||
     hashEncryptedAttributes(frozen.inputHandles, frozen.authorization.encodingVersion) !== frozen.authorization.encryptedAttributesHash ||
     frozen.profile.issuerId.toLowerCase() !== frozen.authorization.issuerId.toLowerCase() ||
+    hashIssuerName(frozen.profile.issuerDisplayName) !== frozen.authorization.issuerNameHash ||
+    deriveCredentialId(config, frozen.authorization.issuerId, frozen.authorization.signer, frozen.authorization.nonce) !== frozen.authorization.credentialId.toLowerCase() ||
     !/^0x(?:[0-9a-fA-F]{2})+$/.test(frozen.inputProof)) throw new Error('Snapshot penerbitan berubah. Siapkan dan sahkan kembali kredensial.');
   return frozen;
 }
@@ -49,7 +52,9 @@ async function assertSubmissionAllowed(connection: Awaited<ReturnType<typeof con
   if (getAddress(prepared.authorization.signer) !== connection.signer.address) throw new Error('Gunakan wallet yang mengesahkan kredensial ini.');
   const issuer = await readIssuer(connection.contract, connection.signer.address);
   if (!issuer.exists || !issuer.active || !issuer.signerActive || issuer.issuerId.toLowerCase() !== prepared.authorization.issuerId.toLowerCase() ||
-    issuer.name !== prepared.profile.issuerDisplayName) throw new Error('Kewenangan atau identitas penerbit berubah. Siapkan kembali kredensial.');
+    issuer.name !== prepared.profile.issuerDisplayName || hashIssuerName(issuer.name) !== prepared.authorization.issuerNameHash) {
+    throw new Error('Kewenangan atau identitas penerbit berubah. Siapkan kembali kredensial.');
+  }
   const [block, nonceUsed] = await Promise.all([
     connection.browser.getBlock('latest'),
     connection.contract.getFunction('issuanceNonceUsed')(connection.signer.address, prepared.authorization.nonce),
@@ -60,7 +65,6 @@ async function assertSubmissionAllowed(connection: Awaited<ReturnType<typeof con
 
 /** Encrypt once, before review and e-sign. Private graduation data never leaves this preparation step as plaintext. */
 export async function prepareCredential(provider: Eip1193Provider, config: BrowserChainConfig, input: PrepareCredentialInput): Promise<PreparedCredential> {
-  const credentialId = requireHex32(input.credentialId);
   const profile = Object.freeze({ ...input.profile });
   const publicDataHash = hashPublicProfile(profile);
   const attributes = normalizeAttributes(input.attributes);
@@ -72,6 +76,8 @@ export async function prepareCredential(provider: Eip1193Provider, config: Brows
   if (!issuer.active || !issuer.signerActive || issuer.issuerId.toLowerCase() !== profile.issuerId.toLowerCase() || issuer.name !== profile.issuerDisplayName) {
     throw new Error('Profil kampus tidak sesuai registry penerbit yang berwenang.');
   }
+  const nonce = BigInt(hexlify(randomBytes(32))).toString();
+  const credentialId = deriveCredentialId(config, profile.issuerId, connection.signer.address, nonce);
   const { createInstance, initSDK, SepoliaConfig } = await import('@zama-fhe/relayer-sdk/web');
   await initSDK();
   const instance = await createInstance({ ...SepoliaConfig, network: provider });
@@ -84,10 +90,10 @@ export async function prepareCredential(provider: Eip1193Provider, config: Brows
   if (!block) throw new Error('Blok terbaru belum tersedia.');
   const authorization: CredentialAuthorization = {
     credentialId, issuerId: profile.issuerId, signer: connection.signer.address,
-    publicDataHash, encryptedAttributesHash: hashEncryptedAttributes(inputHandles, CREDENTIAL_ENCODING_VERSION),
+    issuerNameHash: hashIssuerName(issuer.name), publicDataHash, encryptedAttributesHash: hashEncryptedAttributes(inputHandles, CREDENTIAL_ENCODING_VERSION),
     schemaVersion: CREDENTIAL_SCHEMA_VERSION, encodingVersion: CREDENTIAL_ENCODING_VERSION,
     disclosurePolicyVersion: DISCLOSURE_POLICY_VERSION,
-    nonce: BigInt(hexlify(randomBytes(32))).toString(), issuanceDeadline: String(block.timestamp + 900),
+    nonce, issuanceDeadline: String(block.timestamp + 900),
   };
   return checkedPrepared(config, { authorization, profile, domain: credentialDomain(config), inputHandles, inputProof: hexlify(encrypted.inputProof) });
 }

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Wallet, getBytes, type Eip1193Provider } from 'ethers';
-import { credentialAuthorizationTypes, credentialDomain, hashEncryptedAttributes, hashPublicProfile, type CredentialPublicProfile } from '@verifikasi/credentials';
+import { credentialAuthorizationTypes, credentialDomain, deriveCredentialId, hashEncryptedAttributes, hashIssuerName, hashPublicProfile, type CredentialPublicProfile } from '@verifikasi/credentials';
 import { prepareCredential, signPreparedCredential, submitCredential, type PreparedCredential } from '../src/browser';
 import { contractInterface } from '../src/shared';
 
@@ -30,7 +30,8 @@ const attributes = { full_name: 'Andi Contoh', diploma_number: 'CONTOH-001', stu
 const provider: Eip1193Provider = { request: vi.fn(async () => [wallet.address]) };
 function snapshot(): PreparedCredential {
   return { domain: credentialDomain(config), profile: { ...profile }, inputHandles: [...handles], inputProof: '0x1234', authorization: {
-    credentialId, issuerId, signer: wallet.address, publicDataHash: hashPublicProfile(profile), encryptedAttributesHash: hashEncryptedAttributes(handles),
+    credentialId: deriveCredentialId(config, issuerId, wallet.address, '123'), issuerId, signer: wallet.address,
+    issuerNameHash: hashIssuerName(profile.issuerDisplayName), publicDataHash: hashPublicProfile(profile), encryptedAttributesHash: hashEncryptedAttributes(handles),
     schemaVersion: 1, encodingVersion: 1, disclosurePolicyVersion: 1, nonce: '123', issuanceDeadline: '2000000000',
   } };
 }
@@ -56,7 +57,7 @@ beforeEach(() => {
 
 describe('review, e-sign and transaction stages', () => {
   it('encrypts once, freezes the snapshot, signs a message separately and submits unchanged handles', async () => {
-    const prepared = await prepareCredential(provider, config, { credentialId, attributes, profile });
+    const prepared = await prepareCredential(provider, config, { attributes, profile });
     expect(Object.isFrozen(prepared)).toBe(true);
     expect(Object.isFrozen(prepared.profile)).toBe(true);
     expect(Object.isFrozen(prepared.inputHandles)).toBe(true);
@@ -69,11 +70,13 @@ describe('review, e-sign and transaction stages', () => {
     expect(mock.encrypt).toHaveBeenCalledOnce();
     expect(mock.issue).toHaveBeenCalledExactlyOnceWith(prepared.authorization, signed.signature, prepared.inputHandles, prepared.inputProof);
     expect(mock.wait).toHaveBeenCalledWith(2);
-    expect(result).toMatchObject({ credentialId, transactionHash: credentialId, blockNumber: 123 });
+    expect(prepared.authorization.credentialId).toBe(deriveCredentialId(config, issuerId, wallet.address, prepared.authorization.nonce));
+    expect(prepared.authorization.issuerNameHash).toBe(hashIssuerName(profile.issuerDisplayName));
+    expect(result).toMatchObject({ credentialId: prepared.authorization.credentialId, transactionHash: credentialId, blockNumber: 123 });
   });
 
   it('rejects profile/encrypted-reference mismatch before loading the SDK', async () => {
-    await expect(prepareCredential(provider, config, { credentialId, attributes, profile: { ...profile, fullName: 'Budi Contoh' } })).rejects.toThrow('tidak sesuai atribut');
+    await expect(prepareCredential(provider, config, { attributes, profile: { ...profile, fullName: 'Budi Contoh' } })).rejects.toThrow('tidak sesuai atribut');
     expect(mock.initSDK).not.toHaveBeenCalled();
   });
 
@@ -86,6 +89,25 @@ describe('review, e-sign and transaction stages', () => {
     await expect(submitCredential(provider, config, { ...changed, signature })).rejects.toThrow();
     expect(mock.issue).not.toHaveBeenCalled();
     expect(mock.encrypt).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['a free-form credential ID', { credentialId: ('0x' + 'ab'.repeat(32)) as `0x${string}` }],
+    ['another institution name', { issuerNameHash: hashIssuerName('Kampus Lain') }],
+  ] as const)('rejects a signed snapshot with %s (protocol v2) before submission', async (_label, change) => {
+    const base = snapshot();
+    const prepared = { ...base, authorization: { ...base.authorization, ...change } };
+    const signature = await wallet.signTypedData(prepared.domain, credentialAuthorizationTypes, prepared.authorization);
+    await expect(submitCredential(provider, config, { ...prepared, signature })).rejects.toThrow();
+    expect(mock.issue).not.toHaveBeenCalled();
+  });
+
+  it('rejects submission when the registry name changed after e-sign', async () => {
+    const prepared = snapshot();
+    const signature = await wallet.signTypedData(prepared.domain, credentialAuthorizationTypes, prepared.authorization);
+    mock.readIssuer.mockResolvedValue({ issuerId, name: 'Nama Kampus Baru', active: true, exists: true, signerActive: true, wallet: wallet.address, authorizationId: '1' });
+    await expect(submitCredential(provider, config, { ...prepared, signature })).rejects.toThrow('identitas penerbit berubah');
+    expect(mock.issue).not.toHaveBeenCalled();
   });
 
   it('does not treat a transaction signature as credential authorization', async () => {

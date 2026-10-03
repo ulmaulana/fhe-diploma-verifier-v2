@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
 import { Wallet } from 'ethers';
-import { credentialDomain, credentialAuthorizationTypes, hashPublicProfile, hashEncryptedAttributes, type SignedCredential } from '@verifikasi/credentials';
+import { credentialDomain, credentialAuthorizationTypes, deriveCredentialId, hashIssuerName, hashPublicProfile, hashEncryptedAttributes, type SignedCredential } from '@verifikasi/credentials';
 import { signedCredentials, credentialDrafts } from '../../src/server/db/schema';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { Pool } from 'pg';
@@ -74,10 +74,11 @@ describe.skipIf(!url)('Drizzle PostgreSQL persistence and transaction-pooler lea
 
   it('persists signed issuance in separate RLS tables across pools and job-state cleanup', async () => {
     const wallet = Wallet.createRandom();
-    const id = `0x${'31'.repeat(32)}` as const;
-    const domain = credentialDomain({ chainId: 11155111, contractAddress: `0x${'42'.repeat(20)}` });
+    const chain = { chainId: 11155111, contractAddress: `0x${'42'.repeat(20)}` };
+    const domain = credentialDomain(chain);
     const profile = { schemaVersion: 1, disclosurePolicyVersion: 1, issuerId: `0x${'51'.repeat(32)}` as const, issuerDisplayName: 'Kampus Uji', fullName: 'ANDI CONTOH', diplomaNumber: 'CONTOH/1', studyProgram: 'INFORMATIKA' };
-    const authorization = { credentialId: id, issuerId: profile.issuerId, signer: wallet.address, publicDataHash: hashPublicProfile(profile), encryptedAttributesHash: hashEncryptedAttributes(Array.from({ length: 4 }, (_, i) => `0x${String(60 + i).repeat(32)}`)), schemaVersion: 1, encodingVersion: 1, disclosurePolicyVersion: 1, nonce: '7', issuanceDeadline: '2000000000' };
+    const id = deriveCredentialId(chain, profile.issuerId, wallet.address, '7');
+    const authorization = { credentialId: id, issuerId: profile.issuerId, signer: wallet.address, issuerNameHash: hashIssuerName(profile.issuerDisplayName), publicDataHash: hashPublicProfile(profile), encryptedAttributesHash: hashEncryptedAttributes(Array.from({ length: 4 }, (_, i) => `0x${String(60 + i).repeat(32)}`)), schemaVersion: 1, encodingVersion: 1, disclosurePolicyVersion: 1, nonce: '7', issuanceDeadline: '2000000000' };
     const signed: SignedCredential = { domain, profile, authorization, signature: await wallet.signTypedData(domain, credentialAuthorizationTypes, authorization) };
     const createdAt = new Date().toISOString();
     await first.db.insert(credentialDrafts).values({ credentialId: id, ownerWallet: wallet.address.toLowerCase(), expiresAt: new Date('2033-01-01'), body: { credentialId: id, ownerWallet: wallet.address.toLowerCase(), domain, profile, authorization, createdAt, expiresAt: '2033-01-01T00:00:00.000Z' } });

@@ -2,7 +2,8 @@ import { TypedDataEncoder, getAddress, type TypedDataDomain, type TypedDataField
 import type { Hex32 } from "../schema";
 
 export const ATTESTATION_DOMAIN_NAME = "VerifikasiIjazah";
-export const ATTESTATION_DOMAIN_VERSION = "1";
+/** Matches the v2 contract domain (EIP712("VerifikasiIjazah", "2")). */
+export const ATTESTATION_DOMAIN_VERSION = "2";
 export const ATTESTATION_TYPES: Record<string, TypedDataField[]> = {
   Verification: [
     { name: "requestId", type: "bytes32" },

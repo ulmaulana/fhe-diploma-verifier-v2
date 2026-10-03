@@ -4,7 +4,7 @@ import { join, resolve, sep } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Wallet } from 'ethers';
 import type { Hex32 } from '@verifikasi/domain';
-import { credentialAuthorizationTypes, credentialDomain, hashEncryptedAttributes, hashPublicProfile, type SignedCredential } from '@verifikasi/credentials';
+import { credentialAuthorizationTypes, credentialDomain, deriveCredentialId, hashEncryptedAttributes, hashIssuerName, hashPublicProfile, type SignedCredential } from '@verifikasi/credentials';
 import { readDraft, readStoredCredential, saveDraft, saveStoredCredential } from '../../src/server/credentials-repository';
 import { cleanup, createJobFromBytes, eraseJob } from '../../src/server/jobs';
 import { getPrivate } from '../../src/server/storage';
@@ -12,10 +12,11 @@ import { withState } from '../../src/server/store';
 import type { CredentialDraft, Session, StoredCredential } from '../../src/server/types';
 
 const wallet = new Wallet(`0x${'11'.repeat(32)}`);
-const id = `0x${'ab'.repeat(32)}` as Hex32;
 const issuerId = `0x${'cd'.repeat(32)}` as Hex32;
 const txHash = `0x${'78'.repeat(32)}`;
-const domain = credentialDomain({ chainId: 11155111, contractAddress: `0x${'56'.repeat(20)}` });
+const chain = { chainId: 11155111, contractAddress: `0x${'56'.repeat(20)}` };
+const domain = credentialDomain(chain);
+const id = deriveCredentialId(chain, issuerId, wallet.address, '1');
 const session: Session = { id: 'retention-owner', csrf: 'csrf', expiresAt: '2099-01-01T00:00:00.000Z' };
 let directory: string;
 let draft: CredentialDraft;
@@ -24,7 +25,7 @@ let stored: StoredCredential;
 async function signed(name = 'Andi Contoh'): Promise<SignedCredential> {
   const profile = { schemaVersion: 1, disclosurePolicyVersion: 1, issuerId, issuerDisplayName: 'Universitas Sintetis',
     fullName: name, diplomaNumber: 'SINTETIS-001', studyProgram: 'Informatika' };
-  const authorization = { credentialId: id, issuerId, signer: wallet.address, publicDataHash: hashPublicProfile(profile),
+  const authorization = { credentialId: id, issuerId, signer: wallet.address, issuerNameHash: hashIssuerName(profile.issuerDisplayName), publicDataHash: hashPublicProfile(profile),
     encryptedAttributesHash: hashEncryptedAttributes([1, 2, 3, 4].map(n => `0x${n.toString(16).padStart(64, '0')}`)),
     schemaVersion: 1, encodingVersion: 1, disclosurePolicyVersion: 1, nonce: '1', issuanceDeadline: '1' };
   return { authorization, profile, domain, signature: await wallet.signTypedData(domain, credentialAuthorizationTypes, authorization) };

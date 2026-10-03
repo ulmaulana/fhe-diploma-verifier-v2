@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { hexlify, randomBytes } from 'ethers';
 import { normalizeAttributes, requireHex32, type DiplomaAttributes, type RecordVerificationResult } from '@verifikasi/domain';
 import { CREDENTIAL_SCHEMA_VERSION, DISCLOSURE_POLICY_VERSION, type SignedCredential } from '@verifikasi/credentials';
 import type { CredentialSummary, IssuerMetadata } from '@verifikasi/chain';
@@ -69,7 +68,7 @@ export function PortalPage({initialTab='institution'}:{initialTab?:typeof portal
     const issuer=portal?.issuer;if(!issuer?.active||!issuer.signerActive)throw new Error('Wallet penandatangan dan institusi harus aktif.');
     const normalized=normalizeAttributes(attributes);
     const {prepareCredential}=await import('@verifikasi/chain/browser');setMessage('Menyiapkan referensi terenkripsi untuk ditinjau.');
-    const next=await prepareCredential(await getProvider(),chainConfig(),{credentialId:hexlify(randomBytes(32)),attributes:normalized,profile:{schemaVersion:CREDENTIAL_SCHEMA_VERSION,disclosurePolicyVersion:DISCLOSURE_POLICY_VERSION,issuerId:requireHex32(issuer.issuerId),issuerDisplayName:issuer.name,fullName:attributes.full_name.trim(),diplomaNumber:attributes.diploma_number.trim(),studyProgram:attributes.study_program.trim()}});
+    const next=await prepareCredential(await getProvider(),chainConfig(),{attributes:normalized,profile:{schemaVersion:CREDENTIAL_SCHEMA_VERSION,disclosurePolicyVersion:DISCLOSURE_POLICY_VERSION,issuerId:requireHex32(issuer.issuerId),issuerDisplayName:issuer.name,fullName:attributes.full_name.trim(),diplomaNumber:attributes.diploma_number.trim(),studyProgram:attributes.study_program.trim()}});
     assertCurrent(generation);
     await api('/api/credentials/drafts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({authorization:next.authorization,profile:next.profile,domain:next.domain,inputHandles:next.inputHandles,documentDate:normalized.graduation_date})});
     assertCurrent(generation);setFrozenDate(normalized.graduation_date);setPrepared(next);setSigned(null);setReviewed(false);setProofSaved(false);setTxHash('');setStep(1);setMessage('Tinjau persis data yang akan dipublikasikan. Tanggal lulus tetap privat.');
