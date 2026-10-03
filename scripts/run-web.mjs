@@ -1,0 +1,13 @@
+import {spawn} from 'node:child_process';
+import {resolve} from 'node:path';
+import {existsSync} from 'node:fs';
+const root=resolve(import.meta.dirname,'..');
+const envPath=resolve(root,'.env');
+if(existsSync(envPath))process.loadEnvFile(envPath);
+const mode=process.argv[2];
+if(!['dev','build','start'].includes(mode))throw new Error('Unknown Next.js command');
+const web=resolve(root,'apps/web');
+const args=[resolve(web,'node_modules/next/dist/bin/next'),mode,...(mode==='build'?['--webpack']:['--hostname','0.0.0.0'])];
+const child=spawn(process.execPath,args,{cwd:web,env:process.env,stdio:'inherit'});
+for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>child.kill(signal));
+child.on('exit',code=>{process.exitCode=code??1;});

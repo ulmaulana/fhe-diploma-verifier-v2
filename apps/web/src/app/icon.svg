@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#0f1a3a" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Favicon cut of CertificateArt: two diploma sheets, a lens and sparks, redrawn to fill a square at tab sizes. -->
+  <path d="M5 11.5 37.5 9l3 43L8 54.5z" fill="#fff" stroke-width="3"/>
+  <path d="M9 7.5 41.5 5.5l2.5 43-32.5 2z" fill="#fff" stroke-width="3"/>
+  <path d="M16 15.2 35 14M16.4 22.2 29.5 21.4M16.8 29.2l11.4-.7" stroke-width="2.6"/>
+  <circle cx="20.5" cy="39.6" r="3.6" stroke-width="2.4"/>
+  <path d="M18.4 43.3 17.8 48l2.7-1.6 2.5 1.5-.4-4.6" stroke-width="2.2"/>
+  <path d="M52.5 49 59.5 57" stroke-width="6.5"/>
+  <path d="M51.6 48 54.4 51.2" stroke="#0e94f7" stroke-width="6.5"/>
+  <circle cx="42" cy="38" r="15" fill="#0e94f7" stroke-width="2.4"/>
+  <circle cx="42" cy="38" r="10" fill="#fff" stroke="none"/>
+  <path d="M33.4 34.3a9.2 9.2 0 0 1 5.5-5.6" stroke="#cfe9ff" stroke-width="2.6"/>
+  <path d="M51 13.2 55.6 8.8M54.2 21.8l6.2-.8M47.4 8.2 48.7 3.6" stroke="#0e94f7" stroke-width="3.2"/>
+</svg>

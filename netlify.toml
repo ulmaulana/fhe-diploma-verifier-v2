@@ -1,0 +1,23 @@
+# Run from the pnpm workspace root; Next.js lives in apps/web.
+[build]
+  base = "."
+  command = "pnpm --filter @verifikasi/web build:vercel && node scripts/build-netlify-functions.mjs"
+  publish = "apps/web/.next"
+
+[build.environment]
+  # These seven non-secret settings were marked secret by a bulk .env import.
+  # Their values legitimately appear in source/docs. Keep credentials scanned:
+  # never add DATABASE_URL, RPC_URL, private keys or tokens to this list.
+  SECRETS_SCAN_OMIT_KEYS = "PRIVATE_DATA_DIR,APP_MODE,JOB_EXECUTION,CHAIN_ID,WORKER_API_URL,NETLIFY_BLOBS_STORE,APP_ORIGIN"
+
+# Framework auto-detection missed this monorepo. The adapter must convert
+# Next.js output into Netlify functions, assets and routing rules.
+# Let Netlify select the current adapter version instead of pinning it.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[functions]
+  directory = "apps/web/dist/netlify-functions"
+
+# The build emits each function's schedule/background mode and complete runtime
+# asset includes alongside its JavaScript entrypoint.

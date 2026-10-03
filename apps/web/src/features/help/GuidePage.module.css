@@ -1,0 +1,9 @@
+.related{color:var(--muted);font-size:12px;line-height:1.7;margin:12px 0 18px}
+.steps{margin:14px 0 20px;padding-left:23px;color:var(--muted);font-size:13px;line-height:1.85}
+.steps li{padding-left:5px;margin:9px 0}
+.steps li::marker{color:#287398;font-weight:500}
+.sources{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin:16px 0 20px;font-size:11px}
+.sources>span{color:var(--muted)}
+.sources a{color:#287398;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.recommendations{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:20px}
+.recommendations button{background:none;border:0;color:#287398;font-size:13px;min-height:36px;padding:6px 12px;text-align:center;text-decoration:underline;text-underline-offset:3px}

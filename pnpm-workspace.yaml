@@ -1,0 +1,10 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+  - 'contracts'
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+  - unrs-resolver
+  - keccak
+  - secp256k1

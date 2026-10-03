@@ -1,0 +1,59 @@
+.portalTabs{display:flex;align-self:flex-start;gap:4px;width:fit-content;max-width:100%;padding:5px;margin:0 0 24px;border:1px solid var(--border);border-radius:999px;background:#f4f6f8}
+.portalTabs button{flex:0 1 auto;min-width:0;min-height:44px;padding:10px 20px;border:0;border-radius:999px;background:transparent;color:var(--muted);font-size:14px;font-weight:500;line-height:1.4;text-align:center;white-space:normal;transition:background .18s,color .18s}
+.portalTabs button:hover{background:#e8edf2;color:var(--ink)}
+.portalTabs button[aria-selected=true]{background:var(--ink);color:#fff}
+.portalTabs button:focus-visible{outline-offset:2px}
+.tabPanel[hidden]{display:none}
+.tabPanel:focus-visible{outline:2px solid var(--cyan);outline-offset:4px}
+.portalDescription{margin:0 0 20px;color:var(--muted);font-size:13px;line-height:1.7}
+@media(max-width:950px){.portalTabs button{white-space:normal}}
+@media(max-width:680px){.portalTabs{width:100%;border-radius:22px}.portalTabs button{flex:1;padding:10px 12px;border-radius:17px;font-size:12px;white-space:normal}}
+@media(prefers-reduced-motion:reduce){.portalTabs button{transition:none}}
+.steps{display:flex;flex-wrap:wrap;list-style:none;padding:0;margin:0 0 28px;gap:11px 22px}
+.steps li{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.steps li span{display:grid;place-items:center;border-radius:50%;width:24px;height:24px;font-size:11px;background:var(--surface);color:var(--muted)}
+.steps li[aria-current=step]{color:var(--ink);font-weight:500}
+.steps li[aria-current=step] span{background:var(--ink);color:white}
+.steps .done span{color:#18794e;background:#eaf7ef}
+.hint{font-size:12px;color:var(--muted);line-height:1.8;margin:15px 0;max-width:670px}
+.snapshot{display:grid;grid-template-columns:1fr 1fr;gap:20px 30px;margin:20px 0 25px;max-width:720px}
+.snapshot div{min-width:0}
+.snapshot dt{color:var(--muted);font-size:12px;margin-bottom:5px}
+.snapshot dd{font-size:15px;color:var(--ink);margin:0;overflow-wrap:anywhere}
+.actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.status{display:flex;align-items:center;gap:8px;min-width:0}
+.status > svg{flex-shrink:0}
+.status > span{min-width:0;overflow-wrap:anywhere}
+.confirm{display:flex;align-items:flex-start;gap:9px;font-size:13px;line-height:1.7;max-width:680px;margin-top:22px}
+.confirm input{margin-top:5px;accent-color:var(--ink)}
+.proof{margin-top:22px;color:var(--muted);font-size:12px;max-width:760px;overflow-wrap:anywhere}
+.proof summary{cursor:pointer;color:var(--text);font-weight:500}
+.proof p{margin:10px 0}
+.receipt{padding:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:18px 0;display:grid;gap:8px;font-size:13px}
+.receipt span{display:flex;align-items:center;gap:9px}
+.image{width:200px;height:200px;display:block}
+@media(max-width:680px){.steps{display:grid;grid-template-columns:1fr 1fr;gap:14px}.steps li{font-size:11px}.snapshot{grid-template-columns:1fr;gap:17px}.actions :global(.button){white-space:normal}}
+
+.document { display: grid; gap: 12px; margin: 18px 0; text-align: left; min-width: 0; }
+.document form { display: grid; gap: 12px; }
+.documentSteps { display: flex; flex-wrap: wrap; gap: 10px 20px; padding: 0; list-style-position: inside; color: var(--muted, #667085); font-size: 12px; }
+.documentSteps [aria-current="step"] { color: #075e73; font-weight: 600; }
+.credentialRow { flex-wrap: wrap; }
+:global(.history-row).credentialRow > :global(.button) { margin-top: 0; }
+.credentialRow > .document { flex-basis: 100%; border-top: 1px solid #e4e9ef; padding-top: 12px; margin-bottom: 0; }
+@media (max-width: 640px) { .documentSteps { display: grid; } .document .button { width: 100%; } }
+
+.bone { display: block; border-radius: 6px; background: linear-gradient(90deg, #eef2f6 25%, #f7f9fb 45%, #eef2f6 65%); background-size: 300% 100%; animation: shimmer 1.4s ease-in-out infinite; }
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+.boneTitle { width: 170px; max-width: 100%; height: 16px; }
+.boneMeta { width: 104px; height: 11px; margin-top: 9px; }
+.bonePill { width: 70px; height: 26px; margin-left: auto; }
+.boneButton { width: 96px; height: 34px; border-radius: 99px; }
+.boneBar { width: 100%; height: 38px; border-radius: 99px; }
+.boneHeading { width: 240px; max-width: 100%; height: 22px; }
+.boneText { width: min(460px, 100%); height: 12px; margin-top: 14px; }
+.skeletonGrid { margin: 24px 0; }
+.boneLabel { width: 120px; max-width: 100%; height: 11px; margin-bottom: 9px; }
+.boneInput { height: 44px; border-radius: 7px; }
+.boneAction { width: 210px; max-width: 100%; height: 40px; border-radius: 99px; }
+@media (prefers-reduced-motion: reduce) { .bone { animation: none; } }

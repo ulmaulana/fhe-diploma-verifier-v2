@@ -1,0 +1,29 @@
+{
+  "name": "@verifikasi/ocr",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tesseract.js-data/eng": "1.0.0",
+    "@tesseract.js-data/ind": "1.0.0",
+    "@verifikasi/domain": "workspace:*",
+    "mupdf": "1.28.1",
+    "tesseract.js": "7.0.0",
+    "zxing-wasm": "3.1.4"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.15",
+    "@verifikasi/config": "workspace:*",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}

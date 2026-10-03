@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790237764033,
+      "tag": "0000_supabase_state_and_relayer_leases",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790250953501,
+      "tag": "0001_polite_hedge_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790280361809,
+      "tag": "0002_slow_bucky",
+      "breakpoints": true
+    }
+  ]
+}

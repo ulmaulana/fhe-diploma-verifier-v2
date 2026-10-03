@@ -1,0 +1,16 @@
+{
+  "name": "@verifikasi/chain",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts", "./server": "./src/server.ts", "./browser": "./src/browser.ts" },
+  "scripts": { "build": "tsc --noEmit", "typecheck": "tsc --noEmit", "test": "vitest run" },
+  "dependencies": {
+    "@verifikasi/contracts": "workspace:*",
+    "@verifikasi/credentials": "workspace:*",
+    "@verifikasi/domain": "workspace:*",
+    "@zama-fhe/relayer-sdk": "0.4.1",
+    "ethers": "6.16.0"
+  },
+  "devDependencies": { "@types/node": "22.18.6", "typescript": "5.9.3", "vitest": "3.2.4" }
+}
