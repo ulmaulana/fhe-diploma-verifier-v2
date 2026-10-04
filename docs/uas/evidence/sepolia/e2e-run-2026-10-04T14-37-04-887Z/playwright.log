@@ -1,0 +1,120 @@
+[WebServer] (node:198292) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:193352) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 1 worker
+
+(node:197780) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 tests\e2e\sepolia.spec.ts:205:5 › wallet on Sepolia signs in; switching to another network invalidates the session (6.1s)
+  ok  2 tests\e2e\sepolia.spec.ts:216:5 › administrator registers or reuses the synthetic institution and signer, and the portal rejects a no-op (4.4s)
+  x   3 tests\e2e\sepolia.spec.ts:300:5 › institution signer issues three synthetic credentials with EIP-712 e-sign and downloads their PDFs (10.5m)
+  -   4 tests\e2e\sepolia.spec.ts:308:5 › the QR record page verifies without session, upload, OCR or a new transaction
+  -   5 tests\e2e\sepolia.spec.ts:327:5 › uploading the issued PDF yields MATCH from a real FHE comparison
+  -   6 tests\e2e\sepolia.spec.ts:334:5 › one changed attribute with a valid QR yields MISMATCH on that attribute
+  -   7 tests\e2e\sepolia.spec.ts:346:5 › a QR that differs from the expected credential is refused before any comparison transaction
+  -   8 tests\e2e\sepolia.spec.ts:353:5 › a valid QR for B on a document with A attributes yields MISMATCH against record B
+  -   9 tests\e2e\sepolia.spec.ts:364:5 › a document without a valid QR for this application ends INCONCLUSIVE without a transaction
+  -  10 tests\e2e\sepolia.spec.ts:375:5 › revoking credential C through the portal is reflected on the QR page, in uploads and in PDF access
+  -  11 tests\e2e\sepolia.spec.ts:403:5 › history and report are available only to the owning session
+  -  12 tests\e2e\sepolia.spec.ts:419:5 › a record on the trusted legacy v1 contract is shown read-only (when a legacy ID is provided)
+
+
+  1) tests\e2e\sepolia.spec.ts:300:5 › institution signer issues three synthetic credentials with EIP-712 e-sign and downloads their PDFs 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Kredensial berhasil diterbitkan', exact: true })
+    Expected: visible
+    Timeout: 480000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Kredensial berhasil diterbitkan', exact: true }) with timeout 480000ms
+      - waiting for getByRole('heading', { name: 'Kredensial berhasil diterbitkan', exact: true })
+
+
+      283 |   await page.getByRole('button', { name: 'Sahkan kredensial', exact: true }).click();
+      284 |   await page.getByRole('button', { name: 'Kirim penerbitan', exact: true }).click({ timeout: 2 * 60_000 });
+    > 285 |   await expect(page.getByRole('heading', { name: 'Kredensial berhasil diterbitkan', exact: true })).toBeVisible({ timeout: 8 * 60_000 });
+          |                                                                                                     ^
+      286 |   const credentialId = hashIn(await page.locator('.portal-result').textContent())!;
+      287 |   const confirmedSeconds = Math.round((Date.now() - started) / 1000);
+      288 |   const download = page.waitForEvent('download', { timeout: 5 * 60_000 });
+        at issue (C:\Users\Maulana\AppData\Local\Temp\uasw\live\apps\web\tests\e2e\sepolia.spec.ts:285:101)
+        at C:\Users\Maulana\AppData\Local\Temp\uasw\live\apps\web\tests\e2e\sepolia.spec.ts:305:47
+
+    "afterAll" hook timeout of 60000ms exceeded.
+
+      191 |   page = await context.newPage();
+      192 | });
+    > 193 | test.afterAll(async () => {
+          |      ^
+      194 |   const video = page?.video();
+      195 |   await context?.close();
+      196 |   if (video) {
+        at C:\Users\Maulana\AppData\Local\Temp\uasw\live\apps\web\tests\e2e\sepolia.spec.ts:193:6
+
+    Error: browserContext.close: Test ended.
+    Browser logs:
+
+    <launching> C:\Users\Maulana\AppData\Local\ms-playwright\chromium_headless_shell-1243\chrome-headless-shell-win64\chrome-headless-shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=C:\Users\Maulana\AppData\Local\Temp\playwright_chromiumdev_profile-SUDu9M --remote-debugging-pipe --no-startup-window
+    <launched> pid=183304
+    [pid=183304][err] [1004/213711.451:INFO:CONSOLE:130] "Uncaught SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document.", source:  (130)
+    [pid=183304][err] [1004/213727.845:INFO:CONSOLE:3] "This browser does not support threads. Verify that your server returns correct headers:
+    [pid=183304][err]  'Cross-Origin-Opener-Policy': 'same-origin'
+    [pid=183304][err]  'Cross-Origin-Embedder-Policy': 'require-corp'", source: http://localhost:3000/_next/static/chunks/cea98a9b.3bcdb96196264735.js (3)
+    [pid=183304][err] [1004/213740.976:INFO:CONSOLE:0] "The resource http://localhost:3000/_next/static/css/95e87b29a7f9604d.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: http://localhost:3000/penerbit (0)
+    [pid=183304][err] [1004/213749.873:INFO:CONSOLE:0] "The resource http://localhost:3000/_next/static/css/95e87b29a7f9604d.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: http://localhost:3000/penerbit (0)
+    [pid=183304][err] [1004/213753.807:INFO:CONSOLE:0] "The resource http://localhost:3000/_next/static/css/95e87b29a7f9604d.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: http://localhost:3000/penerbit (0)
+    [pid=183304][err] [1004/213756.853:INFO:CONSOLE:0] "The resource http://localhost:3000/_next/static/css/95e87b29a7f9604d.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: http://localhost:3000/penerbit (0)
+    [pid=183304][err] [1004/213828.761:INFO:CONSOLE:3] "This browser does not support threads. Verify that your server returns correct headers:
+    [pid=183304][err]  'Cross-Origin-Opener-Policy': 'same-origin'
+    [pid=183304][err]  'Cross-Origin-Embedder-Policy': 'require-corp'", source: http://localhost:3000/_next/static/chunks/cea98a9b.3bcdb96196264735.js (3)
+    [pid=183304][err] [1004/213829.827:INFO:CONSOLE:0] "The resource http://localhost:3000/_next/static/css/95e87b29a7f9604d.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: http://localhost:3000/penerbit (0)
+    [pid=183304][err] [1004/213843.890:INFO:CONSOLE:0] "The resource http://localhost:3000/_next/static/css/95e87b29a7f9604d.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: http://localhost:3000/penerbit (0)
+    [pid=183304][err] [1004/213847.043:INFO:CONSOLE:0] "The resource http://localhost:3000/_next/static/css/95e87b29a7f9604d.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: http://localhost:3000/penerbit (0)
+    [pid=183304][err] [1004/213854.110:INFO:CONSOLE:0] "The resource http://localhost:3000/_next/static/css/95e87b29a7f9604d.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: http://localhost:3000/penerbit (0)
+    [pid=183304][err] [1004/213922.994:INFO:CONSOLE:0] "The resource http://localhost:3000/_next/static/css/95e87b29a7f9604d.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: http://localhost:3000/penerbit (0)
+    [pid=183304][err] [1004/213933.675:INFO:CONSOLE:3] "This browser does not support threads. Verify that your server returns correct headers:
+    [pid=183304][err]  'Cross-Origin-Opener-Policy': 'same-origin'
+    [pid=183304][err]  'Cross-Origin-Embedder-Policy': 'require-corp'", source: http://localhost:3000/_next/static/chunks/cea98a9b.3bcdb96196264735.js (3)
+    [pid=183304][err] [1004/213934.976:INFO:CONSOLE:0] "The resource http://localhost:3000/_next/static/css/95e87b29a7f9604d.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: http://localhost:3000/penerbit (0)
+    [pid=183304][err] [1004/213952.242:INFO:CONSOLE:0] "The resource http://localhost:3000/_next/static/css/95e87b29a7f9604d.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: http://localhost:3000/penerbit (0)
+    [pid=183304][err] [1004/213956.987:INFO:CONSOLE:0] "The resource http://localhost:3000/_next/static/css/95e87b29a7f9604d.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: http://localhost:3000/penerbit (0)
+    [pid=183304][err] [1004/214005.956:INFO:CONSOLE:0] "The resource http://localhost:3000/_next/static/css/95e87b29a7f9604d.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: http://localhost:3000/penerbit (0)
+    [pid=183304] <gracefully close start>
+
+      193 | test.afterAll(async () => {
+      194 |   const video = page?.video();
+    > 195 |   await context?.close();
+          |   ^
+      196 |   if (video) {
+      197 |     const fileName = 'Video_Demo_Sepolia.webm';
+      198 |     await video.saveAs(path.join(evidenceDir, fileName));
+        at C:\Users\Maulana\AppData\Local\Temp\uasw\live\apps\web\tests\e2e\sepolia.spec.ts:195:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\sepolia-institution-signer-05260-gn-and-downloads-their-PDFs\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\sepolia-institution-signer-05260-gn-and-downloads-their-PDFs\error-context.md
+
+    Error Context: test-results\sepolia-institution-signer-05260-gn-and-downloads-their-PDFs\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\sepolia-institution-signer-05260-gn-and-downloads-their-PDFs\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\sepolia-institution-signer-05260-gn-and-downloads-their-PDFs\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests\e2e\sepolia.spec.ts:300:5 › institution signer issues three synthetic credentials with EIP-712 e-sign and downloads their PDFs 
+  9 did not run
+  2 passed (12.0m)
+undefined
+C:\Users\Maulana\AppData\Local\Temp\uasw\live\apps\web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "playwright" not found

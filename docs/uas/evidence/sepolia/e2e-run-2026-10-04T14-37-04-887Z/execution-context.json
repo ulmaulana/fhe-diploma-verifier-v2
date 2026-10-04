@@ -1,0 +1,9 @@
+{
+  "sourceCommit": "5ab6f099f10a7244775fc9b9adfff2c3a088b5b2",
+  "startedAtUtc": "2026-10-04T14:37:10.284Z",
+  "exitCode": 1,
+  "outcome": "2 passed, 1 failed, 9 did not run; C issue blocked by bridge RPC TooManyRequests; afterAll also exceeded its 60s timeout",
+  "walletBridge": "plain JsonRpcProvider with default batching; replaced by bounded shared rpcRequest and unbatched calls in f32afe6",
+  "environment": "actual Sepolia v2 + Zama, local Docker PostgreSQL",
+  "video": "raw recording only; successful final video gathered in later run"
+}

@@ -1,0 +1,304 @@
+{
+  "startedAtUtc": "2026-10-04T14:25:06.329Z",
+  "origin": "http://localhost:3000",
+  "chainId": 11155111,
+  "issuerId": "0xd4aadc1f7b58512ea3b4974d82df569c4cb734aa8049aed5377cb95e8caf62ab",
+  "issuerName": "Universitas Sintetis UAS (Uji)",
+  "steps": [
+    {
+      "step": "wallet-network",
+      "atUtc": "2026-10-04T14:25:14.324Z",
+      "admin": "0xCa01c8C68840cd1C9fdF06F124723a5339224096",
+      "wrongNetworkInvalidatedSession": true
+    },
+    {
+      "step": "registry",
+      "atUtc": "2026-10-04T14:25:19.095Z",
+      "setIssuerTx": null,
+      "setSignerTx": null,
+      "reusedIssuer": true,
+      "reusedSigner": true,
+      "initialState": {
+        "checkedBlock": 11842703,
+        "issuer": {
+          "name": "Universitas Sintetis UAS (Uji)",
+          "active": true,
+          "exists": true
+        },
+        "signer": {
+          "issuerId": "0xd4aadc1f7b58512ea3b4974d82df569c4cb734aa8049aed5377cb95e8caf62ab",
+          "active": true,
+          "authorizationId": "1"
+        }
+      },
+      "registeredState": {
+        "checkedBlock": 11842703,
+        "issuer": {
+          "name": "Universitas Sintetis UAS (Uji)",
+          "active": true,
+          "exists": true
+        },
+        "signer": {
+          "issuerId": "0xd4aadc1f7b58512ea3b4974d82df569c4cb734aa8049aed5377cb95e8caf62ab",
+          "active": true,
+          "authorizationId": "1"
+        }
+      },
+      "stateAfterNoop": {
+        "checkedBlock": 11842703,
+        "issuer": {
+          "name": "Universitas Sintetis UAS (Uji)",
+          "active": true,
+          "exists": true
+        },
+        "signer": {
+          "issuerId": "0xd4aadc1f7b58512ea3b4974d82df569c4cb734aa8049aed5377cb95e8caf62ab",
+          "active": true,
+          "authorizationId": "1"
+        }
+      },
+      "previousRegistryEvidence": "docs/uas/evidence/sepolia/e2e-run-2026-10-04T09-40-02-443Z/sepolia-e2e-evidence.json",
+      "noopSetSignerRejectedWithoutTransaction": true,
+      "browserTransactionRequestsDuringNoop": 0
+    },
+    {
+      "step": "issue-A",
+      "atUtc": "2026-10-04T14:26:24.309Z",
+      "credentialId": "0x060e169f127d8eff8f43c0028e4f4e1d9547403564638ada8ef7cfc97452e216",
+      "issuanceTx": "0x00158ca0cfc622f15fdc24f2c55670793be698a9bb8703444a75db301fee50c7",
+      "publicProfile": {
+        "fullName": "ANDI PRATAMA",
+        "diplomaNumber": "UAS/2026/A001",
+        "studyProgram": "INFORMATIKA",
+        "issuer": "Universitas Sintetis UAS (Uji)"
+      },
+      "graduationDatePrivate": true,
+      "secondsToEncryptedReview": 21,
+      "secondsToConfirmedIssuance": 54
+    },
+    {
+      "step": "issue-B",
+      "atUtc": "2026-10-04T14:27:24.906Z",
+      "credentialId": "0x78b21724b676efb2e8ae97e3e3a7e4ab8ada6eb01be190452de68ac01027ea23",
+      "issuanceTx": "0x783a4652c42c7dec188fd81096aac6585f6700f52b7106826a1c732b04244fa1",
+      "publicProfile": {
+        "fullName": "BUDI SANTOSO",
+        "diplomaNumber": "UAS/2026/B002",
+        "studyProgram": "SISTEM INFORMASI",
+        "issuer": "Universitas Sintetis UAS (Uji)"
+      },
+      "graduationDatePrivate": true,
+      "secondsToEncryptedReview": 16,
+      "secondsToConfirmedIssuance": 54
+    },
+    {
+      "step": "issue-C",
+      "atUtc": "2026-10-04T14:28:24.669Z",
+      "credentialId": "0xa4c39b8c823923cdfb89512a6f9b2412bc8ddbc76c3dee62485b8c085664698c",
+      "issuanceTx": "0x7b3c53503cec6b2722f26d4e18bb2162beda9d8c543e326624ad7f9fc7059e8c",
+      "publicProfile": {
+        "fullName": "CITRA LESTARI",
+        "diplomaNumber": "UAS/2026/C003",
+        "studyProgram": "INFORMATIKA",
+        "issuer": "Universitas Sintetis UAS (Uji)"
+      },
+      "graduationDatePrivate": true,
+      "secondsToEncryptedReview": 16,
+      "secondsToConfirmedIssuance": 53
+    },
+    {
+      "step": "qr-record-A",
+      "atUtc": "2026-10-04T14:28:27.557Z",
+      "credentialId": "0x060e169f127d8eff8f43c0028e4f4e1d9547403564638ada8ef7cfc97452e216",
+      "recordVerificationStatus": "VERIFIED_RECORD",
+      "scope": "RECORD_ONLY",
+      "documentDecision": null,
+      "issuanceTxHash": "0x00158ca0cfc622f15fdc24f2c55670793be698a9bb8703444a75db301fee50c7",
+      "issuanceBlock": 11842707,
+      "checkedBlock": 11842718,
+      "contractAddress": "0x65b1C8C7B59D9651F8619F287Bc1c309FaE094e0",
+      "publicResponseContainsGraduationDate": false,
+      "transactionsSent": 0
+    },
+    {
+      "step": "upload-A-original",
+      "atUtc": "2026-10-04T14:29:53.514Z",
+      "expected": "Atribut cocok",
+      "decision": "MATCH",
+      "status": "COMPLETED",
+      "reason": "Keempat atribut cocok dengan rekaman penerbit yang berwenang. Kredensial aktif.",
+      "requestId": "0x28df2f955cc2cf443c6326c37c1e4f88ed0de110ea741a7e4251250e0aa10df7",
+      "credentialId": "0x060e169f127d8eff8f43c0028e4f4e1d9547403564638ada8ef7cfc97452e216",
+      "comparisonTxHash": "0x3ba8efe78c749de1abf8514245317981f3bb84b3b40714b43e823cec4972a092",
+      "issuanceTxHash": "0x00158ca0cfc622f15fdc24f2c55670793be698a9bb8703444a75db301fee50c7",
+      "checkedBlock": 11842723,
+      "fields": [
+        {
+          "key": "full_name",
+          "status": "MATCH",
+          "confidence": 0.9606203499999999
+        },
+        {
+          "key": "diploma_number",
+          "status": "MATCH",
+          "confidence": 0.9063391900000001
+        },
+        {
+          "key": "study_program",
+          "status": "MATCH",
+          "confidence": 0.96086922
+        },
+        {
+          "key": "graduation_date",
+          "status": "MATCH",
+          "confidence": 0.96244781
+        }
+      ],
+      "createdAt": "2026-10-04T14:28:27.982Z",
+      "checkedAt": "2026-10-04T14:29:24.000Z",
+      "uiSecondsToResult": 86,
+      "browserTransactionsDuringUpload": 0
+    },
+    {
+      "step": "upload-A-name-changed",
+      "atUtc": "2026-10-04T14:30:52.979Z",
+      "expected": "Ditemukan ketidaksesuaian",
+      "decision": "MISMATCH",
+      "status": "COMPLETED",
+      "reason": "Setidaknya satu atribut berbeda. Periksa unggahan atau hubungi penerbit.",
+      "requestId": "0xebb6bbc53eee50490ff56ebf7d5aeaf6c403af920eb36fb697814e3d62f764bd",
+      "credentialId": "0x060e169f127d8eff8f43c0028e4f4e1d9547403564638ada8ef7cfc97452e216",
+      "comparisonTxHash": "0x6de365504700813875fa15c7f5263a359072de9dc9b5f3d1d921da779d967656",
+      "issuanceTxHash": "0x00158ca0cfc622f15fdc24f2c55670793be698a9bb8703444a75db301fee50c7",
+      "checkedBlock": 11842728,
+      "fields": [
+        {
+          "key": "full_name",
+          "status": "MISMATCH",
+          "confidence": 0.9594089499999999
+        },
+        {
+          "key": "diploma_number",
+          "status": "MATCH",
+          "confidence": 0.9063391900000001
+        },
+        {
+          "key": "study_program",
+          "status": "MATCH",
+          "confidence": 0.96086922
+        },
+        {
+          "key": "graduation_date",
+          "status": "MATCH",
+          "confidence": 0.96244781
+        }
+      ],
+      "createdAt": "2026-10-04T14:29:54.353Z",
+      "checkedAt": "2026-10-04T14:30:36.000Z",
+      "uiSecondsToResult": 59,
+      "browserTransactionsDuringUpload": 0
+    },
+    {
+      "step": "upload-B-on-expected-A",
+      "atUtc": "2026-10-04T14:30:55.282Z",
+      "expected": "Belum dapat diverifikasi",
+      "decision": "INCONCLUSIVE",
+      "status": "COMPLETED",
+      "reason": "QR pada unggahan berbeda dari rekaman pada tautan awal.",
+      "requestId": "0x07bba5d1bab046b172a368ebaa0c7161df89e156b91f12037e891b794b0000e6",
+      "comparisonTxHash": null,
+      "issuanceTxHash": null,
+      "checkedBlock": null,
+      "fields": [
+        {
+          "key": "full_name",
+          "status": "NOT_COMPARED",
+          "confidence": 0.95568268
+        },
+        {
+          "key": "diploma_number",
+          "status": "NOT_COMPARED",
+          "confidence": 0.9148966199999999
+        },
+        {
+          "key": "study_program",
+          "status": "NOT_COMPARED",
+          "confidence": 0.95573898
+        },
+        {
+          "key": "graduation_date",
+          "status": "NOT_COMPARED",
+          "confidence": 0.95256569
+        }
+      ],
+      "createdAt": "2026-10-04T14:30:53.324Z",
+      "checkedAt": "2026-10-04T14:30:54.515Z",
+      "uiSecondsToResult": 2,
+      "browserTransactionsDuringUpload": 0
+    },
+    {
+      "step": "upload-QR-B-attributes-A",
+      "atUtc": "2026-10-04T14:32:07.081Z",
+      "expected": "Ditemukan ketidaksesuaian",
+      "decision": "MISMATCH",
+      "status": "COMPLETED",
+      "reason": "Setidaknya satu atribut berbeda. Periksa unggahan atau hubungi penerbit.",
+      "requestId": "0x591014bf81e49fe1b85cb6daeb93f13d24894e2c3d930cec51256cbd19f4de4d",
+      "credentialId": "0x78b21724b676efb2e8ae97e3e3a7e4ab8ada6eb01be190452de68ac01027ea23",
+      "comparisonTxHash": "0x3b24b9d963e420f622786d180430fe89770528022769dc289da075b032e5e2f6",
+      "issuanceTxHash": "0x783a4652c42c7dec188fd81096aac6585f6700f52b7106826a1c732b04244fa1",
+      "checkedBlock": 11842733,
+      "fields": [
+        {
+          "key": "full_name",
+          "status": "MISMATCH",
+          "confidence": 0.9606203499999999
+        },
+        {
+          "key": "diploma_number",
+          "status": "MISMATCH",
+          "confidence": 0.9063391900000001
+        },
+        {
+          "key": "study_program",
+          "status": "MISMATCH",
+          "confidence": 0.96086922
+        },
+        {
+          "key": "graduation_date",
+          "status": "MISMATCH",
+          "confidence": 0.96244781
+        }
+      ],
+      "createdAt": "2026-10-04T14:30:55.711Z",
+      "checkedAt": "2026-10-04T14:31:48.000Z",
+      "uiSecondsToResult": 72,
+      "browserTransactionsDuringUpload": 0
+    }
+  ],
+  "transactionsSentByBrowserWallet": [
+    {
+      "from": "0x399a8A182631de9389B3fB3488537c9461d3a43e",
+      "to": "0x65b1c8c7b59d9651f8619f287bc1c309fae094e0",
+      "selector": "0xe5f55637",
+      "hash": "0x00158ca0cfc622f15fdc24f2c55670793be698a9bb8703444a75db301fee50c7",
+      "atUtc": "2026-10-04T14:25:54.117Z"
+    },
+    {
+      "from": "0x399a8A182631de9389B3fB3488537c9461d3a43e",
+      "to": "0x65b1c8c7b59d9651f8619f287bc1c309fae094e0",
+      "selector": "0xe5f55637",
+      "hash": "0x783a4652c42c7dec188fd81096aac6585f6700f52b7106826a1c732b04244fa1",
+      "atUtc": "2026-10-04T14:26:50.874Z"
+    },
+    {
+      "from": "0x399a8A182631de9389B3fB3488537c9461d3a43e",
+      "to": "0x65b1c8c7b59d9651f8619f287bc1c309fae094e0",
+      "selector": "0xe5f55637",
+      "hash": "0x7b3c53503cec6b2722f26d4e18bb2162beda9d8c543e326624ad7f9fc7059e8c",
+      "atUtc": "2026-10-04T14:27:50.341Z"
+    }
+  ],
+  "admin": "0xCa01c8C68840cd1C9fdF06F124723a5339224096",
+  "signer": "0x399a8A182631de9389B3fB3488537c9461d3a43e"
+}

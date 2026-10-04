@@ -1,0 +1,13 @@
+{
+  "commit": "018614f",
+  "startedAtUtc": "2026-10-04T14:24:04.778Z",
+  "command": "pnpm --filter @verifikasi/web exec playwright test tests/e2e/sepolia.spec.ts --reporter=list --workers=1",
+  "environment": "local application + PostgreSQL Docker + actual Sepolia v2/Zama",
+  "localDatabase": "verifikasi_local",
+  "origin": "http://localhost:3000",
+  "chainId": 11155111,
+  "contract": "0x65b1C8C7B59D9651F8619F287Bc1c309FaE094e0",
+  "exitCode": 1,
+  "outcome": "failed: missing public contract address in helper test environment; no transaction",
+  "lastObservedRejectedJob": null
+}

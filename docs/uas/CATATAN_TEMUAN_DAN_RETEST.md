@@ -51,6 +51,8 @@ Kemungkinan/dampak bersifat kualitatif dan argumentatif. "Retest" menunjuk log m
 
 ### 3.1 Koreksi terhadap laporan awal
 
+Retest layanan nyata 4 Oktober 2026 (source `f32afe6`): [12 skenario UI Sepolia lulus](evidence/sepolia/e2e-run-2026-10-04T14-53-27-678Z/sepolia-e2e-evidence.json). S-01 mendapat bukti operasi terpisah: signer institusi menerbitkan/mencabut, relayer mengirim tiga `verify`, result reader mendekripsi empat boolean dan agregat; [receipt](evidence/sepolia/receipts-e2e.json) dan [dekripsi read-only](evidence/sepolia/fhe-decryption-confirmation.json). Ini tidak membuktikan independensi operator layanan atau rotasi peran kontrak lama. S-08: penolakan tiga unggahan sebelum perbandingan dibuktikan melalui job dengan hash null dan [scan event hanya tiga perbandingan valid](evidence/sepolia/no-transaction-rejection-confirmation.json). Kuota atomik dan saldo rendah tetap diuji lokal; header platform serta perilaku storage Netlify masih memerlukan validasi hosting pengguna.
+
 - S-01: lokasi kunci di hosting tidak diklaim; yang terbukti adalah peran on-chain dan konfigurasi `.env` lokal.
 - S-09: diperlakukan sebagai konsistensi error, bukan celah keamanan.
 - S-03 dan S-04 tadinya dicatat sebagai opsional; keduanya direproduksi lokal dan diperbaiki karena memengaruhi alur utama dan dapat diperbaiki.
@@ -64,6 +66,9 @@ Kemungkinan/dampak bersifat kualitatif dan argumentatif. "Retest" menunjuk log m
 | A-03 | hardhat-verify 2.1.3 memanggil endpoint Sourcify yang sudah dihapus (HTTP 404) | Tooling | Verifikasi langsung lewat Sourcify API v2 | `6673e51` |
 | A-04 | Portal menampilkan "diperbarui" untuk transaksi yang direvert/dibatalkan | UX/kebenaran informasi | Hasil aktual + hash tx terkonfirmasi | `3ee4f01` |
 | A-05 | Setelah redeploy, rekaman lama akan tampil "Bukti kredensial tidak valid" | Kebenaran informasi | Pembacaan v1 melalui daftar kontrak tepercaya + batas migrasi; tanpa itu → alasan versi lama yang akurat | `3082f4a` |
+| A-06 | E2E mengaktifkan signer yang sudah aktif pada institusi berbeda setiap run | Fixture E2E | `018614f`: institusi dapat dipakai ulang, state on-chain dikonfirmasi, no-op tetap ditolak tanpa tx | Run final 12/12 |
+| A-07 | Fixture yang disebut asing sebenarnya memiliki QR localhost valid dan berakhir NOT_FOUND | Fixture E2E, bukan bug aplikasi | `5ab6f09`: QR origin `foreign.invalid`, hasil INCONCLUSIVE tanpa tx; run parsial lama dipertahankan | Run 14:25 dihentikan setelah 8 tes; final tes 9 lulus |
+| A-08 | Bridge wallet E2E memakai provider default: respons Infura HTTP 200 dengan error id-less `-32005` menjadi `missing response` saat penerbitan C | Transport uji | `f32afe6`: bridge memakai transport RPC bounded milik paket chain (20 s dan throttle retry), batching dimatikan, provider dihentikan saat teardown | Run 14:37 gagal (2 lulus, 1 gagal, 9 tidak dijalankan); final 12 lulus. Assertion produk dipertahankan. |
 
 ## 5. Debugging C.2
 

@@ -39,7 +39,7 @@ Catatan faktual deployment. Record mesin yang menjadi sumber kebenaran: [`contra
 | `ATTESTOR_ROLE` | `0x6512e69e2aDb0bba5cF96548546809b9B6f702b5` | Wallet uji baru, hanya menandatangani attestation off-chain. |
 | `RELAYER_ROLE` | `0xea36d9628c7CaCa078FbD0a9164A5cF0FAc52933` | Wallet uji baru, membayar tx `verify`. |
 | `RESULT_READER_ROLE` | `0x84Bd1D6C317554Ff3539Ec62Da6B2F8f882c8B5e` | Wallet uji baru, hanya mendekripsi hasil. |
-| Signer institusi (rencana) | `0x399a8A182631de9389B3fB3488537c9461d3a43e` | Wallet uji baru; diaktifkan melalui portal admin pada uji end-to-end. |
+| Signer institusi (aktif) | `0x399a8A182631de9389B3fB3488537c9461d3a43e` | Institusi sintetis `0xd4aadc1f7b58512ea3b4974d82df569c4cb734aa8049aed5377cb95e8caf62ab`, authorizationId 1; dipakai ulang pada run final. |
 
 Kunci privat wallet uji disimpan di luar repositori (`%USERPROFILE%\.uas-verifikasi\sepolia-test-wallets.env`). Kontrak menolak penggabungan peran (`RoleConflict`) dan pencabutan admin terakhir (`LastAdminRemoval`).
 
@@ -51,9 +51,17 @@ Kunci privat wallet uji disimpan di luar repositori (`%USERPROFILE%\.uas-verifik
 | Pendanaan signer 0,1 SepETH | [`0x255cc61e…aadd59c`](https://sepolia.etherscan.io/tx/0x255cc61e1527de5a397f2c7e4094a7ff812993c1c1a8ee26a6d4b0ed8aadd59c) | 11841233 | dari deployer |
 | `setIssuer` institusi sintetis (portal admin, UI) | [`0x04cf8989…0ba46f`](https://sepolia.etherscan.io/tx/0x04cf89896ceeee79834d1944058545b0ba675ffc90616aca3fe3fc2ab30ba46f) | 11841411 | 73.555 gas; event `IssuerUpdated(0xd4aadc1f…62ab, "Universitas Sintetis UAS (Uji)", true)` |
 | `setSigner` signer `0x399a…a43e` (portal admin, UI) | [`0x40cea2ff…50f59d`](https://sepolia.etherscan.io/tx/0x40cea2ff0296f435f4a09f720b1eddc149d1979d1f84acfcc70641daad50f59d) | 11841414 | 130.593 gas; event `SignerUpdated(…, authorizationId 1, true)`. Aktivasi ulang ditolak `SignerAlreadyActive` tanpa transaksi. |
-| Penerbitan, pencocokan FHE, pencabutan | **belum ada** — uji end-to-end berhenti saat penerbitan (lihat [`STATUS_INSTRUKSI_UAS.md`](STATUS_INSTRUKSI_UAS.md)) | | |
+| Penerbitan A (UI final) | [`0xc38bcf8b…afa860`](https://sepolia.etherscan.io/tx/0xc38bcf8b0fa2632d92e95aba2f2eb450af7fbbce5d14e15b04380a5184afa860) | 11842844 | 791.073 gas; `CredentialIssued` |
+| Penerbitan B (UI final) | [`0x4c688154…a8a4d0`](https://sepolia.etherscan.io/tx/0x4c6881540938ee63bfc746bd03c953cb93b6d500da4eccb4ef70a97c08a8a4d0) | 11842849 | 791.109 gas; `CredentialIssued` |
+| Penerbitan C (UI final) | [`0x33898cec…01ba0`](https://sepolia.etherscan.io/tx/0x33898cecc4a2c0cf090e157dd9cafda926af61a030c3dd114e261d876c201ba0) | 11842856 | 791.097 gas; `CredentialIssued` |
+| FHE MATCH A | [`0x2a57f0ac…3c1a84`](https://sepolia.etherscan.io/tx/0x2a57f0ac259c2ee52aa5c948ce6f30e26c1ae533a7abdd95d3a6e180bc3c1a84) | 11842862 | 1.002.250 gas; empat hasil dekripsi `true`, agregat `true` |
+| FHE nama berubah | [`0x62e1d27d…1c1ec5`](https://sepolia.etherscan.io/tx/0x62e1d27dd1257c7b5ffaaf192e666da63a312a16870d11b24af860e8e71c1ec5) | 11842867 | 1.002.298 gas; `false,true,true,true`, agregat `false` |
+| FHE QR B + atribut A | [`0x3878ea29…dc3a92`](https://sepolia.etherscan.io/tx/0x3878ea29e95e0093e86d4e5379ba69c010d290881869727f62fbe00595dc3a92) | 11842874 | 1.002.286 gas; empat hasil `false`, agregat `false` |
+| Pencabutan C (UI final) | [`0x48daa72f…cad501`](https://sepolia.etherscan.io/tx/0x48daa72f6252339d3c768b4c8e04a1005752c901ccbadfb1ab485ea92dcad501) | 11842877 | 40.277 gas; `CredentialRevoked`, QR dan unggahan REVOKED, PDF HTTP 409 |
 
 Receipt dan event terdekode untuk deployment dan registry: [`evidence/sepolia/receipts-deploy-and-registry.json`](evidence/sepolia/receipts-deploy-and-registry.json). Konstruktor memancarkan empat `RoleGranted` (admin, attestor, relayer, reader) ke empat alamat berbeda.
+
+Run UI final pada source `f32afe6`, 4 Oktober 2026 pukul 21:53–22:02 WIB: **12/12 lulus**, memakai PostgreSQL Docker lokal, bukan Supabase. Bukti [run final](evidence/sepolia/e2e-run-2026-10-04T14-53-27-678Z/sepolia-e2e-evidence.json), [15 receipt dari run parsial dan final](evidence/sepolia/receipts-e2e.json), [dekripsi ulang read-only oleh result reader](evidence/sepolia/fhe-decryption-confirmation.json), dan [tepat tiga event perbandingan pada interval run](evidence/sepolia/no-transaction-rejection-confirmation.json). QR baca, no-op registry, QR berbeda dari target, QR origin asing, dan unggahan C yang dicabut tidak mengirim tx baru. Wallet browser hanya mengirim tiga penerbitan dan satu pencabutan; tiga tx `verify` dikirim relayer backend. Dekripsi follow-up tidak membuat transaksi dan durasinya terpisah dari waktu UI.
 
 ## 3. Kontrak lama (protokol v1, hanya baca)
 

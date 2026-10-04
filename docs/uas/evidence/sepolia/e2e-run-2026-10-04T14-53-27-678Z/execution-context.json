@@ -1,0 +1,21 @@
+{
+  "sourceCommit": "f32afe67b39af7b38e524e263bc63b5a0973c5a6",
+  "startedAtUtc": "2026-10-04T14:53:27.730Z",
+  "command": "pnpm --filter @verifikasi/web exec playwright test tests/e2e/sepolia.spec.ts --reporter=list --workers=1",
+  "mode": "testnet",
+  "origin": "http://localhost:3000",
+  "chainId": 11155111,
+  "contract": "0x65b1C8C7B59D9651F8619F287Bc1c309FaE094e0",
+  "database": "verifikasi_local",
+  "databaseEnvironment": "Docker loopback only",
+  "video": true,
+  "exitCode": 0,
+  "tests": {
+    "passed": 12,
+    "failed": 0,
+    "skipped": 0
+  },
+  "finishedAtUtc": "2026-10-04T15:02:49.082Z",
+  "startedAtWib": "2026-10-04T21:53:27.678+07:00",
+  "finishedAtWib": "2026-10-04T22:02:49.082+07:00"
+}

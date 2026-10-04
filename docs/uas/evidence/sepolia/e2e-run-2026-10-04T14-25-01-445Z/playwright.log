@@ -1,0 +1,17 @@
+[WebServer] (node:196604) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:198284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 1 worker
+
+(node:137740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 tests\e2e\sepolia.spec.ts:194:5 › wallet on Sepolia signs in; switching to another network invalidates the session (6.4s)
+  ok  2 tests\e2e\sepolia.spec.ts:205:5 › administrator registers or reuses the synthetic institution and signer, and the portal rejects a no-op (4.8s)
+  ok  3 tests\e2e\sepolia.spec.ts:289:5 › institution signer issues three synthetic credentials with EIP-712 e-sign and downloads their PDFs (3.1m)
+  ok  4 tests\e2e\sepolia.spec.ts:297:5 › the QR record page verifies without session, upload, OCR or a new transaction (2.8s)
+  ok  5 tests\e2e\sepolia.spec.ts:316:5 › uploading the issued PDF yields MATCH from a real FHE comparison (1.4m)
+  ok  6 tests\e2e\sepolia.spec.ts:323:5 › one changed attribute with a valid QR yields MISMATCH on that attribute (59.4s)
+  ok  7 tests\e2e\sepolia.spec.ts:335:5 › a QR that differs from the expected credential is refused before any comparison transaction (2.3s)
+  ok  8 tests\e2e\sepolia.spec.ts:342:5 › a valid QR for B on a document with A attributes yields MISMATCH against record B (1.2m)

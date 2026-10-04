@@ -1,0 +1,18 @@
+{
+  "commit": "018614f",
+  "startedAtUtc": "2026-10-04T14:25:06.329Z",
+  "command": "pnpm --filter @verifikasi/web exec playwright test tests/e2e/sepolia.spec.ts --reporter=list --workers=1",
+  "environment": "local application + PostgreSQL Docker + actual Sepolia v2/Zama",
+  "localDatabase": "verifikasi_local",
+  "origin": "http://localhost:3000",
+  "chainId": 11155111,
+  "contract": "0x65b1C8C7B59D9651F8619F287Bc1c309FaE094e0",
+  "exitCode": 1,
+  "outcome": "interrupted by agent after 8 completed tests; foreign-fixture selected a missing valid-origin record, produced NOT_FOUND instead of the expected INCONCLUSIVE",
+  "lastObservedRejectedJob": {
+    "requestId": "0x9e76442740348983c0700abb35afaa229928bf15242f4673d5a3d217b80b3d17",
+    "status": "COMPLETED",
+    "decision": "NOT_FOUND",
+    "txHash": null
+  }
+}
