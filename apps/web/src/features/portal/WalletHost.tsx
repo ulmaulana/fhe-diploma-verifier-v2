@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useSwitchChain } from 'wagmi';
 import { sepolia } from 'wagmi/chains';
-import { SpinnerIcon, WalletIcon } from '@/features/shared/icons';
+import { ArrowRightIcon, SpinnerIcon, WalletIcon } from '@/features/shared/icons';
 import { walletSlotId } from './wallet-hint';
 import { PortalWalletProvider, usePortalWallet } from './WalletProvider';
 
@@ -42,7 +42,7 @@ function WalletButton({ autoOpen }: { autoOpen: boolean }) {
     if (account && authenticationStatus === 'authenticated') return <button type="button" className="wallet-button" onClick={openAccountModal} aria-label={`Kelola wallet ${account.displayName}`}>
       <WalletIcon size={19}/><span className="wallet-label">{account.displayName}</span><span className="wallet-dot"/></button>;
     return <>
-      <button type="button" className="wallet-button" onClick={openConnectModal} aria-label="Masuk dengan wallet penerbit"><WalletIcon size={19}/><span className="wallet-label">Masuk dengan wallet</span></button>
+      <button type="button" className="wallet-button" onClick={openConnectModal} aria-label="Masuk dengan wallet penerbit"><WalletIcon size={19}/><span className="wallet-label">Masuk dengan wallet</span><ArrowRightIcon size={18} className="wallet-arrow"/></button>
       <OpenOnce opened={opened} open={openConnectModal}/>
     </>;
   }}</ConnectButton.Custom>;

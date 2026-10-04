@@ -10,9 +10,8 @@ export const HistoryIcon = createIcon('HistoryIcon', ({ detail, sparks }) => <><
 export const BookIcon = createIcon('BookIcon', ({ detail }) => <><path style={paper} d="M12 6.8C10 5.4 7 5 3.5 5.3v12.4c3.5-.3 6.5.1 8.5 1.5 2-1.4 5-1.8 8.5-1.5V5.3C17 5 14 5.4 12 6.8z"/><path d="M12 6.8v12.4M6 9.2h3.5M6 12.2h3.5M14.5 12.2H18M14.5 15.2h2.3"/><path style={accent} d="M14.5 9.2H18M6 15.2h2.3"/>{detail && <path style={accent} d="M3.5 20.1c3.5-.3 6.5.1 8.5 1.3 2-1.2 5-1.6 8.5-1.3"/>}</>);
 export const InstitutionIcon = createIcon('InstitutionIcon', ({ detail, sparks }) => <><path d="M12 6.6V2.3"/><path style={{ ...accentFill, ...accent }} d="M12 2.6h4.3l-1.2 1.35 1.2 1.35H12"/><path style={soft} d="M3.5 12.5h4v8h-4zM16.5 12.5h4v8h-4z"/><path style={soft} d="M7.5 10.2h9v10.3h-9z"/><path style={paper} d="M6.5 10.2 12 6.6l5.5 3.6z"/>{detail && <path d="M5.5 14.3v6.2M18.5 14.3v6.2"/>}<path style={accent} d="M10 12.8h4M10.7 20.5v-2.6a1.3 1.3 0 0 1 2.6 0v2.6"/><path d="M2.5 20.5h19"/>{sparks && <Sparks tone="warm"/>}</>);
 export const MenuIcon = createIcon('MenuIcon', () => <path d="M4 7h16M4 12h16M4 17h16"/>);
-// Sidebar toggle: the soft left pane is the sidebar; the accent chevron points left and the
-// app shell turns it (.sidebar-chevron) to point right while the sidebar is collapsed.
-export const SidebarToggleIcon = createIcon('SidebarToggleIcon', () => <><path style={soft} d="M6.8 4.5h2.7v15H6.8a3.3 3.3 0 0 1-3.3-3.3V7.8a3.3 3.3 0 0 1 3.3-3.3z"/><rect x="3.5" y="4.5" width="17" height="15" rx="3.3"/><path d="M9.5 4.5v15"/><path className="sidebar-chevron" style={accent} d="M16 9.5 13.5 12l2.5 2.5"/></>);
+// Sidebar edge tab: points left to collapse; the app shell turns it to point right while collapsed.
+export const ChevronLeftIcon = createIcon('ChevronLeftIcon', () => <path d="M14.5 6 8.5 12l6 6"/>);
 export const SearchIcon = createIcon('SearchIcon', ({ detail }) => <><circle style={soft} cx="10.5" cy="10.5" r="6"/><path d="M15 15l4.8 4.8"/>{detail && <path style={accent} d="M7.9 9.3a3 3 0 0 1 2.2-2.2"/>}</>);
 export const UserSessionIcon = createIcon('UserSessionIcon', () => <><circle style={paper} cx="10.5" cy="7.8" r="3.8"/><path d="M3.8 20.2c.4-3.9 3.2-6.7 6.7-6.7 1.3 0 2.5.3 3.5.9"/><circle style={accentSolid} cx="17.6" cy="17.6" r="3.9"/><path style={{ stroke: 'var(--icon-paper, #fff)' }} d="M17.6 15.9v3.4M15.9 17.6h3.4"/></>);
 

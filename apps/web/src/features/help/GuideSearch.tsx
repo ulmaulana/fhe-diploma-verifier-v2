@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRightIcon, SearchIcon } from '@/features/shared/icons';
 import { recommendedArticles, searchArticles } from './search';
@@ -13,13 +13,18 @@ export function GuideSearch() {
   const [active, setActive] = useState(-1);
   const input = useRef<HTMLInputElement>(null);
   const listId = useId();
+  // Ctrl/⌘+K jumps to the search from anywhere, as the home topbar hint advertises.
+  useEffect(() => {
+    const focus = (event: KeyboardEvent) => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); input.current?.focus(); } };
+    window.addEventListener('keydown', focus); return () => window.removeEventListener('keydown', focus);
+  }, []);
   const results = query.trim() ? searchArticles(query).slice(0, 5).map(result => result.article) : recommendedArticles;
   function navigate(topic?: typeof recommendedArticles[number]) {
     setOpen(false); setActive(-1); input.current?.blur();
     router.push(topic ? `/panduan?q=${encodeURIComponent(topic.title)}&topic=${encodeURIComponent(topic.id)}` : `/panduan?q=${encodeURIComponent(query.trim())}`);
   }
 
-  return <div className={styles.root} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) { setOpen(false); setActive(-1); } }}>
+  return <div className={`topbar-search ${styles.root}`} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) { setOpen(false); setActive(-1); } }}>
     <form className={`search-bar ${styles.form}`} action="/panduan" onSubmit={event => { event.preventDefault(); navigate(open && active >= 0 ? results[active] : undefined); }}>
       <SearchIcon size={19}/>
       <input ref={input} name="q" role="combobox" aria-label="Cari panduan verifikasi" placeholder="Cari panduan verifikasi" autoComplete="off" maxLength={160}
@@ -33,7 +38,8 @@ export function GuideSearch() {
             setActive(next);
           }
         }}/>
-      <button type="submit" className={styles.submit} aria-label="Cari panduan"><ArrowRightIcon size={17}/></button>
+      <kbd className="search-shortcut" aria-hidden="true"><span>Ctrl</span>K</kbd>
+      <button type="submit" className={`search-submit ${styles.submit}`} aria-label="Cari panduan"><ArrowRightIcon size={17}/></button>
     </form>
     {open && <div className={styles.dropdown}>
       <p className={styles.caption}>{query.trim() ? 'Topik yang mungkin Anda cari' : 'Rekomendasi topik'}</p>
