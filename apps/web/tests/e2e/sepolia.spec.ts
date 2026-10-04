@@ -1,5 +1,6 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
-import { JsonRpcProvider, Wallet, getBytes, hexlify, randomBytes } from 'ethers';
+import { contractInterface } from '@verifikasi/chain';
+import { Contract, JsonRpcProvider, Wallet, getBytes, hexlify, randomBytes } from 'ethers';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { generateDiploma } from '../../src/server/diploma-pdf';
@@ -24,8 +25,11 @@ const people: Record<'A' | 'B' | 'C', Profile> = {
   B: { fullName: 'BUDI SANTOSO', diplomaNumber: 'UAS/2026/B002', studyProgram: 'SISTEM INFORMASI', graduationDate: '2026-07-20' },
   C: { fullName: 'CITRA LESTARI', diplomaNumber: 'UAS/2026/C003', studyProgram: 'INFORMATIKA', graduationDate: '2026-06-10' },
 };
-const issuerName = 'Universitas Sintetis UAS (Uji)';
-const issuerId = hexlify(randomBytes(32));
+const issuerName = process.env.SEPOLIA_E2E_ISSUER_NAME || 'Universitas Sintetis UAS (Uji)';
+const issuerId = process.env.SEPOLIA_E2E_ISSUER_ID || hexlify(randomBytes(32));
+if (enabled && (!/^0x[0-9a-fA-F]{64}$/.test(issuerId) || /^0x0{64}$/.test(issuerId))) {
+  throw new Error('SEPOLIA_E2E_ISSUER_ID must be a nonzero bytes32.');
+}
 const issued: Partial<Record<'A' | 'B' | 'C', { credentialId: string; pdf: string }>> = {};
 const sent: { from: string; to?: string; selector?: string; hash: string; atUtc: string }[] = [];
 const evidence: { startedAtUtc: string; origin: string; chainId: number; issuerId: string; issuerName: string; admin?: string; signer?: string;
@@ -145,6 +149,19 @@ async function signIn(expected: string) {
 }
 const hashIn = (text: string | null) => text?.match(/0x[0-9a-fA-F]{64}/)?.[0] ?? null;
 async function latestJob() { return (await (await context.request.get('/api/verifications')).json()).jobs[0]; }
+async function registryState() {
+  const contract = new Contract(process.env.CREDENTIAL_CONTRACT_ADDRESS!, contractInterface, rpc);
+  const confirmations = Math.max(2, Number(process.env.CHAIN_CONFIRMATIONS || '2'));
+  const checkedBlock = Math.max(0, await rpc!.getBlockNumber() - (confirmations - 1));
+  const [issuer, authorization] = await Promise.all([
+    contract.getFunction('issuers')(issuerId, { blockTag: checkedBlock }),
+    contract.getFunction('getSigner')(signer!.address, { blockTag: checkedBlock }),
+  ]);
+  return { checkedBlock, issuer: { name: String(issuer.name), active: Boolean(issuer.active), exists: Boolean(issuer.exists) },
+    signer: { issuerId: String(authorization.issuerId).toLowerCase(), active: Boolean(authorization.active), authorizationId: String(authorization.authorizationId) } };
+}
+const browserTransactionRequests = () => page.evaluate(() =>
+  (window as unknown as { __sepoliaWallet: { requests: string[] } }).__sepoliaWallet.requests.filter(method => method === 'eth_sendTransaction').length);
 
 async function upload(name: string, file: string, expectedHeading: string, target?: string) {
   const before = sent.length;
@@ -166,6 +183,7 @@ async function upload(name: string, file: string, expectedHeading: string, targe
 
 test.beforeAll(async ({ browser }) => {
   mkdirSync(evidenceDir, { recursive: true });
+  expect(BigInt(await rpc!.send('eth_chainId', [])), 'the configured RPC must be Ethereum Sepolia').toBe(11155111n);
   evidence.admin = admin!.address; evidence.signer = signer!.address;
   context = await browser.newContext({ baseURL: ORIGIN, acceptDownloads: true, viewport: { width: 1280, height: 900 } });
   await installBridgedWallet();
@@ -184,31 +202,59 @@ test('wallet on Sepolia signs in; switching to another network invalidates the s
   record('wallet-network', { admin: admin!.address, wrongNetworkInvalidatedSession: true });
 });
 
-test('administrator registers the synthetic institution and signer through the portal', async () => {
+test('administrator registers or reuses the synthetic institution and signer, and the portal rejects a no-op', async () => {
   test.setTimeout(10 * 60_000);
+  const initial = await registryState();
+  // Fail before a registry write if a supplied ID or wallet belongs to a different institution.
+  if (initial.issuer.exists) expect(initial.issuer).toEqual({ name: issuerName, active: true, exists: true });
+  if (initial.signer.active) expect(initial.signer.issuerId).toBe(issuerId.toLowerCase());
+  const beforeRegistry = sent.length;
   const issuerForm = page.locator('form').filter({ has: page.getByRole('heading', { name: 'Administrasi institusi', exact: true }) });
   await issuerForm.getByLabel('ID institusi (bytes32)').fill(issuerId);
   await issuerForm.getByLabel('Nama institusi terverifikasi').fill(issuerName);
-  await issuerForm.getByRole('button', { name: 'Simpan institusi', exact: true }).click();
-  const issuerTx = page.getByText(/^Transaksi registry institusi:/);
-  await expect(issuerTx).toBeVisible({ timeout: 5 * 60_000 });
-  const setIssuerTx = hashIn(await issuerTx.textContent());
+  let setIssuerTx: string | null = null;
+  if (!initial.issuer.exists) {
+    await issuerForm.getByRole('button', { name: 'Simpan institusi', exact: true }).click();
+    const issuerTx = page.getByText(/^Transaksi registry institusi:/);
+    await expect(issuerTx).toBeVisible({ timeout: 5 * 60_000 });
+    setIssuerTx = hashIn(await issuerTx.textContent());
+    expect(setIssuerTx).toMatch(/^0x[0-9a-fA-F]{64}$/);
+  }
   const signerForm = page.locator('form').filter({ has: page.getByRole('heading', { name: 'Wallet penandatangan', exact: true }) });
   await signerForm.getByLabel('ID institusi (bytes32)').fill(issuerId);
   await signerForm.getByLabel('Alamat wallet pejabat').fill(signer!.address);
-  await signerForm.getByRole('button', { name: 'Simpan kewenangan wallet', exact: true }).click();
-  const signerTx = page.getByText(/^Transaksi kewenangan penandatangan:/);
-  await expect(signerTx).toBeVisible({ timeout: 5 * 60_000 });
-  const setSignerTx = hashIn(await signerTx.textContent());
-  await shot('02-registry-transactions');
+  let setSignerTx: string | null = null;
+  if (!initial.signer.active) {
+    await signerForm.getByRole('button', { name: 'Simpan kewenangan wallet', exact: true }).click();
+    const signerTx = page.getByText(/^Transaksi kewenangan penandatangan:/);
+    await expect(signerTx).toBeVisible({ timeout: 5 * 60_000 });
+    setSignerTx = hashIn(await signerTx.textContent());
+    expect(setSignerTx).toMatch(/^0x[0-9a-fA-F]{64}$/);
+  }
+  const registered = await registryState();
+  expect(registered.issuer).toEqual({ name: issuerName, active: true, exists: true });
+  expect(registered.signer).toMatchObject({ issuerId: issuerId.toLowerCase(), active: true });
+  expect(BigInt(registered.signer.authorizationId)).toBeGreaterThan(0n);
+  if (initial.signer.active) expect(registered.signer).toEqual(initial.signer);
+  expect(sent.length - beforeRegistry).toBe(Number(!initial.issuer.exists) + Number(!initial.signer.active));
+  await shot(setIssuerTx || setSignerTx ? '02-registry-transactions' : '02-registry-existing-state');
   // Repeating the activation is a no-op that the contract rejects; the portal must not claim a change.
   const before = sent.length;
+  const requestsBefore = await browserTransactionRequests();
   await signerForm.getByRole('button', { name: 'Simpan kewenangan wallet', exact: true }).click();
   // Next.js also renders an (empty) route announcer with role="alert".
   await expect(page.getByRole('alert').filter({ hasText: 'Wallet sudah aktif sebagai penandatangan' })).toBeVisible({ timeout: 120_000 });
   expect(sent.length).toBe(before);
+  expect(await browserTransactionRequests(), 'the no-op is rejected before the wallet is asked to broadcast').toBe(requestsBefore);
+  const afterNoop = await registryState();
+  expect(afterNoop.issuer).toEqual(registered.issuer);
+  expect(afterNoop.signer).toEqual(registered.signer);
   await shot('03-registry-noop-rejected');
-  record('registry', { setIssuerTx, setSignerTx, noopSetSignerRejectedWithoutTransaction: true });
+  record('registry', { setIssuerTx, setSignerTx, reusedIssuer: initial.issuer.exists, reusedSigner: initial.signer.active,
+    initialState: initial, registeredState: registered, stateAfterNoop: afterNoop,
+    previousRegistryEvidence: initial.issuer.exists && issuerId.toLowerCase() === '0xd4aadc1f7b58512ea3b4974d82df569c4cb734aa8049aed5377cb95e8caf62ab'
+      ? 'docs/uas/evidence/sepolia/e2e-run-2026-10-04T09-40-02-443Z/sepolia-e2e-evidence.json' : null,
+    noopSetSignerRejectedWithoutTransaction: true, browserTransactionRequestsDuringNoop: await browserTransactionRequests() - requestsBefore });
 });
 
 async function issue(key: 'A' | 'B' | 'C') {
