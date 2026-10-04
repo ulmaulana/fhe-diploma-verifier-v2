@@ -34,3 +34,5 @@ graphify-out/memory/
 .env*
 # UAS evidence logs are deliverables (sanitized command output with exit codes).
 !docs/uas/evidence/**/*.log
+coverage.json
+!docs/uas/evidence/coverage/

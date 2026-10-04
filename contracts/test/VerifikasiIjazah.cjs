@@ -305,6 +305,12 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
         await assert.rejects(contract.setSigner(issuerId, service.address, true), /RoleConflict/);
       }
       await assert.rejects(contract.grantRole(role('UNKNOWN_ROLE'), spares[0].address), /InvalidRole/);
+      // Re-granting a role the account already holds is an idempotent no-op (no event, no conflict).
+      const regrant = await (await contract.grantRole(role('RELAYER_ROLE'), relayer.address)).wait();
+      assert.equal(regrant.logs.length, 0);
+      assert.equal(await contract.adminCount(), 1n);
+      await (await contract.grantRole(ADMIN, admin.address)).wait();
+      assert.equal(await contract.adminCount(), 1n);
       // Once deactivated, the former signer may hold a service role; it then cannot be reactivated as signer.
       await (await contract.setSigner(issuerId, issuer.address, false)).wait();
       await (await contract.grantRole(role('RELAYER_ROLE'), issuer.address)).wait();
@@ -427,6 +433,8 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
 
     it('rejects zero values, unsupported versions and wrong version strings', async () => {
       await assert.rejects(ethers.deployContract('VerifikasiIjazah', [ethers.ZeroAddress, attestor.address, relayer.address, reader.address]), /InvalidAddress/);
+      await assert.rejects(ethers.deployContract('VerifikasiIjazah', [admin.address, ethers.ZeroAddress, relayer.address, reader.address]), /InvalidAddress/);
+      await assert.rejects(ethers.deployContract('VerifikasiIjazah', [admin.address, attestor.address, ethers.ZeroAddress, reader.address]), /InvalidAddress/);
       await assert.rejects(ethers.deployContract('VerifikasiIjazah', [admin.address, attestor.address, relayer.address, ethers.ZeroAddress]), /InvalidAddress/);
       await assert.rejects(sendIssuance(await authorization({ credentialId: ethers.ZeroHash })), /InvalidCredential/);
       await assert.rejects(sendIssuance(await authorization({ publicDataHash: ethers.ZeroHash })), /InvalidCredentialAuthorization/);

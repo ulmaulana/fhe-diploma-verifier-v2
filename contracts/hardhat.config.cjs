@@ -1,5 +1,8 @@
 require('@fhevm/hardhat-plugin');
 require('@nomicfoundation/hardhat-ethers');
+// Coverage and source verification follow zama-ai/fhevm-hardhat-template (solidity-coverage 0.8.17, hardhat-verify 2.1.3).
+require('solidity-coverage');
+require('@nomicfoundation/hardhat-verify');
 const { subtask } = require('hardhat/config');
 const { TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD } = require('hardhat/builtin-tasks/task-names');
 
@@ -18,4 +21,7 @@ module.exports = {
     sepolia: { chainId: 11155111, url: process.env.RPC_URL || 'http://127.0.0.1:8545',
       accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [] },
   },
+  // Sourcify needs no API key. Etherscan verification is used only when ETHERSCAN_API_KEY is configured.
+  sourcify: { enabled: true },
+  etherscan: { enabled: Boolean(process.env.ETHERSCAN_API_KEY), apiKey: process.env.ETHERSCAN_API_KEY || '' },
 };
