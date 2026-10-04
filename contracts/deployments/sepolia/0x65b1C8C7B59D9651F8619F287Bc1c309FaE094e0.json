@@ -73,6 +73,26 @@
     "gitDirtyTrackedFiles": 0
   },
   "registrations": [],
-  "sourceVerification": null,
+  "sourceVerification": {
+    "attempts": [
+      {
+        "provider": "sourcify",
+        "status": "failed: Failed to send contract verification request.\nEndpoint URL: https://sourcify.dev/server/check-all-by-addresses?addresses=0x65b1C8C7B59D9651F8619F287Bc1c309FaE094e0&chainIds=11155111\nThe HTTP server response is not ok. Status code: 404 Response text: {\"type\":\"https://sourcify.dev/server/api-docs/\",\"t",
+        "checkedAtUtc": "2026-10-04T09:01:25.458Z"
+      },
+      {
+        "provider": "sourcify-v2",
+        "verificationId": "63b17621-844f-4845-a0fd-e16c4c0cb34e",
+        "compilerVersion": "0.8.28+commit.7893614a",
+        "status": "verified",
+        "match": "exact_match",
+        "creationMatch": "exact_match",
+        "runtimeMatch": "exact_match",
+        "error": null,
+        "repository": "https://repo.sourcify.dev/11155111/0x65b1C8C7B59D9651F8619F287Bc1c309FaE094e0",
+        "checkedAtUtc": "2026-10-04T09:03:01.417Z"
+      }
+    ]
+  },
   "recordedAtUtc": "2026-10-04T08:59:03.886Z"
 }

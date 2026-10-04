@@ -4,6 +4,7 @@ const { task, types } = require('hardhat/config');
 const roles = require('./lib/roles.cjs');
 const deployment = require('./lib/deployment.cjs');
 const registry = require('./lib/registry.cjs');
+const { verifyOnSourcify } = require('./lib/sourcify.cjs');
 
 /** Printed output must never contain secrets; an RPC URL may embed an API key. */
 function sanitize(text) {
@@ -94,23 +95,30 @@ task('uas:register', 'Daftarkan institusi dan signer secara idempoten (dry-run k
     return result;
   }));
 
-task('uas:verify-source', 'Verifikasi source di Sourcify memakai argumen konstruktor dari record')
+task('uas:verify-source', 'Verifikasi source di Sourcify (API v2) dan, bila ETHERSCAN_API_KEY ada, di Etherscan')
   .addOptionalParam('address', 'Alamat kontrak (default CREDENTIAL_CONTRACT_ADDRESS)')
   .addOptionalParam('recordDir', 'Folder record (default contracts/deployments)')
   .setAction(run(async (args, hre) => {
     const address = roles.account(args.address || process.env.CREDENTIAL_CONTRACT_ADDRESS, 'Alamat kontrak');
     const { record } = deployment.readRecord(args.recordDir, hre.network.name, address);
-    let status;
+    const attempts = [];
     try {
-      await hre.run('verify:verify', { address, constructorArguments: record.constructorArgs });
-      status = 'submitted-or-verified';
+      attempts.push(await verifyOnSourcify(hre, { address, chainId: record.chainId, creationTransactionHash: record.deployment.transactionHash }));
     } catch (error) {
-      status = `failed: ${sanitize(error.shortMessage || error.message).slice(0, 300)}`;
+      attempts.push({ provider: 'sourcify-v2', status: `failed: ${sanitize(error.message).slice(0, 300)}` });
     }
+    if (process.env.ETHERSCAN_API_KEY) {
+      try { await hre.run('verify:verify', { address, constructorArguments: record.constructorArgs }); attempts.push({ provider: 'etherscan', status: 'submitted-or-verified' }); }
+      catch (error) { attempts.push({ provider: 'etherscan', status: `failed: ${sanitize(error.shortMessage || error.message).slice(0, 300)}` }); }
+    }
+    const checkedAtUtc = new Date().toISOString();
     const { path } = deployment.updateRecord(args.recordDir, hre.network.name, address, entry => {
-      entry.sourceVerification = { provider: 'sourcify', status, checkedAtUtc: new Date().toISOString() };
+      // Keep earlier attempts (including failures) for traceability.
+      const previous = Array.isArray(entry.sourceVerification?.attempts) ? entry.sourceVerification.attempts
+        : entry.sourceVerification ? [entry.sourceVerification] : [];
+      entry.sourceVerification = { attempts: [...previous, ...attempts.map(attempt => ({ ...attempt, checkedAtUtc }))] };
     });
-    return { address, status, recordPath: path };
+    return { address, attempts, recordPath: path };
   }));
 
 module.exports = { sanitize };
