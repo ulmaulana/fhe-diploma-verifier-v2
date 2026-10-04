@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "capturedAtUtc": "2026-10-04T18:29:36.585Z",
-  "capturedAtWib": "2026-10-05 01:29:36 +07:00",
-  "head": "573fa37c8d33159ec1b7afd0cf508dab00a4f014",
+  "capturedAtUtc": "2026-10-04T19:24:37.186Z",
+  "capturedAtWib": "2026-10-05 02:24:37 +07:00",
+  "head": "e394c0d84025018a3cea381ee98cb8969b775a00",
   "scope": "Commit history for the UAS continuation including OCR70 validation; the accompanying archive-selection commit is available in Git.",
   "startHead": "7757f76",
   "commits": [
@@ -77,11 +77,17 @@
       "time": "2026-10-05T01:10:02+07:00",
       "author": "Maul",
       "subject": "docs(uas): record OCR 70% validation and refresh handoff"
+    },
+    {
+      "hash": "e394c0d84025018a3cea381ee98cb8969b775a00",
+      "time": "2026-10-05T01:31:13+07:00",
+      "author": "Maul",
+      "subject": "fix(uas): curate handoff archive documents"
     }
   ],
   "shortlog": [
     {
-      "commits": 41,
+      "commits": 42,
       "author": "Maul"
     }
   ],

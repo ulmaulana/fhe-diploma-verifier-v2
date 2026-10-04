@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "preparedAtUtc": "2026-10-04T18:29:42.627Z",
-  "preparedAtWib": "2026-10-05 01:29:42 +07:00",
-  "headAtPreparation": "573fa37c8d33159ec1b7afd0cf508dab00a4f014",
+  "preparedAtUtc": "2026-10-04T19:24:41.251Z",
+  "preparedAtWib": "2026-10-05 02:24:41 +07:00",
+  "headAtPreparation": "e394c0d84025018a3cea381ee98cb8969b775a00",
   "applicationVerifiedAt": "1413ebd424a7a914967ad6301c648c5c58842a1d",
   "sepoliaUISource": "f32afe67b39af7b38e524e263bc63b5a0973c5a6",
   "selection": {
@@ -32,7 +32,6 @@
     "prefixes": [
       "docs/uas/evidence/",
       "docs/uas/diagrams/",
-      "docs/screenshots/",
       "contracts/",
       "scripts/",
       "apps/web/",
@@ -53,8 +52,8 @@
       "file-manifest.json has no self hash; it is included separately in the ZIP"
     ]
   },
-  "fileCount": 464,
-  "totalInputBytes": 59912919,
+  "fileCount": 455,
+  "totalInputBytes": 58941883,
   "files": [
     {
       "path": ".env.example",
@@ -942,59 +941,9 @@
       "sha256": "e865f7fcdc406a3ac5b8c4114077106ffb0d98c546b6dce1801a0a58823fd07e"
     },
     {
-      "path": "docs/screenshots/desktop-empty.png",
-      "bytes": 130540,
-      "sha256": "39fa5a179f65a8c8ce6c100a66513104db9b39bbd8a768a5ff4b687368358706"
-    },
-    {
-      "path": "docs/screenshots/desktop-sample.png",
-      "bytes": 152150,
-      "sha256": "40501d75910c36d0bad7a2d4f29b52402f9eba3fee5c336eb64fdbf32a895f8a"
-    },
-    {
-      "path": "docs/screenshots/mobile-360.png",
-      "bytes": 85279,
-      "sha256": "1597e4fea188584d7c7bd10cd1838d864a4ba7d4bc1c28e88f66244b6a6a8ad7"
-    },
-    {
-      "path": "docs/screenshots/mobile-390.png",
-      "bytes": 86445,
-      "sha256": "dd0ed0d0a60113a171558ac2132b01d639af655bd99d89df35d31a90b40a8155"
-    },
-    {
-      "path": "docs/screenshots/real-ocr-demo.png",
-      "bytes": 149528,
-      "sha256": "c98aaf8c0e9ff515a8e7ef70a61db7e2d957bb872dba997c0263808ae8933886"
-    },
-    {
-      "path": "docs/screenshots/v12-portal.png",
-      "bytes": 62815,
-      "sha256": "1ddbe4528fa749af4768608a868a91d496848f8b4f8cf05f6bfaa0d69205382e"
-    },
-    {
-      "path": "docs/screenshots/v12-record-desktop.png",
-      "bytes": 98049,
-      "sha256": "ea3b2f2c08cfd3139e15861a70000df5e339f1cb261ed5e4f0b843d7921d0f2f"
-    },
-    {
-      "path": "docs/screenshots/v12-record-mobile-360.png",
-      "bytes": 57334,
-      "sha256": "939ef977d6ce41c3f4b048020840f9ee901db53114ea1980a0e1b7852852c24d"
-    },
-    {
-      "path": "docs/screenshots/v12-record-mobile.png",
-      "bytes": 57765,
-      "sha256": "80070cbb15a37c7b994426b22bee7ec33f90c140f8b71d3488d36ef49fc79368"
-    },
-    {
-      "path": "docs/screenshots/v12-record-unconfigured.png",
-      "bytes": 98343,
-      "sha256": "21999eef48993f2bfda3e3f58b4549375664a54fb0e7aeca6f71267727df3d25"
-    },
-    {
       "path": "docs/uas/BAHAN_LAPORAN_UAS.md",
-      "bytes": 32518,
-      "sha256": "f6a9c3a50c550294bf8d23d8bd3b264af432116fdc09c721352d185a77025e3a"
+      "bytes": 33459,
+      "sha256": "6e0d3a379587e465d2f913f01094f0dff2429bcbf62699ea4b032ba29ffac7d8"
     },
     {
       "path": "docs/uas/CATATAN_TEMUAN_DAN_RETEST.md",
@@ -1028,8 +977,8 @@
     },
     {
       "path": "docs/uas/STATUS_INSTRUKSI_UAS.md",
-      "bytes": 15209,
-      "sha256": "3b0635f4b279e613c6cf5ce1bdab2da5406f6fc50c612aec70310c1bbf2dab8a"
+      "bytes": 15686,
+      "sha256": "77b61d9539bc040c2d073245c48d173f35a921c3e25c2c9f67d6eda8d04ceb6c"
     },
     {
       "path": "docs/uas/TEST_RESULTS.md",
@@ -1323,8 +1272,8 @@
     },
     {
       "path": "docs/uas/evidence/handoff/archive-selection.json",
-      "bytes": 1970,
-      "sha256": "ea44cd36ed7aff6862f7e0dce46bd5f7be022fd8438e80a029f50df924fcc65a"
+      "bytes": 2301,
+      "sha256": "8cd54b4b8941f15c3fceb6d94a20248c0766b585b647d92716b9bc6079fffa05"
     },
     {
       "path": "docs/uas/evidence/handoff/cleanup.json",
@@ -1333,13 +1282,18 @@
     },
     {
       "path": "docs/uas/evidence/handoff/git-history.json",
-      "bytes": 3251,
-      "sha256": "00998c548c60a22b456e387ef18f28d06493b095fa8798aec5d6db9301f4890b"
+      "bytes": 3451,
+      "sha256": "f18fb887fa9b9e8b52b33009dc14722efcba1bf9ba3bd4a81b7ad91e6c9d3bf3"
     },
     {
       "path": "docs/uas/evidence/handoff/secret-scan.json",
       "bytes": 1011,
-      "sha256": "8a28bf8bcc14109bc5a8738757140ff123812faa9b321d8519c78ff11aafe045"
+      "sha256": "7841c9e8690c5c5a759b8b96b0f2503bc4c34f337f4d99331388d2a68d5fbf71"
+    },
+    {
+      "path": "docs/uas/evidence/handoff/visual-evidence-context.json",
+      "bytes": 5263,
+      "sha256": "23089fb5e492f16320c66716719e0d9f97c13322436d9226ea2704122b464a61"
     },
     {
       "path": "docs/uas/evidence/measurements/S-12-bench-state.ts.txt",

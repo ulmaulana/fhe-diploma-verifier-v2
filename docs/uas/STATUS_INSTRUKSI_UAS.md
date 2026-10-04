@@ -15,6 +15,8 @@ Pemindaian evidence sebelum env uji dihapus memeriksa **22 berkas/14 entri rahas
 
 Seleksi ZIP diperbaiki: hanya sembilan dokumen utama UAS, instruksi dan PDF soal, diagram, evidence serta source/config terpilih. Catatan troubleshooting Vercel/Netlify, `docs/superpowers/` dan instruksi agent tidak dikemas; berkas aslinya tetap di repo. [Aturan seleksi eksplisit](evidence/handoff/archive-selection.json) menjadi acuan manifest. Perubahan ini hanya pengemasan, tanpa pengujian aplikasi atau transaksi Sepolia baru.
 
+**Status screenshot:** sepuluh PNG generik `docs/screenshots/` masih dari baseline `96b4a08` dan telah dikeluarkan dari ZIP. Screenshot hasil E2E revisi70 yang tercatat berubah di worktree belum disalin ke evidence sebelum cleanup; bukti visual revisi70 **belum tersedia**. Gambar run gagal dan screenshot/video Sepolia 4 Oktober tetap disertakan sebagai bukti historis, bukan gambar aplikasi setelah revisi70. [Konteks visual](evidence/handoff/visual-evidence-context.json).
+
 **Batas bukti terbaru:** keputusan FHE pada regresi policy70 menggunakan mock terkontrol; OCR/PDF/browser/PostgreSQL lokal memakai komponen nyata. Tidak ada transaksi Sepolia baru untuk revisi70. Bukti 12 UI Sepolia/video/gas/pencabutan di snapshot berikut tetap dari source 4 Oktober dengan policy lama. ❌ Netlify/produksi belum diperbarui, tetap tindakan pengguna menurut DEMO. ❌ Luaran akademik ChatGPT/identitas anggota/CI remote tetap belum tersedia.
 
 ## Snapshot historis — 4 Oktober 2026

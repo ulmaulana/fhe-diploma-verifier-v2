@@ -4,6 +4,8 @@ Bahan faktual untuk dibawa ke ChatGPT. Revisi confidence OCR 70% yang diuji bers
 
 **Tambahan 5 Oktober 2026:** implementasi [kebijakan confidence OCR 70%](PERUBAHAN_KEBIJAKAN_OCR_70.md) mengikuti keputusan pengguna: hanya keempat skor valid semuanya <70% yang menghentikan proses karena confidence. Satu skor ≥70% cukup; syarat kelengkapan dan keputusan FHE tetap. Source, hasil regresi dan run lokal revisi ini dicatat terpisah dari snapshot 4 Oktober di [TEST_RESULTS](TEST_RESULTS.md). Persentase coverage lama 97,90%/91,41% adalah cakupan kode, bukan keberhasilan deteksi dokumen.
 
+**Batas visual:** screenshot dan video pengujian yang disertakan adalah bukti historis dari run aslinya. Screenshot revisi OCR70 belum terkumpul; rincian dan daftar gambar baseline yang dikeluarkan dari ZIP ada pada [konteks visual](evidence/handoff/visual-evidence-context.json).
+
 Semua ijazah evidence adalah fixture sintetis. Unit/kontrak mock, OCR/PDF/PostgreSQL nyata lokal, dan transaksi/dekripsi Sepolia memiliki tingkat bukti berbeda. Pengujian tidak memakai Supabase atau mainnet; Netlify tidak diubah. Bahan ini belum menjadi paket UAS lengkap. Laporan, audit formal PDF, desain singkat, rekomendasi enterprise, evaluasi tertulis, dan slide disusun ChatGPT setelah diminta pengguna.
 
 ## Sumber kanonis
@@ -14,7 +16,7 @@ Semua ijazah evidence adalah fixture sintetis. Unit/kontrak mock, OCR/PDF/Postgr
 | Reproduksi, versi, konfigurasi | [README](../../README.md), [.env.example](../../.env.example), [demo](DEMO.md) |
 | Aktor, data, Solidity, privasi, governance, E.1 | [fakta arsitektur dan pengukuran](FAKTA_ARSITEKTUR_DAN_PENGUKURAN.md) |
 | Audit S-01–S-15, remediasi dan risiko residual | [catatan temuan dan retest](CATATAN_TEMUAN_DAN_RETEST.md) |
-| Tes, coverage, debugging, kegagalan, CI | [hasil tes](TEST_RESULTS.md), [hasil mesin](evidence/final/verification-results.json) |
+| Tes, coverage, debugging, kegagalan, CI | [hasil tes](TEST_RESULTS.md), [hasil mesin revisi70](evidence/ocr-policy-70/final/verification-results.json), [hasil historis 4 Oktober](evidence/final/verification-results.json) |
 | Kontrak, roles, receipt, source match | [deployment](DEPLOYMENT_RECORD.md), [record mesin](../../contracts/deployments/sepolia/0x65b1C8C7B59D9651F8619F287Bc1c309FaE094e0.json) |
 
 Template dosen memakai identitas UAS kelompok, ringkasan, bagian 1–3, bagian 5.1–5.5, dan bagian 6. Bagian 4 khusus UTS tidak digunakan. Anjuran 10–15 halaman UTS bukan batas laporan UAS. Maksimal 10 slide dan evaluasi 2–3 halaman tetap kewajiban ChatGPT. Jangan menyimpulkan hasil uji Fabric atau kepatuhan hukum dari repo.
@@ -149,5 +151,7 @@ Handoff ini dapat dipakai tanpa menganggap produksi sudah dimigrasi. PDF hasil a
 Arsip lokal **BAHAN_LAPORAN_UAS_BLOCKCHAIN.zip** berada di root repo. Ekstrak dengan mempertahankan struktur folder, buka `docs/uas/BAHAN_LAPORAN_UAS.md`, lalu gunakan source kanonis dan indeks B-01 dan seterusnya untuk permintaan penulisan ke ChatGPT. Arsip memuat **sembilan dokumen utama UAS** (BAHAN, CATATAN_TEMUAN_DAN_RETEST, DEMO, DEPLOYMENT_RECORD, FAKTA, KEPATUHAN, PERUBAHAN_KEBIJAKAN_OCR_70, STATUS, TEST_RESULTS), evidence sintetis, video Sepolia historis, bukti revisi OCR70 lokal, diagram editable/PNG/SVG, instruksi/PDF soal serta source/config terpilih. Seleksi mengikuti [allowlist eksplisit](evidence/handoff/archive-selection.json), bukan seluruh folder docs.
 
 Catatan troubleshooting dan riwayat hosting Vercel/Netlify, `docs/superpowers/`, serta prompt/instruksi agent tersedia di repositori dan sengaja tidak dikemas. Tautan README/PRD ke dokumen tersebut adalah rujukan repositori; sumber hasil UAS dalam ZIP menggunakan sembilan dokumen di `docs/uas` dan indeks B-01–B-40. Evidence run gagal tetap disertakan.
+
+**Konteks gambar:** sepuluh PNG di `docs/screenshots/` berasal dari baseline lama dan tidak dimasukkan ke ZIP. Screenshot/video pada evidence baseline dan Sepolia mempertahankan versi, tanggal serta hasil run aslinya. Bukti revisi OCR70 terbaru berupa source, log/JSON tes dan coverage; screenshot hasil E2E revisi70 belum dikumpulkan sebelum cleanup. Jangan memakai gambar Sepolia 4 Oktober sebagai bukti visual kebijakan70. [Inventaris konteks visual](evidence/handoff/visual-evidence-context.json) membedakan bukti tersebut dari diagram dan gambar acuan desain.
 
 Daftar berkas, ukuran dan SHA-256 berada dalam manifest; SHA arsip dan hasil verifikasi terdapat pada metadata arsip di repo. File manifest tidak mencantumkan hash dirinya sendiri, dan metadata SHA arsip berada di luar ZIP untuk menghindari hash melingkar. HEAD saat penyusunan dicatat terpisah dari hash isi; status dokumentasi yang kemudian di-commit diverifikasi byte-identik dengan isi ZIP. `.env.example` adalah contoh kosong; `.env`, kunci, node_modules, cache, storage, raw trace/cookie/workflow state tidak diekspor. ZIP tidak berisi laporan akademik, audit formal, evaluasi atau slide baru. Ikuti DEMO untuk membuat lingkungan lokal baru sebelum retest.

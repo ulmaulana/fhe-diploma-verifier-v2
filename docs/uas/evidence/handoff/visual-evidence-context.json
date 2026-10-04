@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "reviewedAtUtc": "2026-10-04T19:23:45.804Z",
+  "reviewedAtWib": "2026-10-05 02:23:45 +07:00",
+  "headAtReview": "e394c0d84025018a3cea381ee98cb8969b775a00",
+  "applicationVerifiedAt": "1413ebd424a7a914967ad6301c648c5c58842a1d",
+  "latestPolicyVisualEvidence": {
+    "policy": "70%; confidence rejects only when all four valid scores are below 70%",
+    "collectedScreenshots": 0,
+    "collectedVideo": 0,
+    "status": "not-collected",
+    "verificationResults": "docs/uas/evidence/ocr-policy-70/final/verification-results.json",
+    "explanation": "The final E2E run records ten modified screenshot files in its worktree. These images were not copied into the evidence set before the worktree was cleaned. Latest-policy tests/logs do not make historical images latest-policy visual evidence."
+  },
+  "excludedGenericScreenshots": {
+    "count": 10,
+    "lastRecordedSource": "96b4a08",
+    "lastRecordedCommit": "baseline snapshot; not an image capture timestamp",
+    "reason": "Unreferenced baseline UI images, including old September labels; excluded from ZIP without deleting repository files",
+    "files": [
+      {
+        "path": "docs/screenshots/desktop-empty.png",
+        "sha256": "39fa5a179f65a8c8ce6c100a66513104db9b39bbd8a768a5ff4b687368358706"
+      },
+      {
+        "path": "docs/screenshots/desktop-sample.png",
+        "sha256": "40501d75910c36d0bad7a2d4f29b52402f9eba3fee5c336eb64fdbf32a895f8a"
+      },
+      {
+        "path": "docs/screenshots/mobile-360.png",
+        "sha256": "1597e4fea188584d7c7bd10cd1838d864a4ba7d4bc1c28e88f66244b6a6a8ad7"
+      },
+      {
+        "path": "docs/screenshots/mobile-390.png",
+        "sha256": "dd0ed0d0a60113a171558ac2132b01d639af655bd99d89df35d31a90b40a8155"
+      },
+      {
+        "path": "docs/screenshots/real-ocr-demo.png",
+        "sha256": "c98aaf8c0e9ff515a8e7ef70a61db7e2d957bb872dba997c0263808ae8933886"
+      },
+      {
+        "path": "docs/screenshots/v12-portal.png",
+        "sha256": "1ddbe4528fa749af4768608a868a91d496848f8b4f8cf05f6bfaa0d69205382e"
+      },
+      {
+        "path": "docs/screenshots/v12-record-desktop.png",
+        "sha256": "ea3b2f2c08cfd3139e15861a70000df5e339f1cb261ed5e4f0b843d7921d0f2f"
+      },
+      {
+        "path": "docs/screenshots/v12-record-mobile-360.png",
+        "sha256": "939ef977d6ce41c3f4b048020840f9ee901db53114ea1980a0e1b7852852c24d"
+      },
+      {
+        "path": "docs/screenshots/v12-record-mobile.png",
+        "sha256": "80070cbb15a37c7b994426b22bee7ec33f90c140f8b71d3488d36ef49fc79368"
+      },
+      {
+        "path": "docs/screenshots/v12-record-unconfigured.png",
+        "sha256": "21999eef48993f2bfda3e3f58b4549375664a54fb0e7aeca6f71267727df3d25"
+      }
+    ]
+  },
+  "retainedHistoricalScreenshots": {
+    "baselineFailures": {
+      "directory": "docs/uas/evidence/baseline/e2e-failures/",
+      "count": 3,
+      "source": "96b4a08",
+      "purpose": "Original failed-test evidence; not current UI"
+    },
+    "sepoliaRuns": [
+      {
+        "directory": "docs/uas/evidence/sepolia/e2e-run-2026-10-04T09-40-02-443Z",
+        "count": 4,
+        "context": "Original run timestamp and source are recorded in run evidence/execution-context. Includes failed/interrupted runs; not OCR70 visual evidence."
+      },
+      {
+        "directory": "docs/uas/evidence/sepolia/e2e-run-2026-10-04T14-23-59-473Z",
+        "count": 1,
+        "context": "Original run timestamp and source are recorded in run evidence/execution-context. Includes failed/interrupted runs; not OCR70 visual evidence."
+      },
+      {
+        "directory": "docs/uas/evidence/sepolia/e2e-run-2026-10-04T14-25-01-445Z",
+        "count": 11,
+        "context": "Original run timestamp and source are recorded in run evidence/execution-context. Includes failed/interrupted runs; not OCR70 visual evidence."
+      },
+      {
+        "directory": "docs/uas/evidence/sepolia/e2e-run-2026-10-04T14-37-04-887Z",
+        "count": 6,
+        "context": "Original run timestamp and source are recorded in run evidence/execution-context. Includes failed/interrupted runs; not OCR70 visual evidence."
+      },
+      {
+        "directory": "docs/uas/evidence/sepolia/e2e-run-2026-10-04T14-53-27-678Z",
+        "count": 17,
+        "context": "Original run timestamp and source are recorded in run evidence/execution-context. Includes failed/interrupted runs; not OCR70 visual evidence."
+      }
+    ],
+    "successfulSepoliaRun": {
+      "directory": "docs/uas/evidence/sepolia/e2e-run-2026-10-04T14-53-27-678Z/",
+      "source": "f32afe67b39af7b38e524e263bc63b5a0973c5a6",
+      "wibDate": "2026-10-04",
+      "policy": "before OCR70 revision",
+      "videoMetadata": "docs/uas/evidence/sepolia/e2e-run-2026-10-04T14-53-27-678Z/video-metadata.json"
+    }
+  },
+  "otherImages": {
+    "diagrams": "docs/uas/diagrams/: technical diagrams, with render-metadata.json; not application screenshots",
+    "designReference": "assets/ui-reference.png: approved design reference; not an executed application test"
+  },
+  "interpretation": "Source/documents are current for the packaged snapshot. Included visual observations remain historical evidence with their original source/run; do not claim every image was captured from the latest application."
+}
