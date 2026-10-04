@@ -11,7 +11,8 @@
   "scripts": {
     "build": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "coverage": "vitest run --coverage --coverage.provider=v8 --coverage.include=src/** --coverage.reporter=text --coverage.reporter=json-summary --coverage.reportsDirectory=coverage"
   },
   "dependencies": {
     "@verifikasi/contracts": "workspace:*",

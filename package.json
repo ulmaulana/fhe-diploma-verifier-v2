@@ -17,7 +17,8 @@
     "test:e2e": "pnpm --filter @verifikasi/web exec playwright test",
     "db:generate": "pnpm --filter @verifikasi/web db:generate",
     "db:migrate": "pnpm --filter @verifikasi/web db:migrate",
-    "test:db": "pnpm --filter @verifikasi/web test:db"
+    "test:db": "pnpm --filter @verifikasi/web test:db",
+    "coverage": "pnpm -r --if-present coverage"
   },
   "devDependencies": {
     "@netlify/zip-it-and-ship-it": "^16.2.0",
