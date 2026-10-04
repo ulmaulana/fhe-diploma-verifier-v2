@@ -1,4 +1,4 @@
-import { Transaction, Wallet, ZeroHash, getAddress, hexlify, randomBytes, type JsonRpcProvider, type TypedDataField } from 'ethers';
+import { Transaction, Wallet, ZeroHash, getAddress, hexlify, id, randomBytes, type Contract, type JsonRpcProvider, type TransactionRequest, type TypedDataField } from 'ethers';
 import {
   ATTESTATION_TYPES, ENCODING_VERSION, FIELD_KEYS, NORMALIZER_VERSION, SCHEMA_VERSION,
   attestationDomain, attributeDigests, digestToUint256, hashInputHandles, requireHex32, type VerificationAttestation,
@@ -21,6 +21,61 @@ function secret(name: string): string {
   const value = process.env[name]?.trim();
   if (!value || !/^(?:0x)?[0-9a-fA-F]{64}$/.test(value)) throw new ChainConfigurationError(`${name} belum valid.`);
   return value.startsWith('0x') ? value : `0x${value}`;
+}
+
+/** Raised before signing when the relayer cannot pay for a comparison; nothing is signed or broadcast. */
+export class RelayerFundsError extends Error {
+  readonly code = 'INSUFFICIENT_FUNDS';
+  constructor(message = 'Saldo relayer tidak cukup untuk transaksi pencocokan.') { super(message); this.name = 'RelayerFundsError'; }
+}
+
+export interface ServiceAccounts { relayer: Wallet; attestor: Wallet; reader: Wallet }
+
+/** Local configuration check, no RPC: three valid keys that belong to three different addresses.
+ * Three keys in one backend still share one operational trust boundary; this only limits misuse of one role. */
+export function serviceAccounts(): ServiceAccounts {
+  const relayer = new Wallet(secret('RELAYER_PRIVATE_KEY'));
+  const attestor = new Wallet(secret('ATTESTOR_PRIVATE_KEY'));
+  const reader = new Wallet(secret('RESULT_READER_PRIVATE_KEY'));
+  if (new Set([relayer.address, attestor.address, reader.address]).size !== 3) {
+    throw new ChainConfigurationError('RELAYER_PRIVATE_KEY, ATTESTOR_PRIVATE_KEY dan RESULT_READER_PRIVATE_KEY harus milik tiga alamat berbeda.');
+  }
+  return { relayer, attestor, reader };
+}
+
+const ROLES = { admin: ZeroHash, attestor: id('ATTESTOR_ROLE'), relayer: id('RELAYER_ROLE'), reader: id('RESULT_READER_ROLE') } as const;
+const ROLE_POLICY_TTL_MS = 60_000;
+const verifiedRolePolicies = new Map<string, number>();
+
+/** On-chain policy check before a sensitive operation: each service key holds exactly its own role, none is an
+ * administrator and none is an active institution signer. A failed RPC read propagates; it never counts as a pass. */
+export async function assertServiceRoles(contract: Contract, accounts: ServiceAccounts, contractAddress: string): Promise<void> {
+  const key = [contractAddress, accounts.relayer.address, accounts.attestor.address, accounts.reader.address].join(':');
+  if ((verifiedRolePolicies.get(key) ?? 0) > Date.now()) return;
+  const expected: [label: string, address: string, role: keyof typeof ROLES][] = [
+    ['relayer', accounts.relayer.address, 'relayer'], ['attestor', accounts.attestor.address, 'attestor'], ['result reader', accounts.reader.address, 'reader'],
+  ];
+  await Promise.all(expected.map(async ([label, address, own]) => {
+    const [held, signer] = await Promise.all([
+      Promise.all((Object.keys(ROLES) as (keyof typeof ROLES)[]).map(async role => [role, Boolean(await contract.getFunction('hasRole')(ROLES[role], address))] as const)),
+      contract.getFunction('getSigner')(address),
+    ]);
+    const roles = Object.fromEntries(held);
+    if (!roles[own]) throw new ChainConfigurationError(`Kunci ${label} (${address}) tidak memegang perannya pada kontrak.`);
+    if (held.some(([role, has]) => has && role !== own)) throw new ChainConfigurationError(`Kunci ${label} (${address}) memegang peran lain; pisahkan admin dan kunci layanan.`);
+    if (signer.active) throw new ChainConfigurationError(`Kunci ${label} (${address}) adalah signer institusi aktif.`);
+  }));
+  verifiedRolePolicies.set(key, Date.now() + ROLE_POLICY_TTL_MS);
+}
+
+/** About 1.0 million gas was used by verify on Sepolia; the margin only gates the expensive FHE encryption. */
+const VERIFY_GAS_PRECHECK = 1_200_000n;
+async function assertRelayerFunds(provider: JsonRpcProvider, relayer: string, transaction?: TransactionRequest) {
+  const fee = await provider.getFeeData();
+  const price = BigInt(transaction?.maxFeePerGas ?? transaction?.gasPrice ?? fee.maxFeePerGas ?? fee.gasPrice ?? 0n);
+  const gas = BigInt(transaction?.gasLimit ?? VERIFY_GAS_PRECHECK);
+  const required = gas * price + BigInt(transaction?.value ?? 0n);
+  if (await provider.getBalance(relayer) < required) throw new RelayerFundsError();
 }
 
 export async function lookupCredential(id: string) {
@@ -104,9 +159,9 @@ export async function submitComparison(input: VerificationInput): Promise<string
   const provider = await checkedProvider(config);
   const requestId = requireHex32(input.requestId, 'requestId');
   const credentialId = requireHex32(input.credentialId, 'credentialId');
-  const relayer = new Wallet(secret('RELAYER_PRIVATE_KEY'), provider);
-  const attestor = new Wallet(secret('ATTESTOR_PRIVATE_KEY'));
-  const reader = new Wallet(secret('RESULT_READER_PRIVATE_KEY'));
+  const accounts = serviceAccounts();
+  const relayer = accounts.relayer.connect(provider);
+  const { attestor, reader } = accounts;
   const contract = credentialContract(config.contractAddress, relayer);
 
   let transactionHash = input.transactionHash;
@@ -120,10 +175,13 @@ export async function submitComparison(input: VerificationInput): Promise<string
     transactionHash = log.transactionHash;
   }
   if (!used && !transactionHash) {
+    await assertServiceRoles(contract, accounts, config.contractAddress);
     const metadata = await readCredential(config, provider, credentialId);
     if (!metadata || !metadata.confirmed || !metadata.historicalSignerAuthorized || metadata.revoked || !metadata.issuerActive) {
       throw new Error('Rekaman belum aktif, belum terkonfirmasi, atau tidak ditemukan.');
     }
+    // Do not spend an FHE encryption on a relayer that cannot pay; the exact check follows before signing.
+    await assertRelayerFunds(provider, relayer.address);
     const { createInstance, SepoliaConfig } = await import('@zama-fhe/relayer-sdk/node');
     const instance = await createInstance({ ...SepoliaConfig, network: config.rpcUrl });
     const digests = attributeDigests(credentialId, input.attributes);
@@ -141,7 +199,9 @@ export async function submitComparison(input: VerificationInput): Promise<string
     };
     const signature = await attestor.signTypedData(attestationDomain(config.chainId, config.contractAddress), ATTESTATION_TYPES, attestation);
     const transaction = await contract.getFunction('verify').populateTransaction(attestation, handles, encrypted.inputProof, signature);
-    serialized = await relayer.signTransaction(await relayer.populateTransaction(transaction));
+    const populated = await relayer.populateTransaction(transaction);
+    await assertRelayerFunds(provider, relayer.address, populated);
+    serialized = await relayer.signTransaction(populated);
     transactionHash = Transaction.from(serialized).hash ?? undefined;
     if (!transactionHash) throw new Error('Hash transaksi belum tersedia.');
     await input.onPreparedTransaction?.({ hash: transactionHash, serialized });
