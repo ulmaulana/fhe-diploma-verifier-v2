@@ -1,0 +1,29 @@
+# note: the throwaway password of the local Docker container (postgres:16-alpine, 127.0.0.1:54329) is redacted below.
+# command : env TEST_DATABASE_URL=postgres://postgres:<disposable-password-redacted>@127.0.0.1:54329/verifikasi_test pnpm test:db
+# cwd     : 
+# commit  : 6673e51 tracked-changes=1
+# started : 2026-10-04T09:05:25Z (UTC) / 2026-10-04T16:05:25 WIB
+# node    : v24.21.0  pnpm: 10.19.0  os: MINGW64_NT-10.0-26300
+# ----------------------------------------------------------------
+
+> verifikasi-monorepo@ test:db C:\Users\Maulana\Pictures\Matkul IF\Semester 7\Blockchain\UAS\Degree-E-Sign-and-Verifier-ZamaFHE-main
+> pnpm --filter @verifikasi/web test:db
+
+
+> @verifikasi/web@0.1.0 test:db C:\Users\Maulana\Pictures\Matkul IF\Semester 7\Blockchain\UAS\Degree-E-Sign-and-Verifier-ZamaFHE-main\apps\web
+> vitest run --config vitest.database.config.ts
+
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mC:/Users/Maulana/Pictures/Matkul IF/Semester 7/Blockchain/UAS/Degree-E-Sign-and-Verifier-ZamaFHE-main/apps/web[39m
+
+ [32m✓[39m tests/integration/database.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 1637[2mms[22m[39m
+   [33m[2m✓[22m[39m Drizzle PostgreSQL persistence and transaction-pooler leases[2m > [22madmits exactly the relayer budget when two pools reserve concurrently (S-08) [33m 329[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+[2m   Start at [22m 16:05:35
+[2m   Duration [22m 5.80s[2m (transform 538ms, setup 0ms, collect 3.22s, tests 1.64s, environment 0ms, prepare 389ms)[22m
+
+# ----------------------------------------------------------------
+# finished: 2026-10-04T09:05:41Z (UTC) duration=13s
+EXIT_CODE=0

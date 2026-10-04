@@ -100,6 +100,20 @@ describe.skipIf(!url)('Drizzle PostgreSQL persistence and transaction-pooler lea
     expect(await withDatabaseState(first.db, state => state.rates.concurrent!.count)).toBe(20);
   });
 
+  it('admits exactly the relayer budget when two pools reserve concurrently (S-08)', async () => {
+    const { reserveComparison } = await import('../../src/server/relayer-budget');
+    const jobs = Array.from({ length: 16 }, (_, index) => `0x${String(index + 1).padStart(64, '0')}`);
+    await withDatabaseState(first.db, state => {
+      delete state.relayerBudget;
+      for (const id of jobs) state.jobs[id] = { id, owner: 'o', idempotencyKey: id, status: 'AWAITING_CHAIN', fileName: 'f', fileSize: 1, mimeType: 'application/pdf',
+        createdAt: '', expiresAt: '2099-01-01T00:00:00.000Z', artifactsExpireAt: '2099-01-01T00:00:00.000Z', mode: 'testnet', synthetic: false, attempts: 0 };
+    });
+    const results = await Promise.allSettled(jobs.map((id, index) => withDatabaseState(index % 2 ? first.db : second.db, state => reserveComparison(state, id, Date.now(), 5))));
+    expect(results.filter(result => result.status === 'fulfilled')).toHaveLength(5);
+    expect(results.filter(result => result.status === 'rejected').every(result => (result as PromiseRejectedResult).reason.code === 'COMPARISON_BUDGET_EXHAUSTED')).toBe(true);
+    expect(await withDatabaseState(second.db, state => state.relayerBudget!.jobs.length)).toBe(5);
+  });
+
   it('rolls back state when a mutation fails', async () => {
     await expect(withDatabaseState(first.db, state => { state.rates.rollback = { count: 999, resetAt: 1 }; throw new Error('abort'); })).rejects.toThrow('abort');
     expect(await withDatabaseState(second.db, state => state.rates.rollback)).toBeUndefined();
