@@ -185,11 +185,22 @@ test.beforeAll(async ({ browser }) => {
   mkdirSync(evidenceDir, { recursive: true });
   expect(BigInt(await rpc!.send('eth_chainId', [])), 'the configured RPC must be Ethereum Sepolia').toBe(11155111n);
   evidence.admin = admin!.address; evidence.signer = signer!.address;
-  context = await browser.newContext({ baseURL: ORIGIN, acceptDownloads: true, viewport: { width: 1280, height: 900 } });
+  context = await browser.newContext({ baseURL: ORIGIN, acceptDownloads: true, viewport: { width: 1280, height: 900 },
+    ...(process.env.SEPOLIA_E2E_VIDEO === '1' ? { recordVideo: { dir: path.join(evidenceDir, 'video-raw'), size: { width: 1280, height: 900 } } } : {}) });
   await installBridgedWallet();
   page = await context.newPage();
 });
-test.afterAll(async () => { record('finished', {}); await context?.close(); });
+test.afterAll(async () => {
+  const video = page?.video();
+  await context?.close();
+  if (video) {
+    const fileName = 'Video_Demo_Sepolia.webm';
+    await video.saveAs(path.join(evidenceDir, fileName));
+    await video.delete();
+    record('video', { fileName, format: 'webm', method: 'Playwright browser recording of this real Sepolia UI run with synthetic credentials' });
+  }
+  record('finished', {});
+});
 
 test('wallet on Sepolia signs in; switching to another network invalidates the session', async () => {
   test.setTimeout(5 * 60_000);
@@ -352,7 +363,12 @@ test('a valid QR for B on a document with A attributes yields MISMATCH against r
 
 test('a document without a valid QR for this application ends INCONCLUSIVE without a transaction', async () => {
   test.setTimeout(10 * 60_000);
-  const job = await upload('foreign-fixture', path.resolve('../../packages/ocr/tests/fixtures/synthetic-A1.pdf'), 'Belum dapat diverifikasi');
+  const A = people.A;
+  const bytes = await generateDiploma({ credentialId: issued.A!.credentialId, origin: 'https://foreign.invalid', graduationDate: A.graduationDate, createdAt: new Date().toISOString(),
+    profile: { schemaVersion: 1, disclosurePolicyVersion: 1, issuerId: issuerId as `0x${string}`, issuerDisplayName: issuerName, fullName: A.fullName, diplomaNumber: A.diplomaNumber, studyProgram: A.studyProgram } });
+  const file = path.join(evidenceDir, 'ijazah-foreign-qr.pdf'); writeFileSync(file, bytes);
+  const job = await upload('foreign-fixture', file, 'Belum dapat diverifikasi');
+  expect(job.decision).toBe('INCONCLUSIVE');
   expect(job.txHash ?? null).toBeNull();
 });
 
@@ -405,7 +421,9 @@ test('a record on the trusted legacy v1 contract is shown read-only (when a lega
   const id = process.env.SEPOLIA_E2E_LEGACY_ID!;
   const body = await (await context.request.get(`/api/credentials/${id}/verification`)).json();
   await page.goto(`/c/${id}`);
+  await expect(page.getByRole('heading', { name: 'Rekaman ijazah terverifikasi', exact: true })).toBeVisible({ timeout: 120_000 });
   await shot('09-legacy-v1-record');
-  record('legacy-v1-record', { credentialId: id, recordVerificationStatus: body.recordVerificationStatus, legacyContract: body.legacyContract, contractAddress: body.contractAddress, reason: body.reason });
-  expect(body).toMatchObject({ legacyContract: true });
+  record('legacy-v1-record', { credentialId: id, recordVerificationStatus: body.recordVerificationStatus, scope: body.scope, documentDecision: body.documentDecision,
+    legacyContract: body.legacyContract, contractAddress: body.contractAddress, reason: body.reason });
+  expect(body).toMatchObject({ recordVerificationStatus: 'VERIFIED_RECORD', scope: 'RECORD_ONLY', documentDecision: null, legacyContract: true });
 });
