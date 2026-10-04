@@ -392,4 +392,119 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
     assert.ok((await contract.signerAuthorizations(first.authorizationId)).revokedAt > 0n);
     assert.equal((await contract.signerAuthorizations(second.authorizationId)).revokedAt, 0n);
   });
+
+  describe('T-02: boundaries, access control, business states and events', () => {
+    const GAS = { gasLimit: 15_000_000 };
+    const events = (receipt, name) => receipt.logs.map(log => { try { return contract.interface.parseLog(log); } catch { return null; } })
+      .filter(parsed => parsed && parsed.name === name);
+    async function at(timestamp, sendTx) {
+      await ethers.provider.send('evm_setNextBlockTimestamp', [Number(timestamp)]);
+      return sendTx();
+    }
+
+    it('accepts issuance exactly at the deadline and rejects one second later', async () => {
+      const block = await ethers.provider.getBlock('latest');
+      const deadline = block.timestamp + 1000;
+      const late = await authorization({ issuanceDeadline: deadline, nonce: 2n });
+      await assert.rejects(at(deadline + 1, () => contract.connect(issuer).issueCredential(late.payload, late.signature,
+        late.encrypted.handles, late.encrypted.inputProof, GAS)), /ExpiredCredentialAuthorization/);
+      const onTime = await authorization({ issuanceDeadline: deadline + 2000 });
+      const receipt = await (await at(deadline + 2000, () => contract.connect(issuer).issueCredential(onTime.payload, onTime.signature,
+        onTime.encrypted.handles, onTime.encrypted.inputProof, GAS))).wait();
+      assert.equal(receipt.status, 1);
+    });
+
+    it('accepts an attestation exactly at its deadline and rejects one second later', async () => {
+      await issue();
+      const deadline = (await ethers.provider.getBlock('latest')).timestamp + 1000;
+      const onTime = await request(values, { deadline });
+      await (await at(deadline, () => contract.connect(relayer).verify(onTime.attestation, onTime.encrypted.handles,
+        onTime.encrypted.inputProof, onTime.signature, GAS))).wait();
+      const late = await request(values, { deadline: deadline + 10 });
+      await assert.rejects(at(deadline + 11, () => contract.connect(relayer).verify(late.attestation, late.encrypted.handles,
+        late.encrypted.inputProof, late.signature, GAS)), /ExpiredAttestation/);
+    });
+
+    it('rejects zero values, unsupported versions and wrong version strings', async () => {
+      await assert.rejects(ethers.deployContract('VerifikasiIjazah', [ethers.ZeroAddress, attestor.address, relayer.address, reader.address]), /InvalidAddress/);
+      await assert.rejects(ethers.deployContract('VerifikasiIjazah', [admin.address, attestor.address, relayer.address, ethers.ZeroAddress]), /InvalidAddress/);
+      await assert.rejects(sendIssuance(await authorization({ credentialId: ethers.ZeroHash })), /InvalidCredential/);
+      await assert.rejects(sendIssuance(await authorization({ publicDataHash: ethers.ZeroHash })), /InvalidCredentialAuthorization/);
+      await assert.rejects(sendIssuance(await authorization({ schemaVersion: 2 })), /InvalidVersion/);
+      await issue();
+      await assert.rejects(send(await request(values, { requestId: ethers.ZeroHash })), /InvalidAttestation/);
+      await assert.rejects(send(await request(values, { uploadCommitment: ethers.ZeroHash })), /InvalidAttestation/);
+      for (const changed of [{ schemaVersion: 'academic-diploma-v2' }, { encodingVersion: 'sha256-euint256-v0' }, { normalizerVersion: '' }]) {
+        await assert.rejects(send(await request(values, changed)), /InvalidVersion/);
+      }
+    });
+
+    it('enforces relayer, result reader and institution boundaries', async () => {
+      await issue();
+      await assert.rejects(send(await request(values, {}, attestor, outsider), outsider), /AccessControlUnauthorizedAccount/);
+      await assert.rejects(send(await request(values, { resultReader: outsider.address })), /InvalidAttestation/);
+      const otherIssuer = random();
+      await (await contract.setIssuer(otherIssuer, 'Kampus lain', true)).wait();
+      await (await contract.setSigner(otherIssuer, outsider.address, true)).wait();
+      // A signer of another institution can neither issue for this institution nor revoke its credential.
+      await assert.rejects(sendIssuance(await authorization({ issuerId, nonce: 3n }, outsider), outsider), /UnauthorizedIssuer/);
+      await assert.rejects(contract.connect(outsider).revoke(id), /UnauthorizedIssuer/);
+    });
+
+    it('handles inactive institutions, missing credentials and repeated revocation', async () => {
+      await (await contract.setIssuer(issuerId, 'Universitas Contoh — sintetis', false)).wait();
+      await assert.rejects(sendIssuance(await authorization()), /UnauthorizedIssuer/);
+      await (await contract.setIssuer(issuerId, 'Universitas Contoh — sintetis', true)).wait();
+      await assert.rejects(contract.connect(issuer).revoke(random()), /InvalidCredential/);
+      await assert.rejects(send(await request(values, { credentialId: random() })), /InvalidCredential/);
+      await issue();
+      await (await contract.connect(issuer).revoke(id)).wait();
+      await assert.rejects(contract.connect(issuer).revoke(id), /CredentialInactive/);
+    });
+
+    it('paginates issuer credentials with empty, exact, beyond and clamped windows', async () => {
+      let page = await contract.getIssuerCredentials(issuerId, 0, 10);
+      assert.equal(page.total, 0n); assert.equal(page.ids.length, 0);
+      const issued = [];
+      for (let n = 1n; n <= 101n; n++) {
+        const req = await authorization({ nonce: n });
+        await (await sendIssuance(req)).wait();
+        issued.push(req.payload.credentialId);
+      }
+      page = await contract.getIssuerCredentials(issuerId, 0, 0);
+      assert.equal(page.total, 101n); assert.equal(page.ids.length, 0);
+      page = await contract.getIssuerCredentials(issuerId, 0, 100);
+      assert.deepEqual([...page.ids], issued.slice(0, 100));
+      page = await contract.getIssuerCredentials(issuerId, 0, 101);
+      assert.equal(page.ids.length, 100, 'limit above 100 is clamped');
+      page = await contract.getIssuerCredentials(issuerId, 100, 100);
+      assert.deepEqual([...page.ids], issued.slice(100));
+      for (const offset of [101, 500]) {
+        page = await contract.getIssuerCredentials(issuerId, offset, 10);
+        assert.equal(page.ids.length, 0); assert.equal(page.total, 101n);
+      }
+    });
+
+    it('emits every state-change event with the expected arguments', async () => {
+      const otherIssuer = random();
+      let receipt = await (await contract.setIssuer(otherIssuer, 'Kampus Event', true)).wait();
+      assert.deepEqual([...events(receipt, 'IssuerUpdated')[0].args], [otherIssuer, 'Kampus Event', true]);
+      receipt = await (await contract.setSigner(otherIssuer, outsider.address, true)).wait();
+      const authorizationId = (await contract.getSigner(outsider.address)).authorizationId;
+      assert.deepEqual([...events(receipt, 'SignerUpdated')[0].args], [otherIssuer, outsider.address, authorizationId, true]);
+      const req = await authorization();
+      receipt = await (await sendIssuance(req)).wait();
+      const record = await contract.getCredential(id);
+      assert.deepEqual([...events(receipt, 'CredentialIssued')[0].args],
+        [id, issuerId, issuer.address, record.credentialDigest, record.signerAuthorizationId, record.issuedAt]);
+      const comparison = await request();
+      receipt = await (await send(comparison)).wait();
+      assert.deepEqual([...events(receipt, 'ComparisonRequested')[0].args],
+        [comparison.attestation.requestId, id, comparison.attestation.uploadCommitment, reader.address]);
+      receipt = await (await contract.connect(issuer).revoke(id)).wait();
+      const revoked = await contract.getCredential(id);
+      assert.deepEqual([...events(receipt, 'CredentialRevoked')[0].args], [id, issuerId, revoked.revokedAt]);
+      assert.equal(revoked.revokedBlock, BigInt(receipt.blockNumber));
+    });
+  });
 });
