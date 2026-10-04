@@ -19,6 +19,56 @@ export interface PreparedCredential {
 }
 export interface SignedPreparedCredential extends PreparedCredential { readonly signature: string }
 
+const CONTRACT_ERRORS: Record<string, string> = {
+  UnauthorizedIssuer: 'Wallet tidak berwenang untuk institusi ini.',
+  InvalidCredential: 'Kredensial tidak ditemukan pada kontrak.',
+  CredentialInactive: 'Kredensial sudah dicabut sebelumnya.',
+  CredentialAlreadyExists: 'ID kredensial sudah tercatat.',
+  InvalidIssuer: 'ID atau nama institusi tidak valid, atau institusi belum terdaftar.',
+  InvalidAddress: 'Alamat wallet tidak valid.',
+  SignerAlreadyActive: 'Wallet sudah aktif sebagai penandatangan institusi ini; tidak ada perubahan.',
+  SignerNotActive: 'Wallet tidak aktif sebagai penandatangan; tidak ada perubahan.',
+  RoleConflict: 'Alamat ini memegang peran admin atau layanan sehingga tidak boleh menjadi penandatangan.',
+  IssuerNameChanged: 'Nama institusi berubah setelah pengesahan. Siapkan dan sahkan ulang kredensial.',
+  CredentialIdMismatch: 'ID kredensial tidak sesuai aturan protokol. Siapkan ulang kredensial.',
+  InvalidCredentialAuthorization: 'Pengesahan data kredensial tidak valid. Siapkan dan sahkan ulang.',
+  ExpiredCredentialAuthorization: 'Batas waktu pengajuan penerbitan berakhir. Siapkan dan sahkan ulang.',
+  ReplayedNonce: 'Otorisasi penerbitan ini sudah dipakai.',
+  InvalidVersion: 'Versi data kredensial tidak didukung kontrak.',
+  AccessControlUnauthorizedAccount: 'Wallet ini bukan administrator kontrak.',
+};
+
+function revertData(error: unknown, depth = 0): string | undefined {
+  if (!error || typeof error !== 'object' || depth > 4) return undefined;
+  const record = error as Record<string, unknown>;
+  if (typeof record.data === 'string' && /^0x[0-9a-fA-F]{8,}$/.test(record.data)) return record.data;
+  for (const key of ['error', 'info', 'cause', 'data']) {
+    const found = revertData(record[key], depth + 1);
+    if (found) return found;
+  }
+  return undefined;
+}
+
+/** The actual outcome of a failed wallet action. Never implies that the chain state changed. */
+export function describeChainError(error: unknown): string {
+  if (isError(error, 'ACTION_REJECTED')) return 'Permintaan dibatalkan di wallet. Tidak ada transaksi yang dikirim.';
+  if (isError(error, 'INSUFFICIENT_FUNDS')) return 'Saldo wallet tidak cukup untuk biaya transaksi Sepolia. Tidak ada transaksi yang dikirim.';
+  const data = revertData(error);
+  if (data) {
+    try {
+      const parsed = contractInterface.parseError(data);
+      if (parsed) return `${CONTRACT_ERRORS[parsed.name] ?? `Kontrak menolak transaksi (${parsed.name}).`} Tidak ada perubahan pada blockchain.`;
+    } catch { /* unknown selector */ }
+  }
+  if (isError(error, 'CALL_EXCEPTION') && error.receipt) return 'Transaksi gagal di jaringan (status 0). Tidak ada perubahan pada blockchain.';
+  return error instanceof Error ? error.message : 'Transaksi belum berhasil.';
+}
+
+async function chainAction<T>(run: () => Promise<T>): Promise<T> {
+  try { return await run(); }
+  catch (error) { if (error instanceof ChainConfigurationError) throw error; throw new Error(describeChainError(error), { cause: error }); }
+}
+
 async function connected(provider: Eip1193Provider, config: BrowserChainConfig) {
   if (config.chainId !== 11155111) throw new ChainConfigurationError('Pilih jaringan Sepolia.');
   if (getAddress(config.contractAddress) === ZeroAddress) throw new ChainConfigurationError('Alamat kontrak tidak valid.');
@@ -116,7 +166,7 @@ export async function submitCredential(provider: Eip1193Provider, config: Browse
   validateSignedCredential({ authorization: prepared.authorization, profile: prepared.profile, domain: prepared.domain, signature }, credentialDomain(config));
   const connection = await connected(provider, config);
   await assertSubmissionAllowed(connection, prepared);
-  const transaction = await connection.contract.getFunction('issueCredential')(prepared.authorization, signature, prepared.inputHandles, prepared.inputProof);
+  const transaction = await chainAction(() => connection.contract.getFunction('issueCredential')(prepared.authorization, signature, prepared.inputHandles, prepared.inputProof));
   options.onSubmitted?.(transaction.hash as string);
   const expectedData = contractInterface.encodeFunctionData('issueCredential', [prepared.authorization, signature, prepared.inputHandles, prepared.inputProof]);
   let pending = transaction;
@@ -139,27 +189,24 @@ export async function submitCredential(provider: Eip1193Provider, config: Browse
   return { credentialId: prepared.authorization.credentialId, transactionHash: receipt.hash as string, blockNumber: receipt.blockNumber as number };
 }
 
+/** Sends one registry or revocation transaction and returns its confirmed receipt reference. */
+async function confirmedAction(provider: Eip1193Provider, config: BrowserChainConfig,
+  send: (contract: Awaited<ReturnType<typeof connected>>['contract']) => Promise<{ wait: (confirmations: number) => Promise<TransactionReceipt | null> }>, pending: string) {
+  const { contract } = await connected(provider, config);
+  const receipt = await chainAction(async () => (await send(contract)).wait(Math.max(2, config.confirmations ?? 2)));
+  if (!receipt || receipt.status !== 1) throw new Error(pending);
+  return { transactionHash: receipt.hash as string, blockNumber: receipt.blockNumber as number };
+}
+
 export async function revokeCredential(provider: Eip1193Provider, config: BrowserChainConfig, credentialId: string) {
   requireHex32(credentialId);
-  const { contract } = await connected(provider, config);
-  const transaction = await contract.getFunction('revoke')(credentialId);
-  const receipt = await transaction.wait(Math.max(2, config.confirmations ?? 2));
-  if (!receipt || receipt.status !== 1) throw new Error('Pencabutan belum terkonfirmasi.');
-  return { transactionHash: receipt.hash as string, blockNumber: receipt.blockNumber as number };
+  return confirmedAction(provider, config, contract => contract.getFunction('revoke')(credentialId), 'Pencabutan belum terkonfirmasi.');
 }
 
 export async function setIssuer(provider: Eip1193Provider, config: BrowserChainConfig, issuerId: string, name: string, active: boolean) {
-  const { contract } = await connected(provider, config);
-  const transaction = await contract.getFunction('setIssuer')(requireHex32(issuerId), name.trim(), active);
-  const receipt = await transaction.wait(Math.max(2, config.confirmations ?? 2));
-  if (!receipt || receipt.status !== 1) throw new Error('Perubahan penerbit belum terkonfirmasi.');
-  return { transactionHash: receipt.hash as string, blockNumber: receipt.blockNumber as number };
+  return confirmedAction(provider, config, contract => contract.getFunction('setIssuer')(requireHex32(issuerId), name.trim(), active), 'Perubahan penerbit belum terkonfirmasi.');
 }
 
 export async function setSigner(provider: Eip1193Provider, config: BrowserChainConfig, issuerId: string, wallet: string, active: boolean) {
-  const { contract } = await connected(provider, config);
-  const transaction = await contract.getFunction('setSigner')(requireHex32(issuerId), getAddress(wallet), active);
-  const receipt = await transaction.wait(Math.max(2, config.confirmations ?? 2));
-  if (!receipt || receipt.status !== 1) throw new Error('Perubahan penandatangan belum terkonfirmasi.');
-  return { transactionHash: receipt.hash as string, blockNumber: receipt.blockNumber as number };
+  return confirmedAction(provider, config, contract => contract.getFunction('setSigner')(requireHex32(issuerId), getAddress(wallet), active), 'Perubahan penandatangan belum terkonfirmasi.');
 }

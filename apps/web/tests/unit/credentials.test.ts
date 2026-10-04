@@ -66,7 +66,7 @@ function chainRecord(signed: SignedCredential): CredentialMetadata {
     credentialDigest: credentialDigest(signed.authorization, domain), publicDataHash: signed.authorization.publicDataHash,
     encryptedAttributesHash: signed.authorization.encryptedAttributesHash,
     issuerNameHash: keccak256(toUtf8Bytes(signed.profile.issuerDisplayName)), signerAuthorizationId: '5', historicalSignerAuthorized: true,
-    issuanceBlock: 100, issuanceTransactionHash: txHash, revocationBlock: null, confirmed: true,
+    issuanceBlock: 100, issuanceTransactionHash: txHash, revocationBlock: null, revocationTransactionHash: null, confirmed: true,
     checkedBlock: 110, checkedBlockHash: `0x${'90'.repeat(32)}`, checkedAt: '2026-09-24T00:00:00.000Z',
     chainId: domain.chainId, contractAddress: domain.verifyingContract };
 }
@@ -151,6 +151,15 @@ describe('public record proof verification', () => {
     expect(await verifyRecord(id)).toMatchObject({ recordVerificationStatus: 'ISSUER_INACTIVE', profile, documentDecision: null });
     mocks.lookup.mockResolvedValue({ ...metadata, issuerActive: false, revoked: true });
     expect(await verifyRecord(id)).toMatchObject({ recordVerificationStatus: 'REVOKED', profile, documentDecision: null });
+  });
+
+  it('reports the revocation trail and stays REVOKED when the revocation hash is unavailable (FT-02)', async () => {
+    const revocation = `0x${'9a'.repeat(32)}`;
+    mocks.lookup.mockResolvedValue({ ...metadata, revoked: true, revokedAt: '2026-09-25T00:00:00.000Z', revocationBlock: 120, revocationTransactionHash: revocation });
+    expect(await verifyRecord(id)).toMatchObject({ recordVerificationStatus: 'REVOKED', documentDecision: null, issuanceBlock: 100,
+      revokedAt: '2026-09-25T00:00:00.000Z', revocationBlock: 120, revocationTxHash: revocation, issuanceTxHash: txHash });
+    mocks.lookup.mockResolvedValue({ ...metadata, revoked: true, revokedAt: '2026-09-25T00:00:00.000Z', revocationBlock: 120, revocationTransactionHash: null });
+    expect(await verifyRecord(id)).toMatchObject({ recordVerificationStatus: 'REVOKED', revocationBlock: 120, revocationTxHash: null });
   });
 
   it('uses historical authorization after wallet rotation and preserves past-deadline record validity', async () => {

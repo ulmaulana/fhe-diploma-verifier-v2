@@ -35,7 +35,8 @@ function recordResult(status: RecordVerificationStatus = 'VERIFIED_RECORD', chec
   return { mode: 'RECORD', environment: 'testnet', scope: 'RECORD_ONLY', credentialId,
     recordVerificationStatus: status, documentDecision: null, reason: `record ${status}`, profile: null,
     issuerName: status === 'INVALID_PROOF' ? null : 'Kampus Contoh', checkedAt: new Date(1_800_000_000_000 + checkedBlock * 1000).toISOString(),
-    checkedBlock, chainId: 11155111, contractAddress, issuanceTxHash, signer: null, credentialDigest: null };
+    checkedBlock, chainId: 11155111, contractAddress, issuanceTxHash, issuanceBlock: 50, revokedAt: null, revocationBlock: null, revocationTxHash: null,
+    signer: null, credentialDigest: null };
 }
 const comparison = () => ({
   matches: { full_name: true, diploma_number: true, study_program: true, graduation_date: true }, allMatch: true,

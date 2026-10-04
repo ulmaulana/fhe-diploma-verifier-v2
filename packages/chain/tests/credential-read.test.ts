@@ -4,12 +4,12 @@ import { SCHEMA_VERSION, ENCODING_VERSION } from '@verifikasi/domain';
 import { readCredential, readIssuer } from '../src/shared';
 
 const mock = vi.hoisted(() => ({
-  getFunction: vi.fn(), queryFilter: vi.fn(), issuedFilter: vi.fn(),
+  getFunction: vi.fn(), queryFilter: vi.fn(), issuedFilter: vi.fn(), revokedFilter: vi.fn(),
   getBlockNumber: vi.fn(), getBlock: vi.fn(),
 }));
 vi.mock('ethers', async original => ({
   ...await original<typeof import('ethers')>(),
-  Contract: class { getFunction = mock.getFunction; queryFilter = mock.queryFilter; filters = { CredentialIssued: mock.issuedFilter }; },
+  Contract: class { getFunction = mock.getFunction; queryFilter = mock.queryFilter; filters = { CredentialIssued: mock.issuedFilter, CredentialRevoked: mock.revokedFilter }; },
 }));
 // A QR read must not need the FHE runtime at all, even when it is broken.
 vi.mock('@zama-fhe/relayer-sdk/node', () => { throw new Error('QR must not load FHE'); });
@@ -50,6 +50,32 @@ beforeEach(() => {
       throw new Error(`Unexpected ${name}`);
     }));
     return calls.get(name)!;
+  });
+});
+
+describe('revocation transaction trail (FT-02)', () => {
+  const revocationHash = '0x' + '67'.repeat(32);
+  beforeEach(() => {
+    chainRecord = { ...credential(), revokedAt: 1_200n, revokedBlock: 80n };
+    mock.revokedFilter.mockReturnValue('revocation-filter');
+  });
+
+  it('reads the revocation hash from the CredentialRevoked log of the configured contract', async () => {
+    mock.queryFilter.mockImplementation(async (filter: string) => filter === 'revocation-filter'
+      ? [{ address: '0x' + '99'.repeat(20), args: { credentialId }, transactionHash: hash }, { address: config.contractAddress, args: { credentialId }, transactionHash: revocationHash }]
+      : [{ args: { credentialId }, transactionHash: hash, blockNumber: 50 }]);
+    expect(await readCredential(config, provider, credentialId)).toMatchObject({ revoked: true, revocationBlock: 80, revocationTransactionHash: revocationHash });
+    expect(mock.queryFilter).toHaveBeenCalledWith('revocation-filter', 80, 80);
+  });
+
+  it('keeps the record revoked with an unavailable hash when the log lookup fails or is empty', async () => {
+    mock.queryFilter.mockImplementation(async (filter: string) => {
+      if (filter === 'revocation-filter') throw new Error('log limit');
+      return [{ args: { credentialId }, transactionHash: hash, blockNumber: 50 }];
+    });
+    expect(await readCredential(config, provider, credentialId)).toMatchObject({ revoked: true, revocationTransactionHash: null });
+    mock.queryFilter.mockImplementation(async (filter: string) => filter === 'revocation-filter' ? [] : [{ args: { credentialId }, transactionHash: hash, blockNumber: 50 }]);
+    expect(await readCredential(config, provider, credentialId)).toMatchObject({ revoked: true, revocationTransactionHash: null });
   });
 });
 

@@ -2,12 +2,17 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { AlertIcon, ArrowRightIcon, CheckIcon, RetryIcon, ShieldCheckIcon, SpinnerIcon } from '@/features/shared/icons';
+import { AlertIcon, ArrowRightIcon, CheckIcon, ExternalLinkIcon, RetryIcon, ShieldCheckIcon, SpinnerIcon } from '@/features/shared/icons';
+import { explorerAddressUrl, explorerTxUrl } from '@/features/shared/explorer';
 import type { RecordVerificationResult } from '@verifikasi/domain';
 import { api, formatTime } from '@/features/shared/api';
 import { CertificateArt } from '@/features/shared/CertificateArt';
 import { recordStatuses } from './record-status';
 import styles from './CredentialRecord.module.css';
+
+function ChainLink({href, children}: {href: string | null; children: string}) {
+  return href ? <a href={href} target='_blank' rel='noopener noreferrer'>{children} <ExternalLinkIcon size={12}/></a> : <>{children}</>;
+}
 
 export function CredentialRecord({credentialId}: {credentialId: string}) {
   const [result, setResult] = useState<RecordVerificationResult | null>(null);
@@ -53,13 +58,18 @@ export function CredentialRecord({credentialId}: {credentialId: string}) {
       {!loading && result && <>
         <p className={styles.signature}><ShieldCheckIcon size={18}/>{profile ? 'E-sign data kredensial: bukti pengesahan valid.' : 'E-sign data kredensial: belum dapat dinyatakan valid.'}</p>
         {!profile && <p className={styles.notice}>Data publik tidak ditampilkan sebelum integritas bukti dapat dipastikan.</p>}
+        {result.recordVerificationStatus === 'REVOKED' && <section className={styles.profile} aria-labelledby='revocation-title'><h2 id='revocation-title'>Jejak pencabutan</h2><dl className={styles.fields}>
+          <div><dt>Waktu pencabutan</dt><dd>{result.revokedAt ? formatTime(result.revokedAt) : 'Belum tersedia'}</dd></div>
+          <div><dt>Blok pencabutan</dt><dd>{result.revocationBlock ?? 'Belum tersedia'}</dd></div>
+          <div><dt>Transaksi pencabutan</dt><dd>{result.revocationTxHash ? <ChainLink href={explorerTxUrl(result.chainId, result.revocationTxHash)}>{result.revocationTxHash}</ChainLink> : 'Hash transaksi belum dapat dibaca dari log. Status dicabut tetap berasal dari kontrak.'}</dd></div>
+        </dl></section>}
         {result.checkedAt && <p className={styles.time}>Diperiksa {formatTime(result.checkedAt)}{result.checkedBlock != null ? ` · Blok ${result.checkedBlock}` : ''}</p>}
         <details className={styles.proof}><summary>Detail bukti rekaman</summary><dl>
           <div><dt>ID kredensial</dt><dd>{credentialId}</dd></div>
           <div><dt>Cakupan</dt><dd>RECORD_ONLY · Rekaman penerbit; kecocokan isi dokumen diperiksa oleh pengguna.</dd></div>
           <div><dt>Jaringan</dt><dd>{result.chainId ?? 'Belum tersedia'}</dd></div>
-          <div><dt>Kontrak penerbitan</dt><dd>{result.contractAddress || 'Belum tersedia'}</dd></div>
-          <div><dt>Transaksi penerbitan</dt><dd>{result.issuanceTxHash || 'Belum tersedia'}</dd></div>
+          <div><dt>Kontrak penerbitan</dt><dd>{result.contractAddress ? <ChainLink href={explorerAddressUrl(result.chainId, result.contractAddress)}>{result.contractAddress}</ChainLink> : 'Belum tersedia'}</dd></div>
+          <div><dt>Transaksi penerbitan</dt><dd>{result.issuanceTxHash ? <ChainLink href={explorerTxUrl(result.chainId, result.issuanceTxHash)}>{result.issuanceTxHash}</ChainLink> : 'Belum tersedia'}{result.issuanceBlock != null ? ` · Blok ${result.issuanceBlock}` : ''}</dd></div>
           <div><dt>Wallet pengesah</dt><dd>{result.signer || 'Belum tersedia'}</dd></div>
           <div><dt>Digest pengesahan</dt><dd>{result.credentialDigest || 'Belum tersedia'}</dd></div>
         </dl><a href={`/api/credentials/${encodeURIComponent(credentialId)}`}>Lihat bukti publik</a></details>

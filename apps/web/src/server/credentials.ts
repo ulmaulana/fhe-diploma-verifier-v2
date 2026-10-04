@@ -68,7 +68,8 @@ export async function inspectCredential(value: string): Promise<{ verification: 
     recordVerificationStatus: 'ERROR', documentDecision: null,
     reason: 'Bukti penerbitan atau blockchain belum dapat diperiksa. Coba kembali.',
     profile: null, issuerName: null, checkedAt: new Date().toISOString(), checkedBlock: null,
-    chainId: null, contractAddress: null, issuanceTxHash: null, signer: null, credentialDigest: null,
+    chainId: null, contractAddress: null, issuanceTxHash: null, issuanceBlock: null, revokedAt: null, revocationBlock: null,
+    revocationTxHash: null, signer: null, credentialDigest: null,
   };
   const answer = (patch: Partial<RecordVerificationResult>, signedCredential: SignedCredential | null = null) => ({ verification: { ...base, ...patch }, signedCredential });
   if (config().mode !== 'testnet') return answer({ reason: 'Mode demonstrasi tidak memverifikasi rekaman blockchain. Konfigurasikan testnet untuk pemeriksaan resmi.' });
@@ -95,6 +96,8 @@ export async function inspectCredential(value: string): Promise<{ verification: 
     return answer({
       recordVerificationStatus: status, profile: signed.profile, issuerName: signed.profile.issuerDisplayName,
       checkedAt: metadata.checkedAt, checkedBlock: metadata.checkedBlock, issuanceTxHash: metadata.issuanceTransactionHash,
+      issuanceBlock: metadata.issuanceBlock, revokedAt: metadata.revokedAt, revocationBlock: metadata.revocationBlock,
+      revocationTxHash: metadata.revocationTransactionHash,
       signer: metadata.signer, credentialDigest: metadata.credentialDigest,
       reason: status === 'REVOKED' ? 'Kredensial telah dicabut oleh penerbit.' : status === 'ISSUER_INACTIVE' ? 'Bukti pengesahan valid, tetapi kewenangan kampus saat ini tidak aktif.' : 'Pengesahan dan rekaman penerbit valid. Cocokkan informasi ini dengan dokumen yang Anda periksa.',
     }, signed);

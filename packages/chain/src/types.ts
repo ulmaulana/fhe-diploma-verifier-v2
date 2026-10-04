@@ -45,6 +45,8 @@ export interface CredentialMetadata {
   issuanceBlock: number;
   issuanceTransactionHash: string;
   revocationBlock: number | null;
+  /** From the CredentialRevoked log in revocationBlock; null when the log could not be read. Status never depends on it. */
+  revocationTransactionHash: string | null;
   /** False when issuance exists at the head but not yet at the confirmed block. */
   confirmed: boolean;
   checkedBlockHash: string;

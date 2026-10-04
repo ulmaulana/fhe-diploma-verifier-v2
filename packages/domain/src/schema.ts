@@ -161,6 +161,11 @@ export interface RecordVerificationResult {
   chainId: number | null;
   contractAddress: string | null;
   issuanceTxHash: string | null;
+  issuanceBlock: number | null;
+  /** Revocation time and block come from contract state; the hash is null when its log could not be read. */
+  revokedAt: string | null;
+  revocationBlock: number | null;
+  revocationTxHash: string | null;
   signer: string | null;
   credentialDigest: string | null;
 }

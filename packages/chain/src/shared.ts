@@ -109,6 +109,17 @@ export async function readCredential(config: ChainConfig, provider: JsonRpcProvi
   const logs = await contract.queryFilter(contract.filters.CredentialIssued!(id), issuanceBlock, issuanceBlock);
   const issued = logs.find(log => 'args' in log && log.args.credentialId === id);
   if (!issued) throw new Error('Bukti transaksi penerbitan tidak tersedia.');
+  // Revocation status comes from contract state. The transaction hash is supplementary: a failed or empty
+  // single-block log lookup keeps the record REVOKED and reports the hash as unavailable (never guessed).
+  let revocationTransactionHash: string | null = null;
+  if (credential.revokedAt !== 0n) {
+    try {
+      const revokedBlock = Number(credential.revokedBlock);
+      const revokedLogs = await contract.queryFilter(contract.filters.CredentialRevoked!(id), revokedBlock, revokedBlock);
+      const revoked = revokedLogs.find(log => getAddress(log.address) === config.contractAddress && 'args' in log && log.args.credentialId === id);
+      revocationTransactionHash = revoked?.transactionHash ?? null;
+    } catch { revocationTransactionHash = null; }
+  }
   const historicalSignerAuthorized = BigInt(credential.signerAuthorizationId) > 0n &&
     historical.issuerId === credential.issuerId && getAddress(historical.signer) === getAddress(credential.signer) &&
     historical.authorizedAt <= credential.issuedAt && (historical.revokedAt === 0n || historical.revokedAt >= credential.issuedAt);
@@ -122,7 +133,7 @@ export async function readCredential(config: ChainConfig, provider: JsonRpcProvi
     publicDataHash: credential.publicDataHash, encryptedAttributesHash: credential.encryptedAttributesHash,
     issuerNameHash: credential.issuerNameHash, signerAuthorizationId: String(credential.signerAuthorizationId),
     issuanceBlock, issuanceTransactionHash: issued.transactionHash,
-    revocationBlock: credential.revokedAt === 0n ? null : Number(credential.revokedBlock), confirmed,
+    revocationBlock: credential.revokedAt === 0n ? null : Number(credential.revokedBlock), revocationTransactionHash, confirmed,
     checkedBlock, checkedBlockHash: block.hash,
     checkedAt: new Date(block.timestamp * 1000).toISOString(), chainId: config.chainId, contractAddress: config.contractAddress,
   };
