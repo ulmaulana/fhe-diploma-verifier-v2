@@ -1,0 +1,625 @@
+sourceCommit=8a13faaaac696700c8018cc6c947682028393afc
+command=pnpm coverage
+startedAtUtc=2026-10-04T15:19:34.061Z
+
+> verifikasi-monorepo@ coverage C:\Users\Maulana\AppData\Local\Temp\uasw\final
+> pnpm -r --if-present coverage
+
+Scope: 7 of 8 workspace projects
+contracts coverage$ node scripts/coverage.cjs
+contracts coverage: Version
+contracts coverage: =======
+contracts coverage: > solidity-coverage: v0.8.17
+contracts coverage: Instrumenting for coverage...
+contracts coverage: =============================
+contracts coverage: > VerifikasiIjazah.sol
+contracts coverage: Compilation:
+contracts coverage: ============
+contracts coverage: Compiled 24 Solidity files successfully (evm target: cancun).
+contracts coverage: Network Info
+contracts coverage: ============
+contracts coverage: > HardhatEVM: v2.28.6
+contracts coverage: > network:    hardhat
+contracts coverage:   UAS tooling: deployment, registration and role rotation — local mock (not testnet evidence)
+contracts coverage:     ✔ rejects a bad deployment configuration before sending any transaction (80ms)
+contracts coverage:     ✔ deploys, verifies role holders and writes a non-secret record (306ms)
+contracts coverage:     ✔ registers institution and signer idempotently and refuses a service account as signer (367ms)
+contracts coverage:     ✔ shows holders from events, blocks conflicting grants locally and rotates a service role (334ms)
+contracts coverage:     ✔ transfers the administrator by granting and verifying before renouncing (341ms)
+contracts coverage:   VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:     1) rejects unauthorized registry updates, issuance and revocation
+contracts coverage:     ✔ compares all 256 digest bits and decrypts only for the result reader (614ms)
+contracts coverage:     ✔ S-05: grants no account a decrypt permission on reference values, including the issuing signer (483ms)
+contracts coverage:     ✔ detects a change in each field, including high digest bits (1711ms)
+contracts coverage:     2) rejects replay of request IDs and attestor nonces
+contracts coverage:     3) rejects incorrect signer, domain, relayer, deadline and altered input bindings
+contracts coverage:     4) disables comparisons for revoked credentials and inactive issuers
+contracts coverage:     ✔ requires a credential payload signature even when the transaction is signed by the authorized wallet (187ms)
+contracts coverage:     5) rejects payload tampering, cross-domain signatures and ordered ciphertext substitutions
+contracts coverage:     6) rejects issuance replay and expiration without expiring already issued records
+contracts coverage:     7) S-09: maps malformed and malleable signatures to the contract domain errors
+contracts coverage:     8) S-10: validates registry input by byte length with specific errors
+contracts coverage:     9) S-10: rejects signer updates that would not change state instead of succeeding silently
+contracts coverage:     10) S-03: binds the credential ID to institution, signer and nonce so another signer cannot occupy it
+contracts coverage:     11) S-04: binds the reviewed institution name into the e-signed payload (protocol v2)
+contracts coverage:     ✔ rolls back both nonce and record when FHE input proof fails (176ms)
+contracts coverage:     12) retains historical signer evidence after rotation and permits the replacement to revoke
+contracts coverage:     13) retains every authorization period and rejects cross-institution signer reassignment while active
+contracts coverage:     S-01/S-02: role separation, rotation and administrator continuity
+contracts coverage:       14) rejects a deployment that places two roles on one address
+contracts coverage:       15) rejects grants that combine roles or make a signer a service account, in both directions
+contracts coverage:       16) rotates relayer, attestor and reader: revoked accounts fail and replacements work
+contracts coverage:       17) transfers the administrator without ever leaving the contract without one
+contracts coverage:     T-02: boundaries, access control, business states and events
+contracts coverage:       18) accepts issuance exactly at the deadline and rejects one second later
+contracts coverage:       19) accepts an attestation exactly at its deadline and rejects one second later
+contracts coverage:       20) rejects zero values, unsupported versions and wrong version strings
+contracts coverage:       21) enforces relayer, result reader and institution boundaries
+contracts coverage:       22) handles inactive institutions, missing credentials and repeated revocation
+contracts coverage:       ✔ paginates issuer credentials with empty, exact, beyond and clamped windows (15372ms)
+contracts coverage:       ✔ emits every state-change event with the expected arguments (390ms)
+contracts coverage:   12 passing (24s)
+contracts coverage:   22 failing
+contracts coverage:   1) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        rejects unauthorized registry updates, issuance and revocation:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /UnauthorizedIssuer/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0xb41ba2d6)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:82:5)
+contracts coverage:   2) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        rejects replay of request IDs and attestor nonces:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /ReplayedRequest/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0xecdd46eb)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:127:5)
+contracts coverage:   3) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        rejects incorrect signer, domain, relayer, deadline and altered input bindings:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /InvalidAttestation/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0xbd8ba84d)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:133:5)
+contracts coverage:   4) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        disables comparisons for revoked credentials and inactive issuers:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /CredentialInactive/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0xfbfe6850)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:149:5)
+contracts coverage:   5) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        rejects payload tampering, cross-domain signatures and ordered ciphertext substitutions:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /InvalidCredentialAuthorization/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0x8359a0f3)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:178:7)
+contracts coverage:   6) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        rejects issuance replay and expiration without expiring already issued records:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /CredentialAlreadyExists/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0x724efe91)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:195:5)
+contracts coverage:   7) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        S-09: maps malformed and malleable signatures to the contract domain errors:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /InvalidCredentialAuthorization/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0x8359a0f3)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:215:7)
+contracts coverage:   8) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        S-10: validates registry input by byte length with specific errors:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /InvalidIssuer/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0xbdbfe216)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:226:5)
+contracts coverage:   9) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        S-10: rejects signer updates that would not change state instead of succeeding silently:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /SignerAlreadyActive/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0x136f204b)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:241:5)
+contracts coverage:   10) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        S-03: binds the credential ID to institution, signer and nonce so another signer cannot occupy it:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /CredentialIdMismatch/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0xb3efd3a4)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:261:5)
+contracts coverage:   11) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        S-04: binds the reviewed institution name into the e-signed payload (protocol v2):
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /IssuerNameChanged/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0xe485b6d5)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:273:5)
+contracts coverage:   12) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        retains historical signer evidence after rotation and permits the replacement to revoke:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /UnauthorizedIssuer/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0xb41ba2d6)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:378:5)
+contracts coverage:   13) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        retains every authorization period and rejects cross-institution signer reassignment while active:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /UnauthorizedIssuer/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0xb41ba2d6)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:392:5)
+contracts coverage:   14) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        S-01/S-02: role separation, rotation and administrator continuity
+contracts coverage:          rejects a deployment that places two roles on one address:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /RoleConflict/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0x987a2dcf0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:292:9)
+contracts coverage:   15) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        S-01/S-02: role separation, rotation and administrator continuity
+contracts coverage:          rejects grants that combine roles or make a signer a service account, in both directions:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /RoleConflict/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0x987a2dcfa7e0cd0f2772b23ee4c329892293a6bd99d48c306b094d6d008c9a8bb8b731e40000000000000000000000003c44cdddb6a900fa2b585dd299e03d12fa4293bc)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:297:7)
+contracts coverage:   16) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        S-01/S-02: role separation, rotation and administrator continuity
+contracts coverage:          rotates relayer, attestor and reader: revoked accounts fail and replacements work:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /AccessControlUnauthorizedAccount/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0xe2517d3f00000000000000000000000090f79bf6eb2c4f870365e785982e1f101e93b906e2b7fb3b832174769106daebcfd6d1970523240dda11281102db9363b83b0dc4)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:331:7)
+contracts coverage:   17) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        S-01/S-02: role separation, rotation and administrator continuity
+contracts coverage:          transfers the administrator without ever leaving the contract without one:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /LastAdminRemoval/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0xafb50256)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:347:7)
+contracts coverage:   18) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        T-02: boundaries, access control, business states and events
+contracts coverage:          accepts issuance exactly at the deadline and rejects one second later:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /ExpiredCredentialAuthorization/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0xe9698d7a)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:415:7)
+contracts coverage:   19) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        T-02: boundaries, access control, business states and events
+contracts coverage:          accepts an attestation exactly at its deadline and rejects one second later:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /ExpiredAttestation/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0x8074b6f3)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:430:7)
+contracts coverage:   20) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        T-02: boundaries, access control, business states and events
+contracts coverage:          rejects zero values, unsupported versions and wrong version strings:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /InvalidAddress/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0xe6c4247b)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:435:7)
+contracts coverage:   21) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        T-02: boundaries, access control, business states and events
+contracts coverage:          enforces relayer, result reader and institution boundaries:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /AccessControlUnauthorizedAccount/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0xe2517d3f0000000000000000000000009965507d1a55bcc2695c58ba16fb37d819b0a4dce2b7fb3b832174769106daebcfd6d1970523240dda11281102db9363b83b0dc4)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:452:7)
+contracts coverage:   22) VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:        T-02: boundaries, access control, business states and events
+contracts coverage:          handles inactive institutions, missing credentials and repeated revocation:
+contracts coverage:      AssertionError [ERR_ASSERTION]: The input did not match the regular expression /UnauthorizedIssuer/. Input:
+contracts coverage: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0xb41ba2d6)'
+contracts coverage:       at Context.<anonymous> (test\VerifikasiIjazah.cjs:464:7)
+contracts coverage: -----------------------|----------|----------|----------|----------|----------------|
+contracts coverage: File                   |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
+contracts coverage: -----------------------|----------|----------|----------|----------|----------------|
+contracts coverage:  src\                  |      100 |    62.88 |      100 |    98.48 |                |
+contracts coverage:   VerifikasiIjazah.sol |      100 |    62.88 |      100 |    98.48 |        182,298 |
+contracts coverage: -----------------------|----------|----------|----------|----------|----------------|
+contracts coverage: All files              |      100 |    62.88 |      100 |    98.48 |                |
+contracts coverage: -----------------------|----------|----------|----------|----------|----------------|
+contracts coverage: =============================== Coverage summary ===============================
+contracts coverage: Statements   : 100% ( 99/99 )
+contracts coverage: Branches     : 62.88% ( 83/132 )
+contracts coverage: Functions    : 100% ( 18/18 )
+contracts coverage: Lines        : 98.48% ( 130/132 )
+contracts coverage: ================================================================================
+contracts coverage: > Istanbul reports written to ./coverage/ and ./coverage.json
+contracts coverage: Error in plugin solidity-coverage: ❌ 22 test(s) failed under coverage.
+contracts coverage: HardhatPluginError: ❌ 22 test(s) failed under coverage.
+contracts coverage:     at SimpleTaskDefinition.action (C:\Users\Maulana\AppData\Local\Temp\uasw\final\node_modules\.pnpm\solidity-coverage@0.8.17_ha_b5102f0a71cd761b57a69a8bc0e290e6\node_modules\solidity-coverage\plugins\hardhat.plugin.js:307:30)
+contracts coverage:     at processTicksAndRejections (node:internal/process/task_queues:104:5)
+contracts coverage:     at Environment._runTaskDefinition (C:\Users\Maulana\AppData\Local\Temp\uasw\final\node_modules\.pnpm\hardhat@2.28.6_bufferutil@4_609d1682363ed56c2d47d0b76ec8c94e\node_modules\hardhat\src\internal\core\runtime-environment.ts:351:14)
+contracts coverage:     at Environment.run (C:\Users\Maulana\AppData\Local\Temp\uasw\final\node_modules\.pnpm\hardhat@2.28.6_bufferutil@4_609d1682363ed56c2d47d0b76ec8c94e\node_modules\hardhat\src\internal\core\runtime-environment.ts:184:14)
+contracts coverage:     at main (C:\Users\Maulana\AppData\Local\Temp\uasw\final\node_modules\.pnpm\hardhat@2.28.6_bufferutil@4_609d1682363ed56c2d47d0b76ec8c94e\node_modules\hardhat\src\internal\cli\cli.ts:325:7)
+contracts coverage: [coverage] First attempt failed. Re-running once with the cached instrumented build.
+contracts coverage: Version
+contracts coverage: =======
+contracts coverage: > solidity-coverage: v0.8.17
+contracts coverage: Instrumenting for coverage...
+contracts coverage: =============================
+contracts coverage: > VerifikasiIjazah.sol
+contracts coverage: Compilation:
+contracts coverage: ============
+contracts coverage: Nothing to compile
+contracts coverage: Network Info
+contracts coverage: ============
+contracts coverage: > HardhatEVM: v2.28.6
+contracts coverage: > network:    hardhat
+contracts coverage:   UAS tooling: deployment, registration and role rotation — local mock (not testnet evidence)
+contracts coverage:     ✔ rejects a bad deployment configuration before sending any transaction (77ms)
+contracts coverage:     ✔ deploys, verifies role holders and writes a non-secret record (331ms)
+contracts coverage:     ✔ registers institution and signer idempotently and refuses a service account as signer (353ms)
+contracts coverage:     ✔ shows holders from events, blocks conflicting grants locally and rotates a service role (338ms)
+contracts coverage:     ✔ transfers the administrator by granting and verifying before renouncing (341ms)
+contracts coverage:   VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts coverage:     ✔ rejects unauthorized registry updates, issuance and revocation (213ms)
+contracts coverage:     ✔ compares all 256 digest bits and decrypts only for the result reader (607ms)
+contracts coverage:     ✔ S-05: grants no account a decrypt permission on reference values, including the issuing signer (515ms)
+contracts coverage:     ✔ detects a change in each field, including high digest bits (1663ms)
+contracts coverage:     ✔ rejects replay of request IDs and attestor nonces (401ms)
+contracts coverage:     ✔ rejects incorrect signer, domain, relayer, deadline and altered input bindings (276ms)
+contracts coverage:     ✔ disables comparisons for revoked credentials and inactive issuers (209ms)
+contracts coverage:     ✔ requires a credential payload signature even when the transaction is signed by the authorized wallet (187ms)
+contracts coverage:     ✔ rejects payload tampering, cross-domain signatures and ordered ciphertext substitutions (154ms)
+contracts coverage:     ✔ rejects issuance replay and expiration without expiring already issued records (411ms)
+contracts coverage:     ✔ S-09: maps malformed and malleable signatures to the contract domain errors (457ms)
+contracts coverage:     ✔ S-10: validates registry input by byte length with specific errors
+contracts coverage:     ✔ S-10: rejects signer updates that would not change state instead of succeeding silently
+contracts coverage:     ✔ S-03: binds the credential ID to institution, signer and nonce so another signer cannot occupy it (335ms)
+contracts coverage:     ✔ S-04: binds the reviewed institution name into the e-signed payload (protocol v2) (193ms)
+contracts coverage:     ✔ rolls back both nonce and record when FHE input proof fails (185ms)
+contracts coverage:     ✔ retains historical signer evidence after rotation and permits the replacement to revoke (413ms)
+contracts coverage:     ✔ retains every authorization period and rejects cross-institution signer reassignment while active
+contracts coverage:     S-01/S-02: role separation, rotation and administrator continuity
+contracts coverage:       ✔ rejects a deployment that places two roles on one address (132ms)
+contracts coverage:       ✔ rejects grants that combine roles or make a signer a service account, in both directions (88ms)
+contracts coverage:       ✔ rotates relayer, attestor and reader: revoked accounts fail and replacements work (793ms)
+contracts coverage:       ✔ transfers the administrator without ever leaving the contract without one
+contracts coverage:     T-02: boundaries, access control, business states and events
+contracts coverage:       ✔ accepts issuance exactly at the deadline and rejects one second later (158ms)
+contracts coverage:       ✔ accepts an attestation exactly at its deadline and rejects one second later (385ms)
+contracts coverage:       ✔ rejects zero values, unsupported versions and wrong version strings (320ms)
+contracts coverage:       ✔ enforces relayer, result reader and institution boundaries (194ms)
+contracts coverage:       ✔ handles inactive institutions, missing credentials and repeated revocation (201ms)
+contracts coverage:       ✔ paginates issuer credentials with empty, exact, beyond and clamped windows (15754ms)
+contracts coverage:       ✔ emits every state-change event with the expected arguments (416ms)
+contracts coverage:   34 passing (28s)
+contracts coverage: -----------------------|----------|----------|----------|----------|----------------|
+contracts coverage: File                   |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
+contracts coverage: -----------------------|----------|----------|----------|----------|----------------|
+contracts coverage:  src\                  |      100 |      100 |      100 |      100 |                |
+contracts coverage:   VerifikasiIjazah.sol |      100 |      100 |      100 |      100 |                |
+contracts coverage: -----------------------|----------|----------|----------|----------|----------------|
+contracts coverage: All files              |      100 |      100 |      100 |      100 |                |
+contracts coverage: -----------------------|----------|----------|----------|----------|----------------|
+contracts coverage: =============================== Coverage summary ===============================
+contracts coverage: Statements   : 100% ( 99/99 )
+contracts coverage: Branches     : 100% ( 132/132 )
+contracts coverage: Functions    : 100% ( 18/18 )
+contracts coverage: Lines        : 100% ( 132/132 )
+contracts coverage: ================================================================================
+contracts coverage: > Istanbul reports written to ./coverage/ and ./coverage.json
+contracts coverage: Done
+packages/domain coverage$ vitest run --coverage --coverage.provider=v8 --coverage.include=src/** --coverage.reporter=text --coverage.reporter=json-summary --coverage.reportsDirectory=coverage
+packages/domain coverage:  RUN  v3.2.7 C:/Users/Maulana/AppData/Local/Temp/uasw/final/packages/domain
+packages/domain coverage:       Coverage enabled with v8
+packages/domain coverage:  ✓ tests/normalization.test.ts (23 tests) 8ms
+packages/domain coverage:  ✓ tests/ocr.test.ts (5 tests) 5ms
+packages/domain coverage:  ✓ tests/verification.test.ts (18 tests) 6ms
+packages/domain coverage:  ✓ tests/encoding.test.ts (6 tests) 100ms
+packages/domain coverage:  Test Files  4 passed (4)
+packages/domain coverage:       Tests  52 passed (52)
+packages/domain coverage:    Start at  22:20:57
+packages/domain coverage:    Duration  1.10s (transform 248ms, setup 0ms, collect 1.47s, tests 119ms, environment 1ms, prepare 932ms)
+packages/domain coverage:  % Coverage report from v8
+packages/domain coverage: -------------------|---------|----------|---------|---------|-------------------------
+packages/domain coverage: File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s       
+packages/domain coverage: -------------------|---------|----------|---------|---------|-------------------------
+packages/domain coverage: All files          |   93.92 |    94.21 |   75.86 |   93.92 |                         
+packages/domain coverage:  src               |   94.52 |      100 |      60 |   94.52 |                         
+packages/domain coverage:   index.ts         |     100 |      100 |     100 |     100 |                         
+packages/domain coverage:   schema.ts        |   93.93 |      100 |      60 |   93.93 | 51-52,64-65             
+packages/domain coverage:  src/encoding      |   84.28 |    91.66 |   63.63 |   84.28 |                         
+packages/domain coverage:   attestation.ts   |     100 |    66.66 |     100 |     100 | 41                      
+packages/domain coverage:   digests.ts       |   71.79 |      100 |   55.55 |   71.79 | 16-18,21-22,35-36,43-46 
+packages/domain coverage:  src/normalization |     100 |    95.23 |     100 |     100 |                         
+packages/domain coverage:   index.ts         |     100 |    95.23 |     100 |     100 | 24,56,72                
+packages/domain coverage:  src/ocr           |   97.67 |    85.18 |     100 |   97.67 |                         
+packages/domain coverage:   assessment.ts    |   97.67 |    85.18 |     100 |   97.67 | 37                      
+packages/domain coverage:  src/verification  |   93.65 |    96.87 |      80 |   93.65 |                         
+packages/domain coverage:   decision.ts      |     100 |    97.36 |     100 |     100 | 29                      
+packages/domain coverage:   qr.ts            |      90 |    96.15 |   66.66 |      90 | 44-47                   
+packages/domain coverage: -------------------|---------|----------|---------|---------|-------------------------
+packages/domain coverage: Done
+packages/credentials coverage$ vitest run --coverage --coverage.provider=v8 --coverage.include=src/** --coverage.reporter=text --coverage.reporter=json-summary --coverage.reportsDirectory=coverage
+packages/ocr coverage$ vitest run --coverage --coverage.provider=v8 --coverage.include=src/** --coverage.reporter=text --coverage.reporter=json-summary --coverage.reportsDirectory=coverage
+packages/ocr coverage:  RUN  v3.2.7 C:/Users/Maulana/AppData/Local/Temp/uasw/final/packages/ocr
+packages/ocr coverage:       Coverage enabled with v8
+packages/credentials coverage:  RUN  v3.2.7 C:/Users/Maulana/AppData/Local/Temp/uasw/final/packages/credentials
+packages/credentials coverage:       Coverage enabled with v8
+packages/ocr coverage:  ✓ tests/parse.test.ts (6 tests) 9ms
+packages/ocr coverage:  ✓ tests/config.test.ts (2 tests) 11ms
+packages/ocr coverage:  ✓ tests/regions.test.ts (6 tests) 12ms
+packages/ocr coverage:  ✓ tests/render.test.ts (7 tests) 478ms
+packages/credentials coverage:  ✓ tests/credentials.test.ts (14 tests) 353ms
+packages/credentials coverage:  Test Files  1 passed (1)
+packages/credentials coverage:       Tests  14 passed (14)
+packages/credentials coverage:    Start at  22:21:00
+packages/credentials coverage:    Duration  1.87s (transform 183ms, setup 0ms, collect 595ms, tests 353ms, environment 0ms, prepare 498ms)
+packages/credentials coverage:  % Coverage report from v8
+packages/credentials coverage: ----------|---------|----------|---------|---------|-------------------
+packages/credentials coverage: File      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+packages/credentials coverage: ----------|---------|----------|---------|---------|-------------------
+packages/credentials coverage: All files |    97.9 |    89.33 |     100 |    97.9 |                   
+packages/credentials coverage:  index.ts |    97.9 |    89.33 |     100 |    97.9 | 131-132,292-293   
+packages/credentials coverage: ----------|---------|----------|---------|---------|-------------------
+packages/credentials coverage: Done
+packages/ocr coverage:  ✓ tests/qr.test.ts (4 tests) 1138ms
+packages/ocr coverage:    ✓ readQrCodes > survives PDF resave and PNG rasterization  497ms
+packages/ocr coverage: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-pdf: one QR, four fields, exact values, confidence >= 0.9
+packages/ocr coverage: [ocr-parity] A1-pdf: 1.3s, min confidence 0.92
+packages/ocr coverage: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-photo: one QR, four fields, exact values, confidence >= 0.9
+packages/ocr coverage: [ocr-parity] A1-photo: 1.0s, min confidence 0.90
+packages/ocr coverage: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-resaved: one QR, four fields, exact values, confidence >= 0.9
+packages/ocr coverage: [ocr-parity] A1-resaved: 1.1s, min confidence 0.92
+packages/ocr coverage: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-scan: one QR, four fields, exact values, confidence >= 0.9
+packages/ocr coverage: [ocr-parity] A1-scan: 1.0s, min confidence 0.90
+packages/ocr coverage: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-pdf: one QR, four fields, exact values, confidence >= 0.9
+packages/ocr coverage: [ocr-parity] B1-pdf: 1.2s, min confidence 0.91
+packages/ocr coverage: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-photo: one QR, four fields, exact values, confidence >= 0.9
+packages/ocr coverage: [ocr-parity] B1-photo: 1.0s, min confidence 0.91
+packages/ocr coverage: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-resaved: one QR, four fields, exact values, confidence >= 0.9
+packages/ocr coverage: [ocr-parity] B1-resaved: 1.2s, min confidence 0.91
+packages/ocr coverage: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-scan: one QR, four fields, exact values, confidence >= 0.9
+packages/ocr coverage: [ocr-parity] B1-scan: 0.9s, min confidence 0.91
+packages/ocr coverage: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1 photo from a different JPEG encoder still reads exact values
+packages/ocr coverage: [ocr-parity] A1-mupdf-jpeg: min confidence 0.8996
+packages/ocr coverage: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1 photo from a different JPEG encoder still reads exact values
+packages/ocr coverage: [ocr-parity] B1-mupdf-jpeg: min confidence 0.9061
+packages/ocr coverage: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > processes a five-page document within the time budget
+packages/ocr coverage: [ocr-parity] five-page-pdf: 4.0s
+packages/ocr coverage:  ✓ tests/extract.test.ts (20 tests) 21306ms
+packages/ocr coverage:    ✓ extractDocument with a stand-in engine > treats two diploma pages as inconclusive instead of choosing one  356ms
+packages/ocr coverage:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-pdf: one QR, four fields, exact values, confidence >= 0.9  1295ms
+packages/ocr coverage:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-photo: one QR, four fields, exact values, confidence >= 0.9  993ms
+packages/ocr coverage:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-resaved: one QR, four fields, exact values, confidence >= 0.9  1146ms
+packages/ocr coverage:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-scan: one QR, four fields, exact values, confidence >= 0.9  1004ms
+packages/ocr coverage:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-pdf: one QR, four fields, exact values, confidence >= 0.9  1169ms
+packages/ocr coverage:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-photo: one QR, four fields, exact values, confidence >= 0.9  973ms
+packages/ocr coverage:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-resaved: one QR, four fields, exact values, confidence >= 0.9  1166ms
+packages/ocr coverage:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-scan: one QR, four fields, exact values, confidence >= 0.9  943ms
+packages/ocr coverage:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1 photo from a different JPEG encoder still reads exact values  1099ms
+packages/ocr coverage:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1 photo from a different JPEG encoder still reads exact values  1083ms
+packages/ocr coverage:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > changed-full_name.pdf reads the altered full_name as written  1117ms
+packages/ocr coverage:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > changed-diploma_number.pdf reads the altered diploma_number as written  1130ms
+packages/ocr coverage:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > changed-study_program.pdf reads the altered study_program as written  1135ms
+packages/ocr coverage:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > changed-graduation_date.pdf reads the altered graduation_date as written  1193ms
+packages/ocr coverage:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > reads a QR that points to a different person than the printed name  1117ms
+packages/ocr coverage:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > processes a five-page document within the time budget  4030ms
+packages/ocr coverage:  Test Files  6 passed (6)
+packages/ocr coverage:       Tests  45 passed (45)
+packages/ocr coverage:    Start at  22:21:00
+packages/ocr coverage:    Duration  22.95s (transform 596ms, setup 0ms, collect 2.28s, tests 22.95s, environment 2ms, prepare 2.53s)
+packages/ocr coverage:  % Coverage report from v8
+packages/ocr coverage: ------------|---------|----------|---------|---------|-----------------------
+packages/ocr coverage: File        | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s     
+packages/ocr coverage: ------------|---------|----------|---------|---------|-----------------------
+packages/ocr coverage: All files   |   91.41 |    85.79 |   86.66 |   91.41 |                       
+packages/ocr coverage:  assets.ts  |     100 |       75 |     100 |     100 | 12                    
+packages/ocr coverage:  config.ts  |     100 |      100 |     100 |     100 |                       
+packages/ocr coverage:  engine.ts  |    93.8 |       76 |   88.88 |    93.8 | 42-43,104-106,125-126 
+packages/ocr coverage:  extract.ts |     100 |    68.18 |     100 |     100 | 36,40,48-49,56        
+packages/ocr coverage:  index.ts   |       0 |        0 |       0 |       0 | 1-2                   
+packages/ocr coverage:  parse.ts   |    67.1 |    93.93 |   66.66 |    67.1 | 37-61                 
+packages/ocr coverage:  qr.ts      |   94.44 |    85.71 |     100 |   94.44 | 17-18                 
+packages/ocr coverage:  regions.ts |     100 |    94.73 |     100 |     100 | 17                    
+packages/ocr coverage:  render.ts  |   98.82 |    89.58 |   85.71 |   98.82 | 28                    
+packages/ocr coverage:  types.ts   |     100 |      100 |     100 |     100 |                       
+packages/ocr coverage: ------------|---------|----------|---------|---------|-----------------------
+packages/ocr coverage: Done
+packages/chain coverage$ vitest run --coverage --coverage.provider=v8 --coverage.include=src/** --coverage.reporter=text --coverage.reporter=json-summary --coverage.reportsDirectory=coverage
+packages/chain coverage:  RUN  v3.2.4 C:/Users/Maulana/AppData/Local/Temp/uasw/final/packages/chain
+packages/chain coverage:       Coverage enabled with v8
+packages/chain coverage:  ✓ tests/config.test.ts (2 tests) 9ms
+packages/chain coverage:  ✓ tests/portal-state.test.ts (2 tests) 10ms
+packages/chain coverage:  ✓ tests/chain-errors.test.ts (3 tests) 23ms
+packages/chain coverage:  ✓ tests/credential-read.test.ts (10 tests) 28ms
+packages/chain coverage:  ✓ tests/rpc-provider.test.ts (8 tests) 127ms
+packages/chain coverage:  ✓ tests/service-policy.test.ts (8 tests) 80ms
+packages/chain coverage:  ✓ tests/recovery.test.ts (20 tests) 345ms
+packages/chain coverage:  ✓ tests/credential-browser.test.ts (18 tests) 358ms
+packages/chain coverage:  Test Files  8 passed (8)
+packages/chain coverage:       Tests  71 passed (71)
+packages/chain coverage:    Start at  22:21:23
+packages/chain coverage:    Duration  1.74s (transform 940ms, setup 0ms, collect 4.57s, tests 980ms, environment 2ms, prepare 2.02s)
+packages/chain coverage:  % Coverage report from v8
+packages/chain coverage: ------------|---------|----------|---------|---------|--------------------------
+packages/chain coverage: File        | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s        
+packages/chain coverage: ------------|---------|----------|---------|---------|--------------------------
+packages/chain coverage: All files   |   80.07 |    84.11 |   79.54 |   80.07 |                          
+packages/chain coverage:  browser.ts |   88.43 |     87.2 |   71.42 |   88.43 | 69,127-128,193-212       
+packages/chain coverage:  index.ts   |       0 |      100 |     100 |       0 | 2                        
+packages/chain coverage:  server.ts  |   65.41 |     82.4 |   70.58 |   65.41 | ...5-206,228-229,231-293 
+packages/chain coverage:  shared.ts  |   96.87 |    82.71 |     100 |   96.87 | 17-18,20-21              
+packages/chain coverage:  types.ts   |       0 |        0 |       0 |       0 |                          
+packages/chain coverage: ------------|---------|----------|---------|---------|--------------------------
+packages/chain coverage: Done
+apps/web coverage$ vitest run --coverage --coverage.provider=v8 --coverage.include=src/** --coverage.reporter=text --coverage.reporter=json-summary --coverage.reportsDirectory=coverage
+apps/web coverage:  RUN  v3.2.7 C:/Users/Maulana/AppData/Local/Temp/uasw/final/apps/web
+apps/web coverage:       Coverage enabled with v8
+apps/web coverage:  ✓ tests/unit/netlify-blobs.test.ts (6 tests) 36628ms
+apps/web coverage:    ✓ uploads 10 MiB through bounded requests, finalizes once and cleans staging  36386ms
+apps/web coverage:  ✓ tests/unit/diploma-pdf.test.ts (6 tests) 10457ms
+apps/web coverage:    ✓ generated diploma, real OCR and QR engines > reads mixed case names and short programs: Maulana Y / IF / 2027-03-09  1894ms
+apps/web coverage:    ✓ generated diploma, real OCR and QR engines > reads mixed case names and short programs: Maulana Y / IF / 2026-08-15  1695ms
+apps/web coverage:    ✓ generated diploma, real OCR and QR engines > reads mixed case names and short programs: Budi S / TI / 2027-03-09  1700ms
+apps/web coverage:    ✓ generated diploma, real OCR and QR engines > reads mixed case names and short programs: Siti Aminah / Informatika / 2027-03-09  1653ms
+apps/web coverage:    ✓ generated diploma, real OCR and QR engines > reads all visible attributes including wrapped name ANDI PRATAMA  1696ms
+apps/web coverage:    ✓ generated diploma, real OCR and QR engines > reads all visible attributes including wrapped name ANDI PRATAMA PUTRA WIJAYA KUSUMA NUGRAHA SAPUTRA BUDI SANTOSO WIRAWAN SETIAWAN KURNIAWAN  1816ms
+apps/web coverage: stderr | tests/unit/documents.test.ts > issuer PDF lifecycle, independent of OCR (real PDF and storage) > retries storage failure with the same PDF and origin, without any verification job
+apps/web coverage: {"event":"verification_failure","stage":"ARCHIVE","code":"ARCHIVE_UNAVAILABLE"}
+apps/web coverage: stderr | tests/unit/documents.test.ts > issuer PDF lifecycle, independent of OCR (real PDF and storage) > checks revocation during archiving and again before downloading
+apps/web coverage: {"event":"verification_failure","stage":"ARCHIVE","code":"ARCHIVE_UNAVAILABLE"}
+apps/web coverage: stderr | tests/unit/documents.test.ts > portal document statuses > leaves rows to load on their own when the batch read fails
+apps/web coverage: {"event":"verification_failure","stage":"PROOF_STORAGE","code":"PROOF_STORAGE_UNAVAILABLE"}
+apps/web coverage: stderr | tests/unit/documents.test.ts > portal document statuses > leaves rows to load on their own when the batch read fails
+apps/web coverage: {"event":"verification_failure","stage":"ARCHIVE","code":"ARCHIVE_UNAVAILABLE"}
+apps/web coverage:  ✓ tests/unit/documents.test.ts (19 tests) 10373ms
+apps/web coverage:    ✓ issuer PDF lifecycle, independent of OCR (real PDF and storage) > archives and downloads the issuer PDF without OCR, a queue or a comparison job  750ms
+apps/web coverage:    ✓ issuer PDF lifecycle, independent of OCR (real PDF and storage) > uses the private issuance date and rejects replacement from a PDF request  644ms
+apps/web coverage:    ✓ issuer PDF lifecycle, independent of OCR (real PDF and storage) > deduplicates concurrent generation and preserves the archive across login, cleanup and new dates  1374ms
+apps/web coverage:    ✓ issuer PDF lifecycle, independent of OCR (real PDF and storage) > recovers a legacy INCONCLUSIVE PDF without reusing or falsifying its OCR result  722ms
+apps/web coverage:    ✓ issuer PDF lifecycle, independent of OCR (real PDF and storage) > recovers a legacy MISMATCH PDF without reusing or falsifying its OCR result  645ms
+apps/web coverage:    ✓ issuer PDF lifecycle, independent of OCR (real PDF and storage) > recovers a legacy ERROR PDF without reusing or falsifying its OCR result  644ms
+apps/web coverage:    ✓ issuer PDF lifecycle, independent of OCR (real PDF and storage) > recovers a legacy DISPATCH_UNAVAILABLE PDF without reusing or falsifying its OCR result  625ms
+apps/web coverage:    ✓ issuer PDF lifecycle, independent of OCR (real PDF and storage) > retries storage failure with the same PDF and origin, without any verification job  1313ms
+apps/web coverage:    ✓ issuer PDF lifecycle, independent of OCR (real PDF and storage) > checks revocation during archiving and again before downloading  1210ms
+apps/web coverage:    ✓ issuer PDF lifecycle, independent of OCR (real PDF and storage) > blocks anonymous, inactive and cross-institution access  603ms
+apps/web coverage:    ✓ issuer PDF lifecycle, independent of OCR (real PDF and storage) > enforces session and CSRF at the API boundary  620ms
+apps/web coverage:    ✓ portal document statuses > loads every row at once without an issuer lookup per credential  598ms
+apps/web coverage:    ✓ portal document statuses > shares statuses only with an active signer and skips revoked records  604ms
+apps/web coverage:  ✓ tests/unit/wallet-authentication.test.ts (24 tests) 512ms
+apps/web coverage:  ✓ tests/unit/relayer-budget.test.ts (3 tests) 353ms
+apps/web coverage:    ✓ global relayer budget (S-08) > atomic reservation through the real state lock > admits exactly the budget when twelve jobs reserve concurrently  348ms
+apps/web coverage:  ✓ tests/unit/uploads.test.ts (9 tests) 243ms
+apps/web coverage: stderr | tests/unit/credentials.test.ts > public record proof verification > distinguishes a missing off-chain payload, an absent chain record, and an RPC failure
+apps/web coverage: {"event":"verification_failure","stage":"RPC","code":"RPC_UNAVAILABLE"}
+apps/web coverage: stderr | tests/unit/credentials.test.ts > public record proof verification > distinguishes a missing off-chain payload, an absent chain record, and an RPC failure
+apps/web coverage: {"event":"verification_failure","stage":"RPC","code":"RPC_UNAVAILABLE"}
+apps/web coverage:  ✓ tests/unit/credentials.test.ts (30 tests) 609ms
+apps/web coverage:  ✓ tests/unit/jobs.test.ts (6 tests) 240ms
+apps/web coverage:  ✓ tests/unit/record-pipeline.test.ts (18 tests) 161ms
+apps/web coverage:  ✓ tests/unit/credentials-api.test.ts (4 tests) 179ms
+apps/web coverage: stderr | tests/unit/workflow.test.ts > durable verification jobs > persists dispatch intent, recovers queue failure and suppresses acknowledged duplicates
+apps/web coverage: {"event":"verification_failure","stage":"DISPATCH","code":"DISPATCH_UNAVAILABLE"}
+apps/web coverage:  ✓ tests/unit/workflow.test.ts (11 tests) 107ms
+apps/web coverage:  ✓ tests/unit/netlify-queue.test.ts (9 tests) 87ms
+apps/web coverage:  ✓ tests/unit/portal-session.test.ts (9 tests) 63ms
+apps/web coverage: stderr | tests/unit/client-source.test.ts > client source for rate limits (S-08) > uses only the Netlify connection header on Netlify, never X-Forwarded-For
+apps/web coverage: {"event":"untrusted_client_source","via":"netlify"}
+apps/web coverage:  ✓ tests/unit/client-source.test.ts (4 tests) 38ms
+apps/web coverage:  ✓ tests/unit/guide-search.test.ts (20 tests) 26ms
+apps/web coverage:  ✓ tests/unit/session-api.test.ts (3 tests) 18ms
+apps/web coverage: stderr | tests/unit/store-config.test.ts > deployment persistence configuration > returns an actionable 503 without setting a session cookie on Netlify (build)
+apps/web coverage: {"event":"untrusted_client_source","via":"netlify"}
+apps/web coverage:  ✓ tests/unit/store-config.test.ts (5 tests) 13ms
+apps/web coverage:  ✓ tests/unit/netlify-upload-client.test.ts (2 tests) 11ms
+apps/web coverage:  ✓ tests/unit/diagnostics.test.ts (3 tests) 8ms
+apps/web coverage:  ✓ tests/unit/session-storage.test.ts (2 tests) 6ms
+apps/web coverage:  ✓ tests/unit/explorer.test.ts (8 tests) 3ms
+apps/web coverage:  Test Files  21 passed (21)
+apps/web coverage:       Tests  201 passed (201)
+apps/web coverage:    Start at  22:21:26
+apps/web coverage:    Duration  84.93s (transform 656ms, setup 0ms, collect 15.79s, tests 60.14s, environment 4ms, prepare 2.94s)
+apps/web coverage:  % Coverage report from v8
+apps/web coverage: -------------------|---------|----------|---------|---------|-------------------
+apps/web coverage: File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+apps/web coverage: -------------------|---------|----------|---------|---------|-------------------
+apps/web coverage: All files          |   58.89 |     80.7 |   77.82 |   58.89 |                   
+apps/web coverage:  app               |       0 |    33.33 |   33.33 |       0 |                   
+apps/web coverage:   layout.tsx       |       0 |      100 |     100 |       0 | 2-12              
+apps/web coverage:   not-found.tsx    |       0 |        0 |       0 |       0 | 1-2               
+apps/web coverage:   page.tsx         |       0 |        0 |       0 |       0 | 1-33              
+apps/web coverage:  ...edentials/[id] |     100 |      100 |     100 |     100 |                   
+apps/web coverage:   route.ts         |     100 |      100 |     100 |     100 |                   
+apps/web coverage:  .../[id]/document |     100 |    83.33 |     100 |     100 |                   
+apps/web coverage:   route.ts         |     100 |    83.33 |     100 |     100 | 8                 
+apps/web coverage:  ...ument/download |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   route.ts         |       0 |        0 |       0 |       0 | 1-5               
+apps/web coverage:  ...als/[id]/proof |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   route.ts         |       0 |        0 |       0 |       0 | 1-10              
+apps/web coverage:  ...]/verification |     100 |      100 |     100 |     100 |                   
+apps/web coverage:   route.ts         |     100 |      100 |     100 |     100 |                   
+apps/web coverage:  ...entials/drafts |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   route.ts         |       0 |        0 |       0 |       0 | 1-8               
+apps/web coverage:  app/api/demo      |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   route.ts         |       0 |        0 |       0 |       0 | 1-5               
+apps/web coverage:  ...al/maintenance |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   route.ts         |       0 |        0 |       0 |       0 | 1-13              
+apps/web coverage:  ...rtal/challenge |     100 |       75 |     100 |     100 |                   
+apps/web coverage:   route.ts         |     100 |       75 |     100 |     100 | 9                 
+apps/web coverage:  .../portal/config |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   route.ts         |       0 |        0 |       0 |       0 | 1-14              
+apps/web coverage:  ...portal/session |     100 |    88.88 |     100 |     100 |                   
+apps/web coverage:   route.ts         |     100 |    88.88 |     100 |     100 | 21,25,30          
+apps/web coverage:  app/api/session   |     100 |      100 |     100 |     100 |                   
+apps/web coverage:   route.ts         |     100 |      100 |     100 |     100 |                   
+apps/web coverage:  .../[id]/finalize |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   route.ts         |       0 |        0 |       0 |       0 | 1-12              
+apps/web coverage:  ...]/parts/[part] |     100 |      100 |     100 |     100 |                   
+apps/web coverage:   route.ts         |     100 |      100 |     100 |     100 |                   
+apps/web coverage:  ...ploads/intents |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   route.ts         |       0 |        0 |       0 |       0 | 1-9               
+apps/web coverage:  .../uploads/token |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   route.ts         |       0 |        0 |       0 |       0 | 1-4               
+apps/web coverage:  .../verifications |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   route.ts         |       0 |        0 |       0 |       0 | 1-8               
+apps/web coverage:  ...fications/[id] |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   route.ts         |       0 |        0 |       0 |       0 | 1-7               
+apps/web coverage:  ...ns/[id]/report |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   route.ts         |       0 |        0 |       0 |       0 | 1-6               
+apps/web coverage:  ...ons/[id]/retry |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   route.ts         |       0 |        0 |       0 |       0 | 1-23              
+apps/web coverage:  app/bantuan       |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   page.tsx         |       0 |        0 |       0 |       0 | 1-3               
+apps/web coverage:  ...[credentialId] |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   page.tsx         |       0 |        0 |       0 |       0 | 1-2               
+apps/web coverage:  app/panduan       |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   page.tsx         |       0 |        0 |       0 |       0 | 1-7               
+apps/web coverage:  app/penerbit      |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   page.tsx         |       0 |        0 |       0 |       0 | 1-6               
+apps/web coverage:  app/riwayat       |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   page.tsx         |       0 |        0 |       0 |       0 | 1-2               
+apps/web coverage:  app/verifikasi    |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   page.tsx         |       0 |        0 |       0 |       0 | 1-5               
+apps/web coverage:  ...es/credentials |       0 |      100 |     100 |       0 |                   
+apps/web coverage:   ...ialRecord.tsx |       0 |      100 |     100 |       0 | 3-81              
+apps/web coverage:   record-status.ts |       0 |      100 |     100 |       0 | 3-11              
+apps/web coverage:  features/help     |   71.02 |    94.87 |     100 |   71.02 |                   
+apps/web coverage:   GuidePage.tsx    |       0 |      100 |     100 |       0 | 2-38              
+apps/web coverage:   GuideSearch.tsx  |       0 |      100 |     100 |       0 | 3-50              
+apps/web coverage:   content.ts       |     100 |      100 |     100 |     100 |                   
+apps/web coverage:   search.ts        |     100 |    94.73 |     100 |     100 | 56,62,77,87       
+apps/web coverage:  features/history  |       0 |      100 |     100 |       0 |                   
+apps/web coverage:   HistoryPage.tsx  |       0 |      100 |     100 |       0 | 2-13              
+apps/web coverage:  features/home     |       0 |      100 |     100 |       0 |                   
+apps/web coverage:   ...echnology.tsx |       0 |      100 |     100 |       0 | 3-81              
+apps/web coverage:  features/layout   |       0 |      100 |     100 |       0 |                   
+apps/web coverage:   AppShell.tsx     |       0 |      100 |     100 |       0 | 2-42              
+apps/web coverage:  features/portal   |   29.64 |    90.52 |   95.23 |   29.64 |                   
+apps/web coverage:   ...lDocument.tsx |       0 |      100 |     100 |       0 | 3-77              
+apps/web coverage:   PortalPage.tsx   |       0 |      100 |     100 |       0 | 3-177             
+apps/web coverage:   ...lSkeleton.tsx |       0 |        0 |       0 |       0 | 1-21              
+apps/web coverage:   WalletHost.tsx   |       0 |      100 |     100 |       0 | 3-61              
+apps/web coverage:   ...tProvider.tsx |       0 |      100 |     100 |       0 | 3-153             
+apps/web coverage:   ...entication.ts |   97.32 |    91.01 |     100 |   97.32 | 92-94,184-185     
+apps/web coverage:   wallet-hint.ts   |       0 |      100 |     100 |       0 | 2-10              
+apps/web coverage:  features/shared   |      80 |    71.42 |    62.5 |      80 |                   
+apps/web coverage:   ...ficateArt.tsx |       0 |        0 |       0 |       0 | 1-3               
+apps/web coverage:   api.ts           |      80 |    70.58 |      60 |      80 | 16-19             
+apps/web coverage:   explorer.ts      |     100 |       80 |     100 |     100 | 12-14             
+apps/web coverage:   upload-limits.ts |     100 |      100 |     100 |     100 |                   
+apps/web coverage:  ...s/shared/icons |       0 |    66.66 |   66.66 |       0 |                   
+apps/web coverage:   Icon.tsx         |       0 |      100 |     100 |       0 | 9-32              
+apps/web coverage:   ...strations.tsx |       0 |      100 |     100 |       0 | 2-48              
+apps/web coverage:   index.tsx        |       0 |        0 |       0 |       0 | 1-49              
+apps/web coverage:  ...s/verification |    22.5 |    63.63 |     100 |    22.5 |                   
+apps/web coverage:   ResultPanel.tsx  |       0 |      100 |     100 |       0 | 2-30              
+apps/web coverage:   ...Workspace.tsx |       0 |      100 |     100 |       0 | 2-46              
+apps/web coverage:   types.ts         |       0 |      100 |     100 |       0 | 11-21             
+apps/web coverage:   upload.ts        |   72.97 |       50 |     100 |   72.97 | ...32-34,38-39,42 
+apps/web coverage:  functions         |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   ...ackground.mts |       0 |        0 |       0 |       0 | 1-3               
+apps/web coverage:   ...intenance.mts |       0 |        0 |       0 |       0 | 1-3               
+apps/web coverage:  server            |   89.63 |    80.51 |   93.28 |   89.63 |                   
+apps/web coverage:   config.ts        |   75.86 |    70.58 |     100 |   75.86 | 25-27,29-33       
+apps/web coverage:   ...repository.ts |   67.16 |    77.77 |   85.71 |   67.16 | ...46,50-55,64-71 
+apps/web coverage:   ...ls-request.ts |      95 |    44.44 |     100 |      95 | 21                
+apps/web coverage:   credentials.ts   |     100 |    88.73 |     100 |     100 | ...66,169,177,181 
+apps/web coverage:   demo.ts          |       0 |        0 |       0 |       0 | 1-22              
+apps/web coverage:   diagnostics.ts   |     100 |      100 |     100 |     100 |                   
+apps/web coverage:   diploma-pdf.ts   |     100 |    76.19 |     100 |     100 | 18,30-35,43,55    
+apps/web coverage:   dispatch.ts      |     100 |      100 |     100 |     100 |                   
+apps/web coverage:   ...nt-archive.ts |   33.33 |    14.28 |      50 |   33.33 | 13-27,29-35       
+apps/web coverage:   document-date.ts |     100 |      100 |     100 |     100 |                   
+apps/web coverage:   ...ment-types.ts |       0 |        0 |       0 |       0 |                   
+apps/web coverage:   ...repository.ts |   59.37 |    66.66 |     100 |   59.37 | 10,17-19,28-36    
+apps/web coverage:   documents.ts     |     100 |    90.62 |     100 |     100 | 28-29,60,73,79,84 
+apps/web coverage:   http.ts          |     100 |    97.01 |   91.66 |     100 | 31,45             
+apps/web coverage:   jobs.ts          |   96.37 |    77.16 |     100 |   96.37 | 98-99,134-136     
+apps/web coverage:   maintenance.ts   |   55.55 |       50 |     100 |   55.55 | 12-20             
+apps/web coverage:   netlify-queue.ts |     100 |     92.3 |     100 |     100 | 20,29             
+apps/web coverage:   ...ify-runner.ts |     100 |     87.5 |     100 |     100 | 10-14,25,37,40    
+apps/web coverage:   ...fy-storage.ts |     100 |       75 |     100 |     100 | 12-13,23,26,39    
+apps/web coverage:   ...fy-uploads.ts |     100 |       80 |     100 |     100 | ...25,39-41,46,50 
+apps/web coverage:   pipeline.ts      |   90.19 |    82.79 |     100 |   90.19 | 35-39,50-53,74-75 
+apps/web coverage:   ...yer-budget.ts |     100 |    94.73 |     100 |     100 | 9                 
+apps/web coverage:   reports.ts       |   59.37 |        5 |   33.33 |   59.37 | 8-20,26,36        
+apps/web coverage:   storage.ts       |   84.78 |    74.35 |   93.33 |   84.78 | ...23-124,139-141 
+apps/web coverage:   store.ts         |   92.85 |    79.16 |      75 |   92.85 | 48,64-66          
+apps/web coverage:   types.ts         |     100 |      100 |     100 |     100 |                   
+apps/web coverage:   ...ad-intents.ts |    97.1 |     70.9 |     100 |    97.1 | 35-36             
+apps/web coverage:   uploads.ts       |    86.2 |    73.33 |      80 |    86.2 | 39-46             
+apps/web coverage:   workflow-jobs.ts |   93.47 |    81.13 |     100 |   93.47 | 88-89,91-94       
+apps/web coverage:  server/db         |      40 |      100 |       0 |      40 |                   
+apps/web coverage:   client.ts        |   33.33 |      100 |       0 |   33.33 | 7-19,25-29        
+apps/web coverage:   leases.ts        |   16.98 |      100 |       0 |   16.98 | 19-68             
+apps/web coverage:   schema.ts        |     100 |      100 |     100 |     100 |                   
+apps/web coverage:   state.ts         |   15.38 |      100 |       0 |   15.38 | 7-17              
+apps/web coverage:  workflows         |   11.11 |      100 |       0 |   11.11 |                   
+apps/web coverage:   ...tion-steps.ts |   11.76 |      100 |       0 |   11.76 | ...20,23-27,30-40 
+apps/web coverage:   verification.ts  |      10 |      100 |       0 |      10 | 4-23              
+apps/web coverage: -------------------|---------|----------|---------|---------|-------------------
+apps/web coverage: Done
+originalExitCode=0
+finishedAtUtc=2026-10-04T15:22:52.152Z

@@ -1,0 +1,14 @@
+sourceCommit=8a13faaaac696700c8018cc6c947682028393afc
+command=pnpm lint
+startedAtUtc=2026-10-04T15:15:15.110Z
+
+> verifikasi-monorepo@ lint C:\Users\Maulana\AppData\Local\Temp\uasw\final
+> pnpm check:structure && eslint apps/web/src packages/domain/src packages/chain/src packages/credentials/src packages/ocr/src
+
+
+> verifikasi-monorepo@ check:structure C:\Users\Maulana\AppData\Local\Temp\uasw\final
+> node scripts/check-structure.mjs
+
+Struktur monorepo valid: 7 workspace; batas dependensi dan lockfile diperiksa.
+originalExitCode=0
+finishedAtUtc=2026-10-04T15:15:19.517Z

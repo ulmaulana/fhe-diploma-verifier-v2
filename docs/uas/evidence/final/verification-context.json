@@ -1,0 +1,106 @@
+{
+  "sourceCommit": "8a13faaaac696700c8018cc6c947682028393afc",
+  "initialStatus": "clean",
+  "startedAtUtc": "2026-10-04T15:14:32.915Z",
+  "node": "v24.21.0",
+  "pnpm": "10.19.0",
+  "mode": "demo except PostgreSQL database tests",
+  "dbTestTarget": {
+    "host": "loopback",
+    "port": 54329,
+    "database": "verifikasi_test",
+    "container": "verifikasi-uas-pg"
+  },
+  "runs": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "cwd": "C:/Users/Maulana/AppData/Local/Temp/uasw/final",
+      "startedAtUtc": "2026-10-04T15:14:33.303Z",
+      "log": "docs/uas/evidence/final/01-install.log",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T15:15:15.109Z",
+      "durationSeconds": 41.806,
+      "startedAtWib": "2026-10-04T22:14:33.303+07:00",
+      "finishedAtWib": "2026-10-04T22:15:15.109+07:00"
+    },
+    {
+      "command": "pnpm lint",
+      "cwd": "C:/Users/Maulana/AppData/Local/Temp/uasw/final",
+      "startedAtUtc": "2026-10-04T15:15:15.110Z",
+      "log": "docs/uas/evidence/final/02-lint.log",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T15:15:19.517Z",
+      "durationSeconds": 4.407,
+      "startedAtWib": "2026-10-04T22:15:15.110+07:00",
+      "finishedAtWib": "2026-10-04T22:15:19.517+07:00"
+    },
+    {
+      "command": "pnpm typecheck",
+      "cwd": "C:/Users/Maulana/AppData/Local/Temp/uasw/final",
+      "startedAtUtc": "2026-10-04T15:15:19.518Z",
+      "log": "docs/uas/evidence/final/03-typecheck.log",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T15:15:49.814Z",
+      "durationSeconds": 30.296,
+      "startedAtWib": "2026-10-04T22:15:19.518+07:00",
+      "finishedAtWib": "2026-10-04T22:15:49.814+07:00"
+    },
+    {
+      "command": "pnpm test",
+      "cwd": "C:/Users/Maulana/AppData/Local/Temp/uasw/final",
+      "startedAtUtc": "2026-10-04T15:15:49.815Z",
+      "log": "docs/uas/evidence/final/04-test.log",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T15:17:20.572Z",
+      "durationSeconds": 90.757,
+      "startedAtWib": "2026-10-04T22:15:49.815+07:00",
+      "finishedAtWib": "2026-10-04T22:17:20.572+07:00"
+    },
+    {
+      "command": "pnpm test:db",
+      "cwd": "C:/Users/Maulana/AppData/Local/Temp/uasw/final",
+      "startedAtUtc": "2026-10-04T15:17:20.572Z",
+      "log": "docs/uas/evidence/final/05-test-db.log",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T15:17:24.125Z",
+      "durationSeconds": 3.553,
+      "startedAtWib": "2026-10-04T22:17:20.572+07:00",
+      "finishedAtWib": "2026-10-04T22:17:24.125+07:00"
+    },
+    {
+      "command": "pnpm build",
+      "cwd": "C:/Users/Maulana/AppData/Local/Temp/uasw/final",
+      "startedAtUtc": "2026-10-04T15:17:24.126Z",
+      "log": "docs/uas/evidence/final/06-build.log",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T15:18:48.933Z",
+      "durationSeconds": 84.807,
+      "startedAtWib": "2026-10-04T22:17:24.126+07:00",
+      "finishedAtWib": "2026-10-04T22:18:48.933+07:00"
+    },
+    {
+      "command": "pnpm test:e2e",
+      "cwd": "C:/Users/Maulana/AppData/Local/Temp/uasw/final",
+      "startedAtUtc": "2026-10-04T15:18:48.934Z",
+      "log": "docs/uas/evidence/final/07-test-e2e.log",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T15:19:34.060Z",
+      "durationSeconds": 45.126,
+      "startedAtWib": "2026-10-04T22:18:48.934+07:00",
+      "finishedAtWib": "2026-10-04T22:19:34.060+07:00"
+    },
+    {
+      "command": "pnpm coverage",
+      "cwd": "C:/Users/Maulana/AppData/Local/Temp/uasw/final",
+      "startedAtUtc": "2026-10-04T15:19:34.061Z",
+      "log": "docs/uas/evidence/final/08-coverage.log",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T15:22:52.152Z",
+      "durationSeconds": 198.091,
+      "startedAtWib": "2026-10-04T22:19:34.061+07:00",
+      "finishedAtWib": "2026-10-04T22:22:52.152+07:00"
+    }
+  ],
+  "finishedAtUtc": "2026-10-04T15:22:52.153Z",
+  "finalWorktreeStatus": "M apps/web/next-env.d.ts\n M docs/screenshots/desktop-empty.png\n M docs/screenshots/desktop-sample.png\n M docs/screenshots/mobile-360.png\n M docs/screenshots/mobile-390.png\n M docs/screenshots/real-ocr-demo.png\n M docs/screenshots/v12-portal.png\n M docs/screenshots/v12-record-desktop.png\n M docs/screenshots/v12-record-mobile-360.png\n M docs/screenshots/v12-record-mobile.png\n M docs/screenshots/v12-record-unconfigured.png"
+}

@@ -1,0 +1,23 @@
+sourceCommit=8a13faaaac696700c8018cc6c947682028393afc
+command=pnpm typecheck
+startedAtUtc=2026-10-04T15:15:19.518Z
+
+> verifikasi-monorepo@ typecheck C:\Users\Maulana\AppData\Local\Temp\uasw\final
+> pnpm -r --if-present typecheck
+
+Scope: 7 of 8 workspace projects
+contracts typecheck$ node scripts/build.cjs
+contracts typecheck: Compiled 24 Solidity files successfully (evm target: cancun).
+contracts typecheck: Done
+packages/domain typecheck$ tsc --noEmit
+packages/domain typecheck: Done
+packages/credentials typecheck$ tsc --noEmit
+packages/ocr typecheck$ tsc --noEmit
+packages/credentials typecheck: Done
+packages/ocr typecheck: Done
+packages/chain typecheck$ tsc --noEmit
+packages/chain typecheck: Done
+apps/web typecheck$ tsc --noEmit
+apps/web typecheck: Done
+originalExitCode=0
+finishedAtUtc=2026-10-04T15:15:49.814Z

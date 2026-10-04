@@ -1,0 +1,194 @@
+sourceCommit=8a13faaaac696700c8018cc6c947682028393afc
+command=pnpm test
+startedAtUtc=2026-10-04T15:15:49.815Z
+
+> verifikasi-monorepo@ test C:\Users\Maulana\AppData\Local\Temp\uasw\final
+> pnpm -r --if-present test
+
+Scope: 7 of 8 workspace projects
+contracts test$ node scripts/build.cjs --quiet && hardhat test --no-compile
+contracts test:   UAS tooling: deployment, registration and role rotation — local mock (not testnet evidence)
+contracts test:     ✔ rejects a bad deployment configuration before sending any transaction
+contracts test:     ✔ deploys, verifies role holders and writes a non-secret record (240ms)
+contracts test:     ✔ registers institution and signer idempotently and refuses a service account as signer (220ms)
+contracts test:     ✔ shows holders from events, blocks conflicting grants locally and rotates a service role (244ms)
+contracts test:     ✔ transfers the administrator by granting and verifying before renouncing (207ms)
+contracts test:   VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts test:     ✔ rejects unauthorized registry updates, issuance and revocation (61ms)
+contracts test:     ✔ compares all 256 digest bits and decrypts only for the result reader (276ms)
+contracts test:     ✔ S-05: grants no account a decrypt permission on reference values, including the issuing signer (119ms)
+contracts test:     ✔ detects a change in each field, including high digest bits (767ms)
+contracts test:     ✔ rejects replay of request IDs and attestor nonces (48ms)
+contracts test:     ✔ rejects incorrect signer, domain, relayer, deadline and altered input bindings (95ms)
+contracts test:     ✔ disables comparisons for revoked credentials and inactive issuers (45ms)
+contracts test:     ✔ requires a credential payload signature even when the transaction is signed by the authorized wallet
+contracts test:     ✔ rejects payload tampering, cross-domain signatures and ordered ciphertext substitutions (59ms)
+contracts test:     ✔ rejects issuance replay and expiration without expiring already issued records (56ms)
+contracts test:     ✔ S-09: maps malformed and malleable signatures to the contract domain errors (43ms)
+contracts test:     ✔ S-10: validates registry input by byte length with specific errors
+contracts test:     ✔ S-10: rejects signer updates that would not change state instead of succeeding silently
+contracts test:     ✔ S-03: binds the credential ID to institution, signer and nonce so another signer cannot occupy it (44ms)
+contracts test:     ✔ S-04: binds the reviewed institution name into the e-signed payload (protocol v2)
+contracts test:     ✔ rolls back both nonce and record when FHE input proof fails
+contracts test:     ✔ retains historical signer evidence after rotation and permits the replacement to revoke (47ms)
+contracts test:     ✔ retains every authorization period and rejects cross-institution signer reassignment while active
+contracts test:     S-01/S-02: role separation, rotation and administrator continuity
+contracts test:       ✔ rejects a deployment that places two roles on one address (40ms)
+contracts test:       ✔ rejects grants that combine roles or make a signer a service account, in both directions
+contracts test:       ✔ rotates relayer, attestor and reader: revoked accounts fail and replacements work (186ms)
+contracts test:       ✔ transfers the administrator without ever leaving the contract without one
+contracts test:     T-02: boundaries, access control, business states and events
+contracts test:       ✔ accepts issuance exactly at the deadline and rejects one second later
+contracts test:       ✔ accepts an attestation exactly at its deadline and rejects one second later (40ms)
+contracts test:       ✔ rejects zero values, unsupported versions and wrong version strings (130ms)
+contracts test:       ✔ enforces relayer, result reader and institution boundaries (44ms)
+contracts test:       ✔ handles inactive institutions, missing credentials and repeated revocation (48ms)
+contracts test:       ✔ paginates issuer credentials with empty, exact, beyond and clamped windows (1399ms)
+contracts test:       ✔ emits every state-change event with the expected arguments (41ms)
+contracts test:   34 passing (5s)
+contracts test: Done
+packages/domain test$ vitest run
+packages/domain test:  RUN  v3.2.7 C:/Users/Maulana/AppData/Local/Temp/uasw/final/packages/domain
+packages/domain test:  ✓ tests/normalization.test.ts (23 tests) 8ms
+packages/domain test:  ✓ tests/ocr.test.ts (5 tests) 6ms
+packages/domain test:  ✓ tests/encoding.test.ts (6 tests) 66ms
+packages/domain test:  ✓ tests/verification.test.ts (18 tests) 6ms
+packages/domain test:  Test Files  4 passed (4)
+packages/domain test:       Tests  52 passed (52)
+packages/domain test:    Start at  22:15:59
+packages/domain test:    Duration  1.02s (transform 364ms, setup 0ms, collect 1.52s, tests 86ms, environment 1ms, prepare 986ms)
+packages/domain test: Done
+packages/credentials test$ vitest run
+packages/ocr test$ vitest run
+packages/ocr test:  RUN  v3.2.7 C:/Users/Maulana/AppData/Local/Temp/uasw/final/packages/ocr
+packages/credentials test:  RUN  v3.2.7 C:/Users/Maulana/AppData/Local/Temp/uasw/final/packages/credentials
+packages/ocr test:  ✓ tests/parse.test.ts (6 tests) 7ms
+packages/ocr test:  ✓ tests/config.test.ts (2 tests) 10ms
+packages/ocr test:  ✓ tests/regions.test.ts (6 tests) 13ms
+packages/ocr test:  ✓ tests/render.test.ts (7 tests) 439ms
+packages/credentials test:  ✓ tests/credentials.test.ts (14 tests) 160ms
+packages/credentials test:  Test Files  1 passed (1)
+packages/credentials test:       Tests  14 passed (14)
+packages/credentials test:    Start at  22:16:01
+packages/credentials test:    Duration  1.55s (transform 171ms, setup 0ms, collect 510ms, tests 160ms, environment 0ms, prepare 476ms)
+packages/ocr test:  ✓ tests/qr.test.ts (4 tests) 602ms
+packages/ocr test:    ✓ readQrCodes > survives PDF resave and PNG rasterization  319ms
+packages/credentials test: Done
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-pdf: one QR, four fields, exact values, confidence >= 0.9
+packages/ocr test: [ocr-parity] A1-pdf: 1.1s, min confidence 0.92
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-photo: one QR, four fields, exact values, confidence >= 0.9
+packages/ocr test: [ocr-parity] A1-photo: 0.9s, min confidence 0.90
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-resaved: one QR, four fields, exact values, confidence >= 0.9
+packages/ocr test: [ocr-parity] A1-resaved: 1.1s, min confidence 0.92
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-scan: one QR, four fields, exact values, confidence >= 0.9
+packages/ocr test: [ocr-parity] A1-scan: 0.9s, min confidence 0.90
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-pdf: one QR, four fields, exact values, confidence >= 0.9
+packages/ocr test: [ocr-parity] B1-pdf: 1.0s, min confidence 0.91
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-photo: one QR, four fields, exact values, confidence >= 0.9
+packages/ocr test: [ocr-parity] B1-photo: 0.9s, min confidence 0.91
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-resaved: one QR, four fields, exact values, confidence >= 0.9
+packages/ocr test: [ocr-parity] B1-resaved: 1.0s, min confidence 0.91
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-scan: one QR, four fields, exact values, confidence >= 0.9
+packages/ocr test: [ocr-parity] B1-scan: 0.9s, min confidence 0.91
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1 photo from a different JPEG encoder still reads exact values
+packages/ocr test: [ocr-parity] A1-mupdf-jpeg: min confidence 0.8996
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1 photo from a different JPEG encoder still reads exact values
+packages/ocr test: [ocr-parity] B1-mupdf-jpeg: min confidence 0.9061
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > processes a five-page document within the time budget
+packages/ocr test: [ocr-parity] five-page-pdf: 3.4s
+packages/ocr test:  ✓ tests/extract.test.ts (20 tests) 18278ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-pdf: one QR, four fields, exact values, confidence >= 0.9  1108ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-photo: one QR, four fields, exact values, confidence >= 0.9  898ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-resaved: one QR, four fields, exact values, confidence >= 0.9  1069ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-scan: one QR, four fields, exact values, confidence >= 0.9  880ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-pdf: one QR, four fields, exact values, confidence >= 0.9  1007ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-photo: one QR, four fields, exact values, confidence >= 0.9  880ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-resaved: one QR, four fields, exact values, confidence >= 0.9  994ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-scan: one QR, four fields, exact values, confidence >= 0.9  865ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1 photo from a different JPEG encoder still reads exact values  1005ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1 photo from a different JPEG encoder still reads exact values  1000ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > changed-full_name.pdf reads the altered full_name as written  975ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > changed-diploma_number.pdf reads the altered diploma_number as written  981ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > changed-study_program.pdf reads the altered study_program as written  990ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > changed-graduation_date.pdf reads the altered graduation_date as written  993ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > reads a QR that points to a different person than the printed name  980ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > processes a five-page document within the time budget  3374ms
+packages/ocr test:  Test Files  6 passed (6)
+packages/ocr test:       Tests  45 passed (45)
+packages/ocr test:    Start at  22:16:01
+packages/ocr test:    Duration  19.76s (transform 579ms, setup 0ms, collect 2.05s, tests 19.35s, environment 2ms, prepare 2.35s)
+packages/ocr test: Done
+packages/chain test$ vitest run
+packages/chain test:  RUN  v3.2.4 C:/Users/Maulana/AppData/Local/Temp/uasw/final/packages/chain
+packages/chain test:  ✓ tests/config.test.ts (2 tests) 9ms
+packages/chain test:  ✓ tests/chain-errors.test.ts (3 tests) 13ms
+packages/chain test:  ✓ tests/portal-state.test.ts (2 tests) 10ms
+packages/chain test:  ✓ tests/credential-read.test.ts (10 tests) 33ms
+packages/chain test:  ✓ tests/service-policy.test.ts (8 tests) 57ms
+packages/chain test:  ✓ tests/rpc-provider.test.ts (8 tests) 123ms
+packages/chain test:  ✓ tests/recovery.test.ts (20 tests) 205ms
+packages/chain test:  ✓ tests/credential-browser.test.ts (18 tests) 222ms
+packages/chain test:  Test Files  8 passed (8)
+packages/chain test:       Tests  71 passed (71)
+packages/chain test:    Start at  22:16:22
+packages/chain test:    Duration  1.34s (transform 836ms, setup 0ms, collect 4.32s, tests 672ms, environment 2ms, prepare 1.85s)
+packages/chain test: Done
+apps/web test$ vitest run
+apps/web test:  RUN  v3.2.7 C:/Users/Maulana/AppData/Local/Temp/uasw/final/apps/web
+apps/web test: stderr | tests/unit/credentials.test.ts > public record proof verification > distinguishes a missing off-chain payload, an absent chain record, and an RPC failure
+apps/web test: {"event":"verification_failure","stage":"RPC","code":"RPC_UNAVAILABLE"}
+apps/web test: stderr | tests/unit/credentials.test.ts > public record proof verification > distinguishes a missing off-chain payload, an absent chain record, and an RPC failure
+apps/web test: {"event":"verification_failure","stage":"RPC","code":"RPC_UNAVAILABLE"}
+apps/web test:  ✓ tests/unit/credentials.test.ts (30 tests) 259ms
+apps/web test:  ✓ tests/unit/wallet-authentication.test.ts (24 tests) 511ms
+apps/web test: stderr | tests/unit/documents.test.ts > issuer PDF lifecycle, independent of OCR (real PDF and storage) > retries storage failure with the same PDF and origin, without any verification job
+apps/web test: {"event":"verification_failure","stage":"ARCHIVE","code":"ARCHIVE_UNAVAILABLE"}
+apps/web test: stderr | tests/unit/documents.test.ts > issuer PDF lifecycle, independent of OCR (real PDF and storage) > checks revocation during archiving and again before downloading
+apps/web test: {"event":"verification_failure","stage":"ARCHIVE","code":"ARCHIVE_UNAVAILABLE"}
+apps/web test: stderr | tests/unit/documents.test.ts > portal document statuses > leaves rows to load on their own when the batch read fails
+apps/web test: {"event":"verification_failure","stage":"PROOF_STORAGE","code":"PROOF_STORAGE_UNAVAILABLE"}
+apps/web test: stderr | tests/unit/documents.test.ts > portal document statuses > leaves rows to load on their own when the batch read fails
+apps/web test: {"event":"verification_failure","stage":"ARCHIVE","code":"ARCHIVE_UNAVAILABLE"}
+apps/web test:  ✓ tests/unit/documents.test.ts (19 tests) 2017ms
+apps/web test:    ✓ issuer PDF lifecycle, independent of OCR (real PDF and storage) > deduplicates concurrent generation and preserves the archive across login, cleanup and new dates  302ms
+apps/web test: stderr | tests/unit/workflow.test.ts > durable verification jobs > persists dispatch intent, recovers queue failure and suppresses acknowledged duplicates
+apps/web test: {"event":"verification_failure","stage":"DISPATCH","code":"DISPATCH_UNAVAILABLE"}
+apps/web test:  ✓ tests/unit/workflow.test.ts (11 tests) 93ms
+apps/web test:  ✓ tests/unit/record-pipeline.test.ts (18 tests) 147ms
+apps/web test:  ✓ tests/unit/uploads.test.ts (9 tests) 281ms
+apps/web test:  ✓ tests/unit/netlify-queue.test.ts (9 tests) 82ms
+apps/web test:  ✓ tests/unit/netlify-blobs.test.ts (6 tests) 23464ms
+apps/web test:    ✓ uploads 10 MiB through bounded requests, finalizes once and cleans staging  22681ms
+apps/web test:    ✓ allows identical chunk retries, rejects replacement, and checks the actual digest  308ms
+apps/web test:    ✓ persists immutable archives separately from job cleanup and validates their digest  350ms
+apps/web test:  ✓ tests/unit/portal-session.test.ts (9 tests) 48ms
+apps/web test:  ✓ tests/unit/credentials-api.test.ts (4 tests) 142ms
+apps/web test:  ✓ tests/unit/jobs.test.ts (6 tests) 237ms
+apps/web test:  ✓ tests/unit/relayer-budget.test.ts (3 tests) 359ms
+apps/web test:    ✓ global relayer budget (S-08) > atomic reservation through the real state lock > admits exactly the budget when twelve jobs reserve concurrently  354ms
+apps/web test: stderr | tests/unit/client-source.test.ts > client source for rate limits (S-08) > uses only the Netlify connection header on Netlify, never X-Forwarded-For
+apps/web test: {"event":"untrusted_client_source","via":"netlify"}
+apps/web test:  ✓ tests/unit/client-source.test.ts (4 tests) 33ms
+apps/web test:  ✓ tests/unit/diploma-pdf.test.ts (6 tests) 6591ms
+apps/web test:    ✓ generated diploma, real OCR and QR engines > reads mixed case names and short programs: Maulana Y / IF / 2027-03-09  1259ms
+apps/web test:    ✓ generated diploma, real OCR and QR engines > reads mixed case names and short programs: Maulana Y / IF / 2026-08-15  1072ms
+apps/web test:    ✓ generated diploma, real OCR and QR engines > reads mixed case names and short programs: Budi S / TI / 2027-03-09  1018ms
+apps/web test:    ✓ generated diploma, real OCR and QR engines > reads mixed case names and short programs: Siti Aminah / Informatika / 2027-03-09  1007ms
+apps/web test:    ✓ generated diploma, real OCR and QR engines > reads all visible attributes including wrapped name ANDI PRATAMA  1054ms
+apps/web test:    ✓ generated diploma, real OCR and QR engines > reads all visible attributes including wrapped name ANDI PRATAMA PUTRA WIJAYA KUSUMA NUGRAHA SAPUTRA BUDI SANTOSO WIRAWAN SETIAWAN KURNIAWAN  1179ms
+apps/web test: stderr | tests/unit/store-config.test.ts > deployment persistence configuration > returns an actionable 503 without setting a session cookie on Netlify (build)
+apps/web test: {"event":"untrusted_client_source","via":"netlify"}
+apps/web test:  ✓ tests/unit/store-config.test.ts (5 tests) 11ms
+apps/web test:  ✓ tests/unit/netlify-upload-client.test.ts (2 tests) 10ms
+apps/web test:  ✓ tests/unit/diagnostics.test.ts (3 tests) 7ms
+apps/web test:  ✓ tests/unit/guide-search.test.ts (20 tests) 18ms
+apps/web test:  ✓ tests/unit/session-api.test.ts (3 tests) 16ms
+apps/web test:  ✓ tests/unit/session-storage.test.ts (2 tests) 4ms
+apps/web test:  ✓ tests/unit/explorer.test.ts (8 tests) 3ms
+apps/web test:  Test Files  21 passed (21)
+apps/web test:       Tests  201 passed (201)
+apps/web test:    Start at  22:16:24
+apps/web test:    Duration  55.88s (transform 626ms, setup 0ms, collect 15.25s, tests 34.33s, environment 3ms, prepare 2.59s)
+apps/web test: Done
+originalExitCode=0
+finishedAtUtc=2026-10-04T15:17:20.572Z

@@ -36,3 +36,8 @@ graphify-out/memory/
 !docs/uas/evidence/**/*.log
 coverage.json
 !docs/uas/evidence/coverage/
+!docs/uas/evidence/final/coverage/
+!docs/uas/evidence/final/coverage/**
+# Intermediate recordings and the regenerated handoff archive stay local.
+docs/uas/evidence/sepolia/**/video-raw/
+/BAHAN_LAPORAN_UAS_BLOCKCHAIN.zip
