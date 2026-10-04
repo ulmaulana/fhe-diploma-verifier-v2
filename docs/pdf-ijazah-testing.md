@@ -1,5 +1,7 @@
 # Bukti uji PDF ijazah — 25 September 2026
 
+> Konteks versi, 4 Oktober 2026 (WIB): hasil di bawah berasal dari sesi 25 September 2026, bukan run final UAS. Pembuatan PDF terkini menggunakan snapshot penerbitan dan arsip privat tanpa OCR/FHE; `READY` berarti arsip tersedia. Pemeriksaan unggahan tetap memakai OCR dan pencocokan FHE. Bukti final, termasuk `MATCH`/`MISMATCH` dan pencabutan kredensial sintetis pada Sepolia nyata, tersedia di [TEST_RESULTS.md](uas/TEST_RESULTS.md) dan [DEMO.md](uas/DEMO.md). Instruksi historis mengenai kredensial pengguna tidak digunakan untuk pengujian pencabutan; run UAS memakai kredensial sintetis tersendiri.
+
 ## Pemeriksaan nyata
 
 - Generator menghasilkan satu halaman A4 landscape dengan font tertanam. MuPDF, zxing, dan Tesseract sungguhan berhasil membaca satu QR dan empat atribut dengan ambang minimum kata 0,90. Nama panjang melewati pembungkusan baris dan kembali sebagai nilai kanonis yang tepat. Tampilan PDF diperiksa melalui hasil render PNG.

@@ -1,184 +1,118 @@
-# Status pengerjaan terhadap `INSTRUKSI_IMPLEMENTASI_UAS_BLOCKCHAIN.md`
+# Status pengerjaan instruksi UAS Blockchain
 
-Posisi per **4 Oktober 2026, ±21:00 WIB**, HEAD `f2166c2` di branch `main`. Tanda: ✅ selesai dengan bukti · ❌ belum selesai (termasuk yang baru sebagian; keterangan menyebut bagian yang sudah ada). Nomor bagian mengikuti dokumen instruksi.
+Posisi **4 Oktober 2026**, setelah verifikasi final 22:22:52 WIB. Branch main. Implementasi yang diuji bersih: **8a13faaaac696700c8018cc6c947682028393afc**; UI Sepolia nyata: **f32afe67b39af7b38e524e263bc63b5a0973c5a6**. Commit dokumentasi/evidence berikutnya tidak mengubah perilaku aplikasi. Riwayat checklist lama tersedia di Git pada 7757f76.
 
-Tingkat bukti: **mock** = Hardhat/FHEVM mock atau tes lokal; **lokal-nyata** = komponen nyata di mesin lokal (PostgreSQL Docker, OCR); **Sepolia** = transaksi/state on-chain di testnet.
+✅ selesai dengan bukti; ❌ belum selesai, dengan pihak penanggung jawab disebutkan. Mock = tes terkontrol/FHEVM lokal; lokal nyata = OCR/PDF/browser/PostgreSQL lokal; Sepolia = transaksi, state dan dekripsi Zama nyata. Aplikasi siap dalam lingkup lokal+Sepolia yang diuji; hosting produksi dan seluruh paket akademik belum selesai.
 
-## Ringkasan cepat
+## Urutan T1–T8
 
-| Area | Status |
-| --- | --- |
-| Remediasi kontrak S-01..S-05, S-09, S-10 + tes merah/hijau | ✅ |
-| Tooling peran/deployment/registrasi/verifikasi source | ✅ |
-| Backend: pemisahan kunci layanan, cek saldo, anggaran relayer atomik, sumber IP tepercaya | ✅ |
-| Jejak transaksi (FT-02), pembacaan kontrak lama v1 | ✅ |
-| E2E lokal (mock) diperbaiki, test:db, coverage, debugging C.2 | ✅ |
-| Deployment kontrak v2 di Sepolia + Sourcify exact_match | ✅ |
-| Registrasi institusi & signer via UI di Sepolia | ✅ |
-| Penerbitan, QR, MATCH/MISMATCH FHE nyata, pencabutan di Sepolia | ❌ (uji E2E berhenti di penerbitan) |
-| Dokumen `docs/uas/` lengkap, README, diagram PNG, indeks bukti B-xx | ❌ (sebagian) |
-| Netlify diselaraskan ke kontrak v2 | ❌ |
-| Video demo (G.9), data kontribusi/identitas (G.10) | ❌ |
-
-## Bagian 3 — Pemeriksaan awal
-
-- ✅ 3.1 Branch/HEAD/manifest/lockfile diperiksa; kerja tanpa reset atau checkout paksa (worktree terpisah untuk uji bersih). Catatan: checkout ini adalah salinan ZIP; riwayat Git dimulai di `96b4a08`, commit hulu `efa663b` tidak tersedia.
-- ✅ 3.2 Baseline dicatat sebelum perubahan kode (`efc3f3c`, `docs/uas/evidence/baseline/`, exit code asli: lint/typecheck/test lulus, E2E 19 lulus/3 gagal).
-- ✅ 3.3 Fitur `/penerbit`, `/c/{id}`, `/verifikasi`, `/riwayat`, `/panduan`, kontrak, chain adapter, OCR, storage, DB, Workflow diperiksa.
-- ❌ 3.4 Matriks kepatuhan (`docs/uas/KEPATUHAN_UAS.md`) belum ditulis.
-- ✅ 3.5 Pekerjaan dijalankan tanpa menanyakan ulang jenis pekerjaan.
-- ❌ 3.6 Hosting: Netlify adalah hosting aktual, tetapi **belum diselaraskan** (masih kontrak lama dan kunci layanan lama); dokumentasi hosting (README bagian Vercel/Netlify, `docs/implementation.md`) belum diselaraskan.
-- ✅ 3.7 Akun uji khusus: wallet attestor/relayer/reader/signer baru (kunci di luar repo, `%USERPROFILE%\.uas-verifikasi\sepolia-test-wallets.env`); tanpa mainnet.
-- ✅ 3.8–3.10 Hambatan dicatat; uji serangan hanya pada fixture/akun proyek; commit tertelusur per perubahan.
-
-## Bagian 5 — Perilaku yang dipertahankan
-
-- ✅ Butir 1–18 dipertahankan dan dilindungi tes unit/E2E lokal (QR `RECORD_ONLY` + `documentDecision: null`, `MATCH` hanya setelah FHE + baca ulang status, tanggal lulus privat, tanpa `makePubliclyDecryptable`, gagal tertutup, outbox, tombstone, PDF penerbit tanpa OCR, mode demo berlabel). Pembuktian di Sepolia untuk butir 1, 4, 8, 13 masih ❌ (lihat bagian 8).
-
-## Bagian 6 — Implementasi
-
-### 6.1 E2E penerbitan PDF
-- ✅ `wallet.spec.ts` diselaraskan (tanggal beku/perlu diisi × 3 viewport); E2E bersih 25 lulus di `714a2af` (`evidence/tests/clean-pnpm-test-e2e-714a2af.log`).
-
-### 6.2 Pemisahan admin/signer/layanan
-- ✅ 1 Tooling baca/grant/revoke/transfer-admin (`uas:roles`, mode baca default, `--expected-chain-id`, receipt) — `7f7f271`, `contracts/test/Tooling.cjs`.
-- ✅ 2 Validasi lokal kunci layanan (tiga alamat berbeda, tanpa mencetak kunci) — `9e31e82`.
-- ✅ 3 Cek peran on-chain sebelum operasi sensitif; RPC gagal → error konfigurasi/jaringan — `9e31e82`.
-- ✅ 4 Deployment baru dengan admin/attestor/relayer/reader/signer terpisah — `0x65b1…94e0`.
-- ✅ 5 Transfer admin grant → verifikasi → renounce (diuji lokal; tidak dilakukan di Sepolia, sengaja).
-- ✅ 6 Eksklusivitas peran on-chain dua arah (konstruktor, grant, `setSigner`) — `43c3c37`.
-- ✅ 7 Catatan satu batas kepercayaan untuk tiga kunci backend (CATATAN S-01).
-- ❌ Penerimaan "role baru berfungsi" untuk attestor/relayer/reader **di Sepolia** belum terbukti (belum ada tx `verify`).
-
-### 6.3 Remediasi kontrak
-- ✅ S-05 ACL referensi (`8bb71ce`), S-09 `tryRecover` (`07f627a`), S-10 validasi registry + no-op (`a5c3589`), S-03 ID terikat (`cfd6514`), S-04 nama institusi disahkan, domain v2 (`131dcbb`, klien `8d7bbcc`). Log merah/hijau di `evidence/remediation/`.
-
-### 6.4 Deployment dan kompatibilitas
-- ✅ 1 Preflight chain ID/alamat/pemisahan peran/saldo (`uas:deploy`).
-- ✅ 2 Record non-rahasia (`contracts/deployments/sepolia/*.json`; versi dependensi diperbaiki `fc0b158` setelah deployment — dicatat).
-- ✅ 3 Registrasi idempoten (`uas:register`) + registrasi nyata via UI (setIssuer `0x04cf…a46f`, setSigner `0x40ce…f59d`).
-- ✅ 4–5 Sourcify API v2 **exact_match** (`6673e51`); kegagalan hardhat-verify 404 tetap dicatat.
-- ❌ 6 Penyelarasan pasca-redeploy: lokal ✅, **Netlify/hosting ❌** (env, ABI, alamat, blok, kunci layanan baru, `LEGACY_CREDENTIAL_CONTRACTS`, `MAX_COMPARISONS_PER_HOUR`).
-- ✅ 7 Kontrak lama dibaca hanya-baca via daftar tepercaya + batas migrasi (`3082f4a`, tes unit). ❌ Skenario legacy di Sepolia (tes 12 E2E) belum berjalan.
-- ❌ 8 Kredensial sintetis baru pada kontrak final belum terbit (E2E berhenti).
-
-### 6.5 Jejak transaksi
-- ✅ Kode + tes (`3ee4f01`): tautan explorer dari chain ID tepercaya, log pencabutan dicocokkan alamat+ID di blok pencabutan, status tetap `REVOKED` bila log gagal.
-- ❌ Bukti di Sepolia (jejak pencabutan nyata) belum ada.
-
-### 6.6 Relayer dan rate limit
-- ✅ Anggaran global atomik (`MAX_COMPARISONS_PER_HOUR`), reservasi dipakai ulang saat retry, dilepas saat gagal pra-broadcast; cek saldo sebelum enkripsi dan sebelum tanda tangan; IP dari header platform; sumber tak dikenal tidak disatukan (`e86e2f8`, `9e31e82`; tes unit + test:db lintas pool).
-- ❌ Perilaku header `x-nf-client-connection-ip` di Netlify nyata belum diuji (hanya rujukan dokumentasi).
-
-### 6.7 Penyimpanan dan proses latar
-- ✅ `pnpm test:db` 9 lulus di PostgreSQL 16 Docker lokal (`0063ca4`, `evidence/tests/pnpm-test-db.log`).
-- ✅ S-12 diukur (`evidence/measurements/S-12-state-row-benchmark.log`): ±100 op/s datar, 0 lost update.
-- ❌ Satu siklus unggah→baca→hasil→hapus→retensi pada **namespace uji hosting** (Netlify Blobs) belum dibuktikan.
-
-### 6.8 Dokumentasi
-- ✅ `docs/testnet.md`, `docs/pdf-ijazah.md` diselaraskan (`f2166c2`).
-- ❌ `README.md` (status proyek, langkah 5 penerbitan masih menyebut OCR/FHE pada PDF, perintah deploy lama, env baru, versi, atribusi OpenZeppelin MIT & Zama BSD-3-Clause-Clear, reproduksi checkout bersih, paragraf terakhir tentang dokumen usang).
-- ❌ `docs/acceptance.md` (baris 3: "Belum ada transaksi Sepolia"), `docs/implementation.md` (konteks Vercel vs Netlify), `docs/pdf-ijazah-testing.md` (konteks versi).
-
-## Bagian 7 — Pengujian
-
-- ❌ 7.1 Run final semua perintah pada commit final (lint, typecheck, test, test:db, build, test:e2e) belum dijalankan ulang setelah perubahan terakhir. Run terakhir yang tercatat: unit 417 lulus (kontrak 34, domain 52, credentials 14, ocr 45, chain 71, web 201), lint/typecheck 0 error, E2E 25 lulus (`714a2af`), test:db 9 lulus (`0063ca4`).
-- ✅ 7.2 Checklist tes kontrak (positif, akses, signature/binding, replay, deadline tepat/±1 s, nilai nol/versi, nama byte UTF-8, paginasi, status bisnis, rotasi, FHE 256 bit & ACL, ordering) — `contracts/test/VerifikasiIjazah.cjs` (29) + `Tooling.cjs` (5).
-- ✅ 7.3 Tes aplikasi butir 1–10 (unit/integrasi; mock dan lokal-nyata).
-- ✅ 7.4 Coverage kontrak (mock: statements 99/99, branches 131/132, functions 18/18, lines 132/132) dan TypeScript (v8) — diukur di `f7f791b`/`ceefce7`; ❌ **pengukuran ulang final** belum. Debugging C.2 nyata ✅ (`evidence/debugging/`).
-
-## Bagian 8 — End-to-end di Sepolia (melalui UI, `apps/web/tests/e2e/sepolia.spec.ts`)
-
-| Skenario | Status | Bukti/keterangan |
+| Tugas | Status | Bukti/hasil |
 | --- | --- | --- |
-| Wallet di jaringan benar, jaringan salah membatalkan sesi | ✅ Sepolia | run `e2e-run-2026-10-04T09-40-02-443Z`, `01-admin-signed-in.png` |
-| Registrasi institusi dan signer | ✅ Sepolia | tx `0x04cf…a46f` (73.555 gas), `0x40ce…f59d` (130.593 gas), event terdekode di `evidence/sepolia/receipts-deploy-and-registry.json`; no-op ditolak tanpa tx (`03-registry-noop-rejected.png`) |
-| Penerbitan dengan otorisasi sah (A, B, C) | ❌ | gagal: allowlist jaringan tes memblokir bucket kunci publik Zama (diperbaiki `e5dba67`, belum dijalankan ulang) |
-| QR → `VERIFIED_RECORD`/`RECORD_ONLY` tanpa tx | ❌ | menunggu penerbitan |
-| PDF penerbit diunduh | ❌ (Sepolia) | ✅ mock/E2E lokal |
-| Unggah PDF cocok → `MATCH` (FHE nyata) | ❌ | |
-| Satu atribut diubah → `MISMATCH` | ❌ | |
-| QR ≠ `expectedCredentialId` → `INCONCLUSIVE` tanpa tx | ❌ | |
-| QR B + atribut A → `MISMATCH` terhadap B | ❌ | |
-| Dokumen tanpa QR aplikasi → `INCONCLUSIVE` tanpa tx | ❌ | |
-| Pencabutan via portal + event `CredentialRevoked` | ❌ | |
-| QR/unggah/PDF setelah pencabutan | ❌ | |
-| Pencabutan/nonaktif saat pekerjaan berjalan | ✅ mock | tes terkontrol `record-pipeline.test.ts` (label mock) |
-| Gangguan RPC/dekripsi/kuota/saldo | ✅ mock | tes unit + test:db |
-| Riwayat, laporan, penolakan sesi lain | ❌ (Sepolia) | ✅ E2E lokal |
-| Rekaman kontrak lama v1 hanya-baca | ❌ (Sepolia) | ✅ unit |
+| T1 Spec Sepolia dapat dijalankan ulang | ✅ agent | 018614f; institusi d 4 aadc…62 ab dipakai ulang, signer 399 a…a 43 e tetap aktif; state dikonfirmasi dan no-op ditolak tanpa tx |
+| T2 Bagian 8 nyata melalui UI | ✅ agent | [Run final](evidence/sepolia/e2e-run-2026-10-04T14-53-27-678Z/sepolia-e2e-evidence.json): 12/12; lima run sebelumnya gagal/interupsi dipertahankan |
+| T3 Receipt, gas, durasi | ✅ agent | [Receipt](evidence/sepolia/receipts-e2e.json), [stage timing](evidence/measurements/sepolia-ui-stage-timings.json), [dekripsi read-only](evidence/sepolia/fhe-decryption-confirmation.json), [scan event](evidence/sepolia/no-transaction-rejection-confirmation.json); commit 8a13faa |
+| T4 Run worktree bersih | ✅ agent | [Konteks](evidence/final/verification-context.json): delapan perintah exit 0; 417 unit, 9 DB, 25 E2E lokal; commit aa2d754 |
+| T5 Dokumentasi dan indeks | ✅ agent | README, KEPATUHAN, FAKTA, TEST_RESULTS, DEMO, BAHAN B-01–B-32; detail di bawah |
+| T6 Render PNG | ❌ agent, berikutnya | Sumber Mermaid tersedia; render dan QA belum selesai |
+| T7 Scan dan handoff | ✅ scan sebelum setiap commit; ❌ arsip final | Nilai rahasia diperiksa tanpa dicetak; nol temuan pada commit T1–T4. Arsip allowlist dibuat sesudah T6 |
+| T8 Cleanup | ❌ agent, paling akhir | Worktree uji dan container masih tersedia sampai seluruh pemeriksaan selesai |
 
-## Bagian 9 — Audit
+## Bagian 3–5: dasar, kepatuhan, perilaku
 
-- ✅ Threat model, tujuh aspek D.2, keputusan S-01..S-15 dengan kategori, tabel lengkap, temuan tambahan A-01..A-05 — `docs/uas/CATATAN_TEMUAN_DAN_RETEST.md`.
-- ❌ Baris yang membutuhkan "verifikasi deployment" (S-01 role layanan dipakai nyata, S-08 kuota di hosting) belum diperbarui dengan bukti Sepolia/hosting.
+- ✅ Branch/HEAD/lockfile dan baseline dicatat; repo berasal dari ZIP, riwayat mulai 96 b 4 a 08; efa663b hulu tidak tersedia. Tidak ada reset perubahan pengguna.
+- ✅ Baseline lint/typecheck/unit lulus; E2E historis 19 lulus/3 gagal, dipertahankan. [TEST_RESULTS](TEST_RESULTS.md) menjelaskan dirty state dan regresi.
+- ✅ [KEPATUHAN A–J](KEPATUHAN_UAS.md), pembagian agent/pengguna/ChatGPT, sumber teknis dan versi.
+- ✅ Fitur portal/QR/upload/riwayat/PDF, privasi tanggal, EIP-712 v2, ACL, fail-closed, outbox, lease, tombstone dan mode demo diperiksa serta diuji.
+- ✅ Wallet uji layanan/signer berbeda; kunci luar repo; tanpa mainnet atau data pribadi nyata.
+- ❌ Hosting: penyelarasan Netlify v2 dan pengujian hosting menjadi tindakan **pengguna** sesuai [DEMO](DEMO.md); produksi tidak diubah agent.
 
-## Bagian 10 — Data untuk P4/P5
+## Bagian 6: implementasi dan retest
 
-- ❌ 10.1 Fakta arsitektur tujuh aspek E.1 (`FAKTA_ARSITEKTUR_DAN_PENGUKURAN.md`) belum ditulis.
-- ❌ 10.2 Pengukuran: gas deployment ✅ (3.041.734), setIssuer ✅ (73.555), setSigner ✅ (130.593), S-12 ✅; gas `issueCredential`/`verify`/`revoke` ❌, durasi OCR/antrean/submit/konfirmasi/dekripsi ❌, sampel berulang kecil ❌.
-- ❌ 10.3 Tabel privasi (data publik/on-chain/terenkripsi/privat/log/metadata, akses, retensi) dan governance (siapa mengubah apa, prosedur) belum ditulis.
-- ❌ 10.4 Langkah demo (`DEMO.md`), video, fakta F.4, kontribusi nyata (riwayat checkout ini: seluruh commit sejak `96b4a08` oleh satu penulis "Maul" menurut `git shortlog -sn`; identitas/NPM anggota belum diberikan), backlog/roadmap teknis.
-
-## Bagian 11 — Artefak
-
-| Artefak | Status |
+| Butir | Status/hasil |
 | --- | --- |
-| `README.md` final | ❌ |
-| `docs/uas/KEPATUHAN_UAS.md` | ❌ |
-| `docs/uas/FAKTA_ARSITEKTUR_DAN_PENGUKURAN.md` | ❌ |
-| `docs/uas/CATATAN_TEMUAN_DAN_RETEST.md` | ✅ |
-| `docs/uas/DEPLOYMENT_RECORD.md` + record mesin | ✅ (perlu ditambah tx penerbitan/pencocokan/pencabutan setelah E2E) |
-| `docs/uas/TEST_RESULTS.md` | ❌ |
-| `docs/uas/DEMO.md` | ❌ |
-| `docs/uas/BAHAN_LAPORAN_UAS.md` + indeks B-01… | ❌ |
-| `docs/uas/evidence/` | ✅ sebagian (baseline, remediasi, debugging, coverage, tests, sepolia, measurements) |
-| `docs/uas/diagrams/` sumber `.mmd` | ✅ |
-| `Architecture_Diagram.png` dan PNG alur transaksi | ❌ |
-| Pemindaian rahasia evidence | ✅ (0 temuan pada commit `f2166c2`) |
-| ZIP `BAHAN_LAPORAN_UAS_BLOCKCHAIN.zip` (opsional) | ❌ |
+| 6.1 PDF portal | ✅ E2E tanggal dinyatakan/beku pada 1280/800/390; PDF penerbit dari arsip tanpa OCR/FHE comparison |
+| 6.2 Role | ✅ Konstruktor/grant/signer eksklusif; admin terakhir terlindungi; tooling rotasi grant→verify→renounce diuji mock. Operasi signer, attestor, relayer dan reader terbukti Sepolia. Tiga kunci backend tetap satu batas operasional |
+| 6.3 Kontrak | ✅ S-01–S-05, S-09, S-10 diremediasi dan retest merah/hijau; semua S-01–S-15 mendapat keputusan dan risiko residual |
+| 6.4 Deployment | ✅ v2 Sepolia, preflight, record nonrahasia, registry idempoten, Sourcify exact_match, fixture A/B/C terbit. v1 read-only dengan cutoff terbukti nyata. ❌ Penyelarasan Netlify oleh pengguna |
+| 6.5 Jejak tx | ✅ Issue/compare/revoke receipt+event+blok, explorer, status REVOKED tetap benar jika pembacaan log gagal |
+| 6.6 Relayer | ✅ Anggaran global atomik, reuse reservation, saldo, trusted-source code, unit/DB concurrency. Penolakan nyata tanpa tx dibuktikan. ❌ Perilaku header x-nf-client-connection-ip di hosting oleh pengguna |
+| 6.7 DB/storage/background | ✅ 9 tes PostgreSQL nyata; S-12 benchmark; lifecycle/OCR/PDF lokal dan Sepolia berhasil. ❌ Siklus upload→read→result→delete→retention pada namespace uji Netlify Blobs belum dilakukan; membutuhkan hosting/izin pengguna |
+| 6.8 Dokumen | ✅ README dan tiga dokumen historis diselaraskan dengan versi/tanggal tanpa menghapus riwayat; testnet/PDF docs ditautkan |
 
-## Bagian 13 — Luaran G.1–G.10
+## Bagian 7: pengujian final dan coverage
 
-| Butir | Status |
+Seluruh command dijalankan berurutan dari worktree awal bersih 8a13faa, 4 Oktober 2026 22:14:33–22:22:52 WIB: install frozen lockfile, lint, typecheck, test, test:db, build, test:e 2 e, coverage; **8/8 exit 0**. Log dan konfigurasi pada [evidence final](evidence/final/verification-results.json).
+
+| Suite | Hasil final |
 | --- | --- |
-| G.1 README | ❌ |
-| G.2 Laporan UAS | Ditulis ChatGPT nanti (bukan tugas agent) |
-| G.3 Source kontrak + frontend | ✅ kode; ❌ penerimaan akhir menunggu E2E Sepolia |
-| G.4 Folder tes + bukti | ✅ (perlu run final) |
-| G.5 Deployment record | ✅ (Markdown + JSON) |
-| G.6 Security audit | Catatan teknis ✅; PDF formal oleh ChatGPT |
-| G.7 Diagram arsitektur | ❌ (PNG/PDF belum dirender) |
-| G.8 Slide | Oleh ChatGPT |
-| G.9 Video demo | ❌ (belum direkam) |
-| G.10 Riwayat kontribusi | ❌ (riwayat ada, identitas/kontribusi anggota belum diberikan) |
+| Kontrak/Tooling mock | 34 lulus (29 kontrak+5 tooling) |
+| Domain / credentials / OCR / chain / web | 52 /14 /45 /71 /201 lulus; total bersama kontrak 417 |
+| PostgreSQL Docker lokal | 9 lulus, DB verifikasi_test |
+| E2E lokal demo | 25 lulus, 0 gagal; 12 Sepolia opt-in skip |
+| E2E Sepolia terpisah | 12 lulus, 0 gagal, 0 skip |
+| Coverage kontrak | Statements 99/99, branches 132/132, functions 18/18, lines 132/132:100% |
+| Coverage TS statements/lines | Web 58,89%; domain 93,92%; credentials 97,90%; OCR 91,41%; chain 80,07%; branches/functions dan pengecualian lengkap di TEST_RESULTS |
 
-## Bagian 14.1 — Checklist teknis
+- ✅ Kategori positif/negatif/batas/akses/replay/business states/events/rotasi/digest penuh/ACL/ordering dilindungi tes.
+- ✅ Coverage diukur, tanpa threshold; denominator src/** termasuk UI tidak teruji, DB/E2E di luar V 8.
+- ✅ Debugging C.2 nyata direproduksi. Coverage instrumentasi pertama 12 lulus/22 gagal custom-error decode; retry cache terbatas menghasilkan 34 lulus. Kedua percobaan disimpan, tidak disembunyikan.
+- ✅ Build memvalidasi trace SDK Node/TFHE/TKMS, PostgreSQL, dan OCR ind+eng. Perubahan next-env/screenshots setelah run adalah artefak uji.
+- ❌ Bukti CI jarak jauh belum diperiksa; **bukan** tugas agent untuk mengarang status dari adanya workflow.
 
-- ✅ Versi final dan perubahan dapat ditelusuri (commit per perubahan).
-- ❌ Alur penerbitan/QR/unggah/pencocokan/pencabutan/riwayat/PDF terbukti di Sepolia.
-- ❌ Frontend/API/kontrak/DB/storage/proses latar memakai konfigurasi final konsisten (lokal ✅, hosting ❌).
-- ✅ Perangkapan kewenangan ditangani dan prosedur rotasi diuji (lokal).
-- ✅ S-01..S-15 punya keputusan dan bukti.
-- ✅ Unit test positif/negatif/batas/akses/regresi.
-- ❌ Lint/typecheck/compile/build/test:db/E2E final pada commit final.
-- ❌ Coverage diukur ulang pada versi final.
-- ✅ Satu debugging nyata didokumentasikan.
-- ✅ Deployment final punya network, address, tx, receipt, event/state, build, reproduksi.
-- ❌ Dekripsi FHE nyata untuk kasus cocok dan berbeda.
-- ❌ Pencabutan dan akibatnya terbukti di Sepolia.
-- ✅ Gagal/timeout/retry/pembatasan tanpa sukses palsu atau tx ganda (tes terkontrol).
-- ✅ Kredensial lama ditangani sesuai versi (kode + unit).
-- ❌ README dapat dipakai dari checkout bersih.
+## Bagian 8: UI Sepolia nyata
 
-## Bagian 14.2 — Checklist bahan laporan
+Bukti satu run penuh: source f32afe6, localhost:3000, PostgreSQL verifikasi_local, kontrak v2, OCR dan SDK nyata. Wallet EIP-6963 bridge uji memakai signature/tx nyata dari Node; tidak diklaim sebagai uji manual ekstensi wallet.
 
-- ❌ Setiap butir matriks PDF punya bukti/status (KEPATUHAN belum ada).
-- ❌ Fakta arsitektur, pengukuran, akses data, prosedur operasional, backlog tersedia.
-- ❌ Kolom tabel template UAS punya data (identitas anggota belum diberikan).
-- ❌ Indeks B-01… tersedia.
-- ❌ Konsistensi angka lintas dokumen diverifikasi.
-- ✅ Screenshot yang ada berasal dari eksekusi nyata dan bebas rahasia.
-- ❌ Sumber teknis dan atribusi lengkap (README).
-- ❌ Paket handoff (ZIP) dibuat.
-- ✅ G.2, G.6 PDF, G.8 tercatat sebagai tahap ChatGPT.
+| Skenario | Status |
+| --- | --- |
+| Jaringan benar/salah membatalkan sesi | ✅ Sepolia |
+| Registry existing dan penolakan no-op tanpa tx | ✅ Sepolia |
+| EIP-712 issue A/B/C, arsip dan unduh PDF | ✅ Sepolia |
+| QR VERIFIED_RECORD /RECORD_ONLY, decision null, tanpa tx, tanpa tanggal privat | ✅ Sepolia |
+| Upload A asli MATCH | ✅ true, true, true, true; agregat true |
+| Nama berubah MISMATCH | ✅ false, true, true, true; agregat false |
+| QR berbeda dari target awal | ✅ INCONCLUSIVE tanpa comparison tx |
+| QR B dengan atribut A | ✅ MISMATCH; empat false |
+| QR origin asing | ✅ INCONCLUSIVE tanpa tx |
+| Revoke C + CredentialRevoked/jejak | ✅ Sepolia |
+| QR/unggah REVOKED dan PDF 409 | ✅ Sepolia; upload tanpa comparison tx |
+| Riwayat/report sesi pemilik, sesi lain 401 | ✅ Sepolia/API nyata |
+| Legacy v1 read-only | ✅ trusted signed-proof seed DB lokal dan state v1, tanpa FHE baru |
+| Revoked/nonaktif saat proses berjalan | ✅ mock terkontrol |
+| Gangguan RPC/dekripsi/kuota/saldo, retry tanpa tx ganda | ✅ mock/DB terkontrol; kegagalan live RPC tercatat |
+
+Tujuh transaksi final: tiga issue, tiga verify dari relayer, satu revoke dari signer. [Dekripsi ulang](evidence/sepolia/fhe-decryption-confirmation.json) mengonfirmasi bool pada enam hasil dari dua run; bukan timer dekripsi UI asli. [Scan event](evidence/sepolia/no-transaction-rejection-confirmation.json) menemukan tepat tiga comparison selama interval final; tiga upload ditolak memiliki hash null.
+
+## Bagian 9–12: audit, pengukuran, artefak, template
+
+- ✅ [CATATAN](CATATAN_TEMUAN_DAN_RETEST.md): threat model, tujuh aspek D.2, S-01–S-15, red/green, A-01–A-08. S-01 mendapat bukti role layanan nyata; S-08 bukti rejection nyata. Risiko hosting tetap terbuka.
+- ✅ [FAKTA](FAKTA_ARSITEKTUR_DAN_PENGUKURAN.md): aktor/akses, on/off-chain, Solidity B.5, keputusan B.6, tujuh aspek E.1, privasi/retensi, governance, interoperabilitas, dependensi/biaya/F.4/backlog.
+- ✅ Gas deployment/registry/issue/verify/revoke, waktu UI/tahap komposit, enam follow-up decrypt, sampel kecil n=2 per fixture, benchmark S-12. Waktu OCR CPU/konfirmasi/dekripsi UI murni tidak diukur terpisah; keterbatasan dinyatakan.
+- ✅ [BAHAN](BAHAN_LAPORAN_UAS.md): indeks B-01… dengan sebelas kolom, sumber kanonis dan data/pemetaan tabel template 12.3. Identitas/NPM/kelas/presentasi belum diberikan, disebutkan jelas.
+- ✅ [DEMO](DEMO.md): fixture, peran, reproduksi, gangguan, seed legacy dan langkah Netlify yang menjadi tugas pengguna.
+- ✅ Screenshot dan MP 4 nyata dapat diputar; 555,88 s, 1280×900, H.264; WebM asli+checksum/QA dipertahankan.
+- ❌ PNG diagram: tahap T6.
+- ❌ Arsip allowlist dan cleanup: tahap T7/T8.
+
+## Bagian 13: G.1–G.10 dan luaran lanjutan
+
+| Luaran | Status/pihak |
+| --- | --- |
+| G.1 README | ✅ agent |
+| G.2 Laporan UAS | ❌ ChatGPT setelah diminta pengguna |
+| G.3 Source kontrak/frontend/integrasi | ✅ lingkup lokal+Sepolia yang diuji; ❌ hosting v2 oleh pengguna |
+| G.4 Tes/bukti | ✅ agent, final lengkap |
+| G.5 Deployment record ekuivalen Markdown+JSON | ✅ agent |
+| G.6 Audit | ✅ catatan teknis dan retest agent; ❌ PDF formal ChatGPT |
+| G.7 Diagram arsitektur editable+PNG | ❌ agent, T6 |
+| G.8 Slide≤10 | ❌ ChatGPT |
+| G.9 Video MP 4 nyata | ✅ agent; otomatis tanpa narasi manusia |
+| G.10 Kontribusi | ✅ Git nyata tersedia; ❌ identitas/NPM/kontribusi anggota oleh pengguna |
+
+Desain tertulis, matriks enterprise/rekomendasi, evaluasi 2–3 halaman tetap kewajiban B/E/F pada tahap ChatGPT. Agent hanya menyediakan fakta/bukti; tidak menulis bab laporan, audit formal, evaluasi, atau slide.
+
+## Bagian 14: kesiapan dan hambatan
+
+✅ Alur aplikasi/kontrak final, role, audit, unit/DB/E2E, coverage, debugging, source-match, FHE nyata, revoke, legacy, dan reproduksi lokal tersedia dengan batas bukti. ✅ Matriks, fakta, pengukuran, akses/governance, indeks, sumber/atribusi, gambar/video nyata tersedia untuk bahan laporan.
+
+❌ Hosting belum konsisten dengan v2: pengguna mengikuti DEMO dan memvalidasi header serta storage namespace uji. ❌ Identitas anggota dan kontribusi/presentasi belum lengkap. ❌ Run CI remote belum diamati. ❌ Luaran akademik ChatGPT belum dibuat. Diagram render, arsip akhir dan cleanup diselesaikan setelah T5 sebelum handoff. Tidak mengklaim produksi maupun seluruh paket UAS selesai.

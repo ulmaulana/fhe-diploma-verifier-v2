@@ -1,5 +1,7 @@
 # Bukti implementasi dan kriteria penerimaan v1.2
 
+> Konteks versi, 4 Oktober 2026 (WIB): dokumen ini mempertahankan catatan penerimaan historis 24–25 September 2026. Angka tes dan keterangan “belum dijalankan” di bagian bertanggal berlaku untuk eksekusi tersebut. Hasil revisi UAS pada kontrak v2, pengujian PostgreSQL lokal, coverage, dan Sepolia nyata tersedia di [TEST_RESULTS.md](uas/TEST_RESULTS.md), [DEPLOYMENT_RECORD.md](uas/DEPLOYMENT_RECORD.md), serta [STATUS_INSTRUKSI_UAS.md](uas/STATUS_INSTRUKSI_UAS.md). Run final tidak menguji Supabase atau deployment produksi Netlify.
+
 Pemeriksaan lokal dilakukan pada 24 September 2026. E-sign data kredensial, portal penerbitan bertahap, halaman QR langsung, serta pengikatan hasil OCR/FHE ke rekaman terverifikasi sudah diimplementasikan. Belum ada transaksi Sepolia, koneksi Supabase terkelola, atau deployment Vercel dalam sesi ini. Konfigurasi database, RPC, alamat kontrak, dan kunci layanan lokal belum diisi. Tes mock dan fixture tidak membuktikan seluruh MVP bekerja pada jaringan nyata.
 
 ## OCR tanpa Docker (25 September 2026)
