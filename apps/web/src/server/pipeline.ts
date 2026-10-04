@@ -5,6 +5,7 @@ import { withState, withRelayerLock } from './store';
 import { getPrivate, putPrivate } from './storage';
 import { accessible, finish } from './jobs';
 import { limit } from './http';
+import { releaseComparison, reserveComparison } from './relayer-budget';
 import { verifyRecord } from './credentials';
 import { FIELD_LABELS, type Extraction, type Job, type ResultField } from './types';
 
@@ -60,6 +61,23 @@ export async function completeExtraction(id: string, lease: string, extraction: 
   if (FIELD_KEYS.every(key => !extraction.fields[key]?.text?.trim())) return conclude('Belum dapat memverifikasi isi dokumen—unggah PDF ijazah lengkap');
   const assessment = assessOcr(extraction.fields, { templateSupported: Boolean(extraction.templateId), qrPage: extraction.qrPage ?? undefined, dateFormat: extraction.dateFormat });
   if (!assessment.eligible || !assessment.canonical) return conclude(ocrReason(assessment.issues, Boolean(job.archiveCredentialId)));
+  // Global relayer budget (S-08): reserve atomically before any transaction is prepared. A job that already
+  // holds an outbox transaction reuses it and is never counted twice.
+  try {
+    await withState(state => { const item = state.jobs[id]; checkLease(item, lease); if (!item.txHash) reserveComparison(state, id); });
+  } catch (error) {
+    if (error instanceof ApiError && error.code === 'COMPARISON_BUDGET_EXHAUSTED') return end({ status: 'FAILED', decision: 'ERROR', reason: error.message });
+    throw error;
+  }
+  try { await submitWithRelayer(id, lease, job, qr.credentialId, assessment.canonical!, extraction); }
+  catch (error) {
+    // Nothing was prepared: return the reservation so a cancellation or failure before broadcast costs nothing.
+    await withState(state => releaseComparison(state, id));
+    throw error;
+  }
+}
+
+async function submitWithRelayer(id: string, lease: string, job: Job, credentialId: string, attributes: NonNullable<ReturnType<typeof assessOcr>['canonical']>, extraction: Extraction) {
   await withRelayerLock(async lock => {
     // Finish the outbox before allocating another nonce. A process can die after
     // persisting a signed transaction but before the RPC accepts its broadcast.
@@ -79,7 +97,7 @@ export async function completeExtraction(id: string, lease: string, extraction: 
     // Read inside the lock: a duplicated delivery must reuse the first signed transaction.
     const prior = current.txHash ? JSON.parse((await getPrivate(id, 'transaction.json')).toString()) as { hash: string; serialized: string } : undefined;
     // Decryption and the final decision happen in later workflow steps (concludeHosted).
-    return submitComparison({ requestId: id, credentialId: qr.credentialId, attributes: assessment.canonical!, uploadCommitment: job.commitment!, ocrConfigHash: extraction.ocrConfigHash,
+    return submitComparison({ requestId: id, credentialId, attributes, uploadCommitment: job.commitment!, ocrConfigHash: extraction.ocrConfigHash,
     transactionHash: prior?.hash, serializedTransaction: prior?.serialized,
     onPreparedTransaction: async tx => {
       await lock.assertHeld();

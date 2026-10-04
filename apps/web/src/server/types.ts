@@ -37,7 +37,7 @@ export interface StoredCredential {
   issuanceTxHash: string | null; createdAt: string;
   documentDate?: string;
 }
-export interface State { credentialDocuments?: Record<string, import('./document-types').CredentialDocument>; sessions: Record<string, Session>; jobs: Record<string, Job>; uploadIntents?: Record<string, UploadIntent>; credentialDrafts?: Record<string, CredentialDraft>; signedCredentials?: Record<string, StoredCredential>; rates: Record<string, { count: number; resetAt: number }>; audit: { action: string; objectId: string; at: string }[]; }
+export interface State { credentialDocuments?: Record<string, import('./document-types').CredentialDocument>; sessions: Record<string, Session>; jobs: Record<string, Job>; uploadIntents?: Record<string, UploadIntent>; credentialDrafts?: Record<string, CredentialDraft>; signedCredentials?: Record<string, StoredCredential>; rates: Record<string, { count: number; resetAt: number }>; relayerBudget?: { windowEndsAt: number; jobs: string[] }; audit: { action: string; objectId: string; at: string }[]; }
 export type { Extraction } from '@verifikasi/ocr';
 export const TERMINAL: JobStatus[] = ['COMPLETED', 'FAILED', 'EXPIRED'];
 export const FIELD_LABELS: Record<FieldKey, string> = { full_name: 'Nama lengkap', diploma_number: 'Nomor ijazah', study_program: 'Program studi', graduation_date: 'Tanggal lulus' };

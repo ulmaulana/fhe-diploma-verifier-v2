@@ -137,4 +137,25 @@ describe('document verification requires a valid signed record', () => {
     expect((await readJob(job.id, owner.id)).reason).toContain('Nama lengkap:');
     expect(chain.submitComparison).not.toHaveBeenCalled();
   });
+
+  it('ends with ERROR and sends no comparison when the global relayer budget is exhausted (S-08)', async () => {
+    vi.stubEnv('MAX_COMPARISONS_PER_HOUR', '0');
+    const job = await fixture();
+    expect(await readJob(job.id, owner.id)).toMatchObject({ status: 'FAILED', decision: 'ERROR', recordVerificationStatus: 'VERIFIED_RECORD' });
+    expect((await readJob(job.id, owner.id)).reason).toContain('Kuota transaksi pencocokan');
+    expect(chain.submitComparison).not.toHaveBeenCalled();
+    // The QR record path is independent of the relayer budget.
+    expect(record.verifyRecord).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns the reservation when submission fails before a transaction is prepared', async () => {
+    vi.stubEnv('MAX_COMPARISONS_PER_HOUR', '1');
+    chain.submitComparison.mockRejectedValueOnce(Object.assign(new Error('insufficient funds'), { code: 'INSUFFICIENT_FUNDS' }));
+    await expect(fixture()).rejects.toMatchObject({ code: 'INSUFFICIENT_FUNDS' });
+    expect(runtime.state.relayerBudget?.jobs).toEqual([]);
+    const [only] = Object.values(runtime.state.jobs);
+    await submitHosted(only!.id, generation);
+    expect(chain.submitComparison).toHaveBeenCalledTimes(2);
+    expect(runtime.state.relayerBudget?.jobs).toEqual([only!.id]);
+  });
 });

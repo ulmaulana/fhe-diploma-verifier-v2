@@ -86,7 +86,12 @@ export async function failHosted(id: string, generation: string) {
     const job = state.jobs[id];
     if (!job || !accessible(job) || TERMINAL.includes(job.status) || job.workflowToken !== generation) return;
     job.status = 'FAILED'; job.decision = 'ERROR';
-    job.reason = `Layanan belum menyelesaikan pemeriksaan (${job.diagnosticCode || 'FHE/TIMEOUT'}). Silakan coba kembali untuk melanjutkan pekerjaan.`;
+    const code = job.diagnosticCode || 'FHE/TIMEOUT';
+    job.reason = code.endsWith('INSUFFICIENT_FUNDS')
+      ? `Saldo relayer testnet tidak cukup untuk transaksi pencocokan (${code}). Tidak ada transaksi yang dikirim; coba kembali setelah saldo diisi.`
+      : code.startsWith('CONFIGURATION/')
+        ? `Konfigurasi kunci atau peran layanan tidak valid (${code}). Tidak ada transaksi pencocokan yang dikirim.`
+        : `Layanan belum menyelesaikan pemeriksaan (${code}). Silakan coba kembali untuk melanjutkan pekerjaan.`;
     job.artifactsExpireAt = new Date(Math.min(Date.parse(job.expiresAt), Date.now() + config().artifactMs)).toISOString();
     delete job.leaseToken; delete job.leaseUntil;
   });

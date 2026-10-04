@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { serviceAccounts } from '@verifikasi/chain/server';
 
 export function isNetlify() {
   // NETLIFY is a build flag; SITE_ID and URL are also available in Functions.
@@ -27,4 +28,7 @@ export function requireRealConfiguration() {
   if (config().mode !== 'testnet') return;
   const missing = ['DATABASE_URL', 'RPC_URL', 'CREDENTIAL_CONTRACT_ADDRESS', 'RELAYER_PRIVATE_KEY', 'ATTESTOR_PRIVATE_KEY', 'RESULT_READER_PRIVATE_KEY'].filter(key => !process.env[key]);
   if (missing.length) throw new ApiError(503, 'CONFIGURATION_REQUIRED', 'Layanan testnet belum dikonfigurasi. Unggahan belum diterima.');
+  // Local check without RPC: three valid, distinct service keys. Role checks on chain happen before signing.
+  try { serviceAccounts(); }
+  catch { throw new ApiError(503, 'CONFIGURATION_INVALID', 'Kunci layanan testnet tidak valid atau tidak terpisah. Unggahan belum diterima.'); }
 }

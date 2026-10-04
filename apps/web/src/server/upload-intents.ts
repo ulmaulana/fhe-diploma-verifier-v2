@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { ApiError, config, requireRealConfiguration } from './config';
-import { limit, source } from './http';
+import { clientSource, limit } from './http';
 import { audit, withState } from './store';
 import { blobEnabled, deletePrivate, deletePrivateBlob } from './storage';
 import { TERMINAL, type Session, type State, type UploadIntent } from './types';
@@ -35,7 +35,8 @@ export async function createUploadIntent(request: Request, current: Session, inp
       return existing;
     }
     limit(state, `upload:${current.id}`, 30, 3600_000);
-    limit(state, `source:${source(request)}`, 100, 3600_000);
+    const origin = clientSource(request);
+    if (origin.via !== 'unknown') limit(state, `source:${origin.key}`, 100, 3600_000);
     const active = Object.values(state.jobs).filter(job => job.owner === current.id && !TERMINAL.includes(job.status) && !job.deletedAt).length;
     const pending = Object.values(state.uploadIntents).filter(intent => intent.owner === current.id && !intent.jobId && !intent.deletedAt && Date.parse(intent.expiresAt) > Date.now()).length;
     if (active + pending >= config().maxActive) throw new ApiError(429, 'TOO_MANY_ACTIVE', 'Maksimum lima unggahan atau pemeriksaan berjalan per sesi.');

@@ -3,7 +3,7 @@ import { createUploadCommitment, hashUpload, FIELD_KEYS } from '@verifikasi/doma
 import { ApiError, config, requireRealConfiguration } from './config';
 import { audit, withState } from './store';
 import { getPrivate, putPrivate, deletePrivate } from './storage';
-import { limit, source } from './http';
+import { clientSource, limit } from './http';
 import { FIELD_LABELS, TERMINAL, type Job, type ResultField, type Session, type State } from './types';
 import { cleanupUploadIntents } from './upload-intents';
 
@@ -77,7 +77,9 @@ export async function createJobFromBytes(request: Request, current: Session, fil
     }
     if (!intent) {
       limit(state, `upload:${current.id}`, 30, 3600_000);
-      limit(state, `source:${source(request)}`, 100, 3600_000);
+      // An unknown source in hosting is not lumped into one shared bucket; session, credential and global relayer limits still apply.
+      const origin = clientSource(request);
+      if (origin.via !== 'unknown') limit(state, `source:${origin.key}`, 100, 3600_000);
     }
     if (Object.values(state.jobs).filter(job => job.owner === current.id && !TERMINAL.includes(job.status) && !job.deletedAt).length >= config().maxActive) throw new ApiError(429, 'TOO_MANY_ACTIVE', 'Maksimum lima pemeriksaan berjalan per sesi.');
     const id = archive?.jobId || intent?.id || `0x${randomBytes(32).toString('hex')}`; const salt = `0x${randomBytes(32).toString('hex')}`;

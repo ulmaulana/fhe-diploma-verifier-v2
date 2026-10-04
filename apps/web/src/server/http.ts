@@ -1,6 +1,6 @@
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { NextResponse } from 'next/server';
-import { ApiError, config } from './config';
+import { ApiError, config, isNetlify } from './config';
 import { withState } from './store';
 import { blobEnabled } from './storage';
 import { netlifyBlobsEnabled } from './netlify-storage';
@@ -33,7 +33,13 @@ export async function bootstrap(request: Request) {
   if (!current) {
     token = randomBytes(32).toString('hex');
     current = { id: hashToken(token), csrf: randomBytes(32).toString('hex'), expiresAt: new Date(Date.now() + config().historyMs).toISOString() };
-    await withState(state => { limit(state, `session:${source(request)}`, 60, 3600_000); state.sessions[current!.id] = current!; });
+    const origin = clientSource(request);
+    await withState(state => {
+      // Every new session counts against a global cap; the per-source cap applies when the source is known.
+      limit(state, 'session:global', 2000, 3600_000);
+      if (origin.via !== 'unknown') limit(state, `session:${origin.key}`, 60, 3600_000);
+      state.sessions[current!.id] = current!;
+    });
   }
   const cfg = config();
   const response = json({ csrfToken: current.csrf, expiresAt: current.expiresAt, mode: cfg.mode, configured: cfg.mode === 'demo' || Boolean(cfg.databaseUrl && process.env.RPC_URL && process.env.CREDENTIAL_CONTRACT_ADDRESS), uploadMode: netlifyBlobsEnabled() ? 'netlify' : blobEnabled() || process.env.VERCEL ? 'blob' : 'multipart', wallet: current.wallet || null });
@@ -45,11 +51,26 @@ export async function mutation(request: Request) {
   if (request.headers.get('origin') !== config().origin || !safeEqual(request.headers.get('x-csrf-token') || '', current.csrf)) throw new ApiError(403, 'CSRF_REJECTED', 'Permintaan tidak berasal dari sesi yang sah.');
   return current;
 }
-export function source(request: Request) {
-  // Only enable forwarded headers behind an explicitly configured trusted reverse proxy.
-  const ip = process.env.TRUST_PROXY === 'true' ? request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown' : 'local';
-  return hashToken(ip);
+const IP_ADDRESS = /^(?:\d{1,3}(?:\.\d{1,3}){3}|[0-9a-fA-F:]{2,39})$/;
+export type SourceIdentity = { key: string; via: 'netlify' | 'vercel' | 'proxy' | 'local' | 'unknown' };
+let untrustedSourceLogged = false;
+
+/** Client identity for rate limits, taken only from headers the platform itself sets (S-08).
+ * Netlify: x-nf-client-connection-ip. Vercel overwrites X-Forwarded-For and sends x-vercel-forwarded-for.
+ * TRUST_PROXY=true: one trusted reverse proxy that appends the client to X-Forwarded-For (rightmost entry).
+ * Client-supplied values of these headers are ignored everywhere else. */
+export function clientSource(request: Request): SourceIdentity {
+  const header = (name: string) => request.headers.get(name)?.trim();
+  let ip: string | undefined; let via: SourceIdentity['via'];
+  if (isNetlify()) { ip = header('x-nf-client-connection-ip'); via = 'netlify'; }
+  else if (process.env.VERCEL === '1') { ip = header('x-vercel-forwarded-for')?.split(',')[0]?.trim(); via = 'vercel'; }
+  else if (process.env.TRUST_PROXY === 'true') { ip = header('x-forwarded-for')?.split(',').at(-1)?.trim(); via = 'proxy'; }
+  else return { key: hashToken('local'), via: 'local' };
+  if (ip && IP_ADDRESS.test(ip)) return { key: hashToken(ip), via };
+  if (!untrustedSourceLogged) { untrustedSourceLogged = true; console.error(JSON.stringify({ event: 'untrusted_client_source', via })); }
+  return { key: hashToken('unknown'), via: 'unknown' };
 }
+export function source(request: Request) { return clientSource(request).key; }
 export function limit(state: State, bucket: string, max: number, windowMs: number) {
   const record = state.rates[bucket];
   if (!record || record.resetAt <= Date.now()) { state.rates[bucket] = { count: 1, resetAt: Date.now() + windowMs }; return; }
