@@ -1,5 +1,7 @@
 # Prompt lanjutan untuk AI agent berikutnya
 
+> **Catatan penutupan 4 Oktober 2026:** prompt di bawah adalah handoff historis dari HEAD 7757f76. Seluruh tugas agent T1–T8 kini selesai; lihat [STATUS_INSTRUKSI_UAS](STATUS_INSTRUKSI_UAS.md), [BAHAN](BAHAN_LAPORAN_UAS.md) dan metadata handoff untuk hasil akhir. Worktree base/e2e1/live/final dan container uji telah dihapus. Helper/seed lokal serta wallet luar repo dipertahankan, tetapi lingkungan pada bagian 3 tidak lagi aktif; reproduksi berikutnya harus menyiapkan lingkungan lokal baru sesuai [DEMO](DEMO.md). Tugas Netlify/identitas milik pengguna dan luaran akademik milik ChatGPT tetap tertunda. Isi instruksi historis dipertahankan agar asal tugas dapat ditelusuri.
+
 Salin seluruh isi di bawah garis ini ke agent yang akan melanjutkan pekerjaan.
 
 ---

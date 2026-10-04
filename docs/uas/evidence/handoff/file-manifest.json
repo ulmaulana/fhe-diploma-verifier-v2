@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "preparedAtUtc": "2026-10-04T16:11:49.866Z",
-  "preparedAtWib": "2026-10-04 23:11:49 +07:00",
-  "headAtPreparation": "d23a8a2e00e03c1678c55c0ebfe73dbeb205e49e",
+  "preparedAtUtc": "2026-10-04T16:25:03.503Z",
+  "preparedAtWib": "2026-10-04 23:25:03 +07:00",
+  "headAtPreparation": "170bfb8b92193a283b611e28625ff8c9a5b7432b",
   "applicationVerifiedAt": "8a13faaaac696700c8018cc6c947682028393afc",
   "sepoliaUISource": "f32afe67b39af7b38e524e263bc63b5a0973c5a6",
   "selection": {
@@ -51,8 +51,8 @@
       "file-manifest.json has no self hash; it is included separately in the ZIP"
     ]
   },
-  "fileCount": 454,
-  "totalInputBytes": 59825082,
+  "fileCount": 455,
+  "totalInputBytes": 59832037,
   "files": [
     {
       "path": ".env.example",
@@ -1051,8 +1051,8 @@
     },
     {
       "path": "docs/uas/BAHAN_LAPORAN_UAS.md",
-      "bytes": 26834,
-      "sha256": "f90086ea20790afbae5f4bfa8bbef2cc09d5536567ae73d03202d193e9c7f94b"
+      "bytes": 27662,
+      "sha256": "3a8431196e10b2a1a83423a13950216afbd2509ff68c3b29d207a59aebaa7ae0"
     },
     {
       "path": "docs/uas/CATATAN_TEMUAN_DAN_RETEST.md",
@@ -1081,13 +1081,13 @@
     },
     {
       "path": "docs/uas/PROMPT_LANJUTAN_AGENT.md",
-      "bytes": 13373,
-      "sha256": "787c84e09789fb401fe431217026474f63ffe59ad599b773536d007e81d32902"
+      "bytes": 14054,
+      "sha256": "cc99156f3e6f181830a79b25023f8eda8a4711029f3014fd384e4547ede948a4"
     },
     {
       "path": "docs/uas/STATUS_INSTRUKSI_UAS.md",
-      "bytes": 11462,
-      "sha256": "d091a6ccdaff83abf3e3ec7d6e1f78c730d0159de85863d1cc3c619f5c4afa2a"
+      "bytes": 11695,
+      "sha256": "543a238cfa18c03170ee8462f693d33cf22fc7a45a2faf6f57e7910ab75baabb"
     },
     {
       "path": "docs/uas/TEST_RESULTS.md",
@@ -1378,6 +1378,11 @@
       "path": "docs/uas/evidence/final/verification-results.json",
       "bytes": 18416,
       "sha256": "2e5b5598ec828eb11b5d4afe528a9a7b4bffe675ae6a476c56eb0a72a188a0e3"
+    },
+    {
+      "path": "docs/uas/evidence/handoff/cleanup.json",
+      "bytes": 5213,
+      "sha256": "f36eb6908bab58a20fc4ae7b2be8a554ca61d752f4ed03de1fe856495dce0f06"
     },
     {
       "path": "docs/uas/evidence/handoff/git-history.json",

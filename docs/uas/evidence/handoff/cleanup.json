@@ -1,0 +1,87 @@
+{
+    "schemaVersion":  1,
+    "completedAtUtc":  "2026-10-04T16:20:43.8890134Z",
+    "completedAtWib":  "2026-10-04 23:20:43 +07:00",
+    "resumeStartedAtUtc":  "2026-10-04T16:16:56.7940734Z",
+    "status":  "required T8 cleanup completed",
+    "worktreesRemoved":  [
+                             "base",
+                             "e2e1",
+                             "live",
+                             "final"
+                         ],
+    "beforeVerification":  "All four targets resolved to exact named directories within Temp/uasw, distinct from main workspace. Only generated next-env.d.ts and ten generated E2E screenshots were changed; live only had next-env.d.ts.",
+    "container":  {
+                      "name":  "verifikasi-uas-pg",
+                      "image":  "postgres:16-alpine",
+                      "stopExitCode":  0,
+                      "removeExitCode":  0,
+                      "observation":  "Stopped and removed during the first cleanup command before base directory failure; absence verified again",
+                      "remaining":  [
+
+                                    ]
+                  },
+    "actions":  [
+                    {
+                        "name":  "base",
+                        "action":  "remove orphaned long-path remainder with native PowerShell/.NET; reparse links never traversed",
+                        "exitCode":  0,
+                        "completedAtUtc":  "2026-10-04T16:18:05.5374992Z"
+                    },
+                    {
+                        "name":  "e2e1",
+                        "action":  "remove orphaned long-path remainder with native PowerShell/.NET; reparse links never traversed",
+                        "exitCode":  0,
+                        "completedAtUtc":  "2026-10-04T16:18:59.5163518Z"
+                    },
+                    {
+                        "name":  "live",
+                        "action":  "remove orphaned long-path remainder with native PowerShell/.NET; reparse links never traversed",
+                        "exitCode":  0,
+                        "completedAtUtc":  "2026-10-04T16:19:52.2820272Z"
+                    },
+                    {
+                        "name":  "final",
+                        "action":  "remove orphaned long-path remainder with native PowerShell/.NET; reparse links never traversed",
+                        "exitCode":  0,
+                        "completedAtUtc":  "2026-10-04T16:20:43.7184206Z"
+                    }
+                ],
+    "windowsRetry":  {
+                         "initialExitCode":  1,
+                         "error":  "Filename too long while deleting base node_modules",
+                         "effect":  "Git removed its worktree registration, leaving a directory remainder",
+                         "remedy":  "Enable command-local core.longpaths=true for remaining worktrees and remove verified base remainder natively without following reparse links"
+                     },
+    "preserved":  [
+                      "Main workspace and its env",
+                      "Wallet file outside repo",
+                      "Existing helper tools and legacy seed outside repo",
+                      "Tracked public evidence and actual video"
+                  ],
+    "scope":  "Only named test worktrees and local container; no Supabase, Netlify or mainnet operation",
+    "temporaryArtifactsRemoved":  [
+                                      {
+                                          "relativeToUasTemp":  "tools/ffmpeg-temp",
+                                          "completedAtUtc":  "2026-10-04T16:21:27.1191880Z",
+                                          "exitCode":  0
+                                      },
+                                      {
+                                          "relativeToUasTemp":  "tools/video-qa-final",
+                                          "completedAtUtc":  "2026-10-04T16:21:27.1291864Z",
+                                          "exitCode":  0
+                                      },
+                                      {
+                                          "relativeToUasTemp":  "final-private",
+                                          "completedAtUtc":  "2026-10-04T16:21:27.1351884Z",
+                                          "exitCode":  0
+                                      }
+                                  ],
+    "temporaryArtifactsScope":  "Verified FFmpeg download/extraction, synthetic video QA frames, and final-run private local test artifacts created for this continuation only.",
+    "intermediateRecordingRemoved":  {
+                                         "path":  "docs/uas/evidence/sepolia/e2e-run-2026-10-04T14-37-04-887Z/video-raw",
+                                         "scope":  "Untracked intermediate recording of the failed rate-limited run; its logs, screenshot and JSON evidence remain tracked. Final full-run WebM/MP4 untouched.",
+                                         "completedAtUtc":  "2026-10-04T16:22:28.4215873Z",
+                                         "exitCode":  0
+                                     }
+}
