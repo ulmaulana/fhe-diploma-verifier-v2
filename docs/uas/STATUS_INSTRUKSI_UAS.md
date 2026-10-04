@@ -8,7 +8,7 @@ Posisi **4 Oktober 2026**, setelah verifikasi final 22:22:52 WIB. Branch main. I
 
 | Tugas | Status | Bukti/hasil |
 | --- | --- | --- |
-| T1 Spec Sepolia dapat dijalankan ulang | ✅ agent | 018614f; institusi d 4 aadc…62 ab dipakai ulang, signer 399 a…a 43 e tetap aktif; state dikonfirmasi dan no-op ditolak tanpa tx |
+| T1 Spec Sepolia dapat dijalankan ulang | ✅ agent | 018614f; institusi d4aadc…62ab dipakai ulang, signer 399a…a43e tetap aktif; state dikonfirmasi dan no-op ditolak tanpa tx |
 | T2 Bagian 8 nyata melalui UI | ✅ agent | [Run final](evidence/sepolia/e2e-run-2026-10-04T14-53-27-678Z/sepolia-e2e-evidence.json): 12/12; lima run sebelumnya gagal/interupsi dipertahankan |
 | T3 Receipt, gas, durasi | ✅ agent | [Receipt](evidence/sepolia/receipts-e2e.json), [stage timing](evidence/measurements/sepolia-ui-stage-timings.json), [dekripsi read-only](evidence/sepolia/fhe-decryption-confirmation.json), [scan event](evidence/sepolia/no-transaction-rejection-confirmation.json); commit 8a13faa |
 | T4 Run worktree bersih | ✅ agent | [Konteks](evidence/final/verification-context.json): delapan perintah exit 0; 417 unit, 9 DB, 25 E2E lokal; commit aa2d754 |
@@ -19,7 +19,7 @@ Posisi **4 Oktober 2026**, setelah verifikasi final 22:22:52 WIB. Branch main. I
 
 ## Bagian 3–5: dasar, kepatuhan, perilaku
 
-- ✅ Branch/HEAD/lockfile dan baseline dicatat; repo berasal dari ZIP, riwayat mulai 96 b 4 a 08; efa663b hulu tidak tersedia. Tidak ada reset perubahan pengguna.
+- ✅ Branch/HEAD/lockfile dan baseline dicatat; repo berasal dari ZIP, riwayat mulai96b4a08; efa663b hulu tidak tersedia. Tidak ada reset perubahan pengguna.
 - ✅ Baseline lint/typecheck/unit lulus; E2E historis 19 lulus/3 gagal, dipertahankan. [TEST_RESULTS](TEST_RESULTS.md) menjelaskan dirty state dan regresi.
 - ✅ [KEPATUHAN A–J](KEPATUHAN_UAS.md), pembagian agent/pengguna/ChatGPT, sumber teknis dan versi.
 - ✅ Fitur portal/QR/upload/riwayat/PDF, privasi tanggal, EIP-712 v2, ACL, fail-closed, outbox, lease, tombstone dan mode demo diperiksa serta diuji.
@@ -41,7 +41,7 @@ Posisi **4 Oktober 2026**, setelah verifikasi final 22:22:52 WIB. Branch main. I
 
 ## Bagian 7: pengujian final dan coverage
 
-Seluruh command dijalankan berurutan dari worktree awal bersih 8a13faa, 4 Oktober 2026 22:14:33–22:22:52 WIB: install frozen lockfile, lint, typecheck, test, test:db, build, test:e 2 e, coverage; **8/8 exit 0**. Log dan konfigurasi pada [evidence final](evidence/final/verification-results.json).
+Seluruh command dijalankan berurutan dari worktree awal bersih 8a13faa, 4 Oktober 2026 22:14:33–22:22:52 WIB: install frozen lockfile, lint, typecheck, test, test:db, build, test:e2e, coverage; **8/8 exit 0**. Log dan konfigurasi pada [evidence final](evidence/final/verification-results.json).
 
 | Suite | Hasil final |
 | --- | --- |
@@ -49,13 +49,13 @@ Seluruh command dijalankan berurutan dari worktree awal bersih 8a13faa, 4 Oktobe
 | Domain / credentials / OCR / chain / web | 52 /14 /45 /71 /201 lulus; total bersama kontrak 417 |
 | PostgreSQL Docker lokal | 9 lulus, DB verifikasi_test |
 | E2E lokal demo | 25 lulus, 0 gagal; 12 Sepolia opt-in skip |
-| E2E Sepolia terpisah | 12 lulus, 0 gagal, 0 skip |
-| Coverage kontrak | Statements 99/99, branches 132/132, functions 18/18, lines 132/132:100% |
-| Coverage TS statements/lines | Web 58,89%; domain 93,92%; credentials 97,90%; OCR 91,41%; chain 80,07%; branches/functions dan pengecualian lengkap di TEST_RESULTS |
+| E2E Sepolia terpisah | 12 lulus,0 gagal,0 skip |
+| Coverage kontrak | Statements99/99, branches132/132, functions18/18, lines132/132:100% |
+| Coverage TS statements/lines | Web58,89%; domain93,92%; credentials97,90%; OCR91,41%; chain80,07%; branches/functions dan pengecualian lengkap di TEST_RESULTS |
 
 - ✅ Kategori positif/negatif/batas/akses/replay/business states/events/rotasi/digest penuh/ACL/ordering dilindungi tes.
-- ✅ Coverage diukur, tanpa threshold; denominator src/** termasuk UI tidak teruji, DB/E2E di luar V 8.
-- ✅ Debugging C.2 nyata direproduksi. Coverage instrumentasi pertama 12 lulus/22 gagal custom-error decode; retry cache terbatas menghasilkan 34 lulus. Kedua percobaan disimpan, tidak disembunyikan.
+- ✅ Coverage diukur, tanpa threshold; denominator src/** termasuk UI tidak teruji, DB/E2E di luar V8.
+- ✅ Debugging C.2 nyata direproduksi. Coverage instrumentasi pertama12 lulus/22 gagal custom-error decode; retry cache terbatas menghasilkan34 lulus. Kedua percobaan disimpan, tidak disembunyikan.
 - ✅ Build memvalidasi trace SDK Node/TFHE/TKMS, PostgreSQL, dan OCR ind+eng. Perubahan next-env/screenshots setelah run adalah artefak uji.
 - ❌ Bukti CI jarak jauh belum diperiksa; **bukan** tugas agent untuk mengarang status dari adanya workflow.
 
@@ -75,8 +75,8 @@ Bukti satu run penuh: source f32afe6, localhost:3000, PostgreSQL verifikasi_loca
 | QR B dengan atribut A | ✅ MISMATCH; empat false |
 | QR origin asing | ✅ INCONCLUSIVE tanpa tx |
 | Revoke C + CredentialRevoked/jejak | ✅ Sepolia |
-| QR/unggah REVOKED dan PDF 409 | ✅ Sepolia; upload tanpa comparison tx |
-| Riwayat/report sesi pemilik, sesi lain 401 | ✅ Sepolia/API nyata |
+| QR/unggah REVOKED dan PDF409 | ✅ Sepolia; upload tanpa comparison tx |
+| Riwayat/report sesi pemilik, sesi lain401 | ✅ Sepolia/API nyata |
 | Legacy v1 read-only | ✅ trusted signed-proof seed DB lokal dan state v1, tanpa FHE baru |
 | Revoked/nonaktif saat proses berjalan | ✅ mock terkontrol |
 | Gangguan RPC/dekripsi/kuota/saldo, retry tanpa tx ganda | ✅ mock/DB terkontrol; kegagalan live RPC tercatat |
@@ -90,7 +90,7 @@ Tujuh transaksi final: tiga issue, tiga verify dari relayer, satu revoke dari si
 - ✅ Gas deployment/registry/issue/verify/revoke, waktu UI/tahap komposit, enam follow-up decrypt, sampel kecil n=2 per fixture, benchmark S-12. Waktu OCR CPU/konfirmasi/dekripsi UI murni tidak diukur terpisah; keterbatasan dinyatakan.
 - ✅ [BAHAN](BAHAN_LAPORAN_UAS.md): indeks B-01… dengan sebelas kolom, sumber kanonis dan data/pemetaan tabel template 12.3. Identitas/NPM/kelas/presentasi belum diberikan, disebutkan jelas.
 - ✅ [DEMO](DEMO.md): fixture, peran, reproduksi, gangguan, seed legacy dan langkah Netlify yang menjadi tugas pengguna.
-- ✅ Screenshot dan MP 4 nyata dapat diputar; 555,88 s, 1280×900, H.264; WebM asli+checksum/QA dipertahankan.
+- ✅ Screenshot dan MP4 nyata dapat diputar; 555,88s,1280×900, H.264; WebM asli+checksum/QA dipertahankan.
 - ❌ PNG diagram: tahap T6.
 - ❌ Arsip allowlist dan cleanup: tahap T7/T8.
 
@@ -106,7 +106,7 @@ Tujuh transaksi final: tiga issue, tiga verify dari relayer, satu revoke dari si
 | G.6 Audit | ✅ catatan teknis dan retest agent; ❌ PDF formal ChatGPT |
 | G.7 Diagram arsitektur editable+PNG | ❌ agent, T6 |
 | G.8 Slide≤10 | ❌ ChatGPT |
-| G.9 Video MP 4 nyata | ✅ agent; otomatis tanpa narasi manusia |
+| G.9 Video MP4 nyata | ✅ agent; otomatis tanpa narasi manusia |
 | G.10 Kontribusi | ✅ Git nyata tersedia; ❌ identitas/NPM/kontribusi anggota oleh pengguna |
 
 Desain tertulis, matriks enterprise/rekomendasi, evaluasi 2–3 halaman tetap kewajiban B/E/F pada tahap ChatGPT. Agent hanya menyediakan fakta/bukti; tidak menulis bab laporan, audit formal, evaluasi, atau slide.
