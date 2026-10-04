@@ -1,5 +1,5 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
-import { contractInterface } from '@verifikasi/chain';
+import { contractInterface, rpcRequest } from '@verifikasi/chain';
 import { Contract, JsonRpcProvider, Wallet, getBytes, hexlify, randomBytes } from 'ethers';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -15,7 +15,7 @@ test.describe.configure({ mode: 'serial' });
 const ORIGIN = process.env.APP_ORIGIN || 'http://localhost:3000';
 const WALLET_NAME = 'Dompet Uji Sepolia';
 const evidenceDir = path.resolve(process.env.SEPOLIA_E2E_EVIDENCE_DIR || 'test-results/sepolia-evidence');
-const rpc = enabled ? new JsonRpcProvider(process.env.RPC_URL, 11155111, { staticNetwork: true }) : null;
+const rpc = enabled ? new JsonRpcProvider(rpcRequest(process.env.RPC_URL!), 11155111, { staticNetwork: true, batchMaxCount: 1 }) : null;
 const admin = enabled ? new Wallet(process.env.SEPOLIA_E2E_ADMIN_KEY!, rpc) : null;
 const signer = enabled ? new Wallet(process.env.SEPOLIA_E2E_SIGNER_KEY!, rpc) : null;
 
@@ -192,6 +192,7 @@ test.beforeAll(async ({ browser }) => {
 });
 test.afterAll(async () => {
   const video = page?.video();
+  rpc?.destroy();
   await context?.close();
   if (video) {
     const fileName = 'Video_Demo_Sepolia.webm';
