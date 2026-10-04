@@ -1,7 +1,7 @@
 # command : pnpm --filter @verifikasi/contracts coverage
 # cwd     : 
-# commit  : 63119ba tracked-changes=7
-# started : 2026-10-04T03:58:00Z (UTC) / 2026-10-04T10:58:00 WIB
+# commit  : f7f791b tracked-changes=3
+# started : 2026-10-04T04:05:41Z (UTC) / 2026-10-04T11:05:41 WIB
 # node    : v24.21.0  pnpm: 10.19.0  os: MINGW64_NT-10.0-26300
 # ----------------------------------------------------------------
 
@@ -21,7 +21,7 @@ Instrumenting for coverage...
 Compilation:
 ============
 
-Nothing to compile
+Compiled 1 Solidity file successfully (evm target: cancun).
 
 Network Info
 ============
@@ -31,37 +31,37 @@ Network Info
 
 
   VerifikasiIjazah — local FHEVM mock (not testnet evidence)
-    ✔ rejects unauthorized registry updates, issuance and revocation (213ms)
-    ✔ compares all 256 digest bits and decrypts only for the result reader (637ms)
-    ✔ S-05: grants no account a decrypt permission on reference values, including the issuing signer (521ms)
-    ✔ detects a change in each field, including high digest bits (1722ms)
-    ✔ rejects replay of request IDs and attestor nonces (394ms)
+    ✔ rejects unauthorized registry updates, issuance and revocation (215ms)
+    ✔ compares all 256 digest bits and decrypts only for the result reader (628ms)
+    ✔ S-05: grants no account a decrypt permission on reference values, including the issuing signer (524ms)
+    ✔ detects a change in each field, including high digest bits (1684ms)
+    ✔ rejects replay of request IDs and attestor nonces (389ms)
     ✔ rejects incorrect signer, domain, relayer, deadline and altered input bindings (282ms)
-    ✔ disables comparisons for revoked credentials and inactive issuers (227ms)
-    ✔ requires a credential payload signature even when the transaction is signed by the authorized wallet (191ms)
-    ✔ rejects payload tampering, cross-domain signatures and ordered ciphertext substitutions (157ms)
-    ✔ rejects issuance replay and expiration without expiring already issued records (398ms)
-    ✔ S-09: maps malformed and malleable signatures to the contract domain errors (454ms)
+    ✔ disables comparisons for revoked credentials and inactive issuers (215ms)
+    ✔ requires a credential payload signature even when the transaction is signed by the authorized wallet (189ms)
+    ✔ rejects payload tampering, cross-domain signatures and ordered ciphertext substitutions (154ms)
+    ✔ rejects issuance replay and expiration without expiring already issued records (397ms)
+    ✔ S-09: maps malformed and malleable signatures to the contract domain errors (446ms)
     ✔ S-10: validates registry input by byte length with specific errors
-    ✔ S-10: rejects signer updates that would not change state instead of succeeding silently (40ms)
-    ✔ S-03: binds the credential ID to institution, signer and nonce so another signer cannot occupy it (336ms)
-    ✔ S-04: binds the reviewed institution name into the e-signed payload (protocol v2) (197ms)
-    ✔ rolls back both nonce and record when FHE input proof fails (177ms)
-    ✔ retains historical signer evidence after rotation and permits the replacement to revoke (410ms)
+    ✔ S-10: rejects signer updates that would not change state instead of succeeding silently
+    ✔ S-03: binds the credential ID to institution, signer and nonce so another signer cannot occupy it (331ms)
+    ✔ S-04: binds the reviewed institution name into the e-signed payload (protocol v2) (194ms)
+    ✔ rolls back both nonce and record when FHE input proof fails (175ms)
+    ✔ retains historical signer evidence after rotation and permits the replacement to revoke (409ms)
     ✔ retains every authorization period and rejects cross-institution signer reassignment while active
     S-01/S-02: role separation, rotation and administrator continuity
-      ✔ rejects a deployment that places two roles on one address (130ms)
+      ✔ rejects a deployment that places two roles on one address (125ms)
       ✔ rejects grants that combine roles or make a signer a service account, in both directions (86ms)
-      ✔ rotates relayer, attestor and reader: revoked accounts fail and replacements work (774ms)
+      ✔ rotates relayer, attestor and reader: revoked accounts fail and replacements work (772ms)
       ✔ transfers the administrator without ever leaving the contract without one
     T-02: boundaries, access control, business states and events
-      ✔ accepts issuance exactly at the deadline and rejects one second later (155ms)
-      ✔ accepts an attestation exactly at its deadline and rejects one second later (377ms)
-      ✔ rejects zero values, unsupported versions and wrong version strings (318ms)
-      ✔ enforces relayer, result reader and institution boundaries (192ms)
-      ✔ handles inactive institutions, missing credentials and repeated revocation (197ms)
-      ✔ paginates issuer credentials with empty, exact, beyond and clamped windows (15079ms)
-      ✔ emits every state-change event with the expected arguments (385ms)
+      ✔ accepts issuance exactly at the deadline and rejects one second later (159ms)
+      ✔ accepts an attestation exactly at its deadline and rejects one second later (386ms)
+      ✔ rejects zero values, unsupported versions and wrong version strings (331ms)
+      ✔ enforces relayer, result reader and institution boundaries (194ms)
+      ✔ handles inactive institutions, missing credentials and repeated revocation (193ms)
+      ✔ paginates issuer credentials with empty, exact, beyond and clamped windows (15011ms)
+      ✔ emits every state-change event with the expected arguments (395ms)
 
 
   29 passing (26s)
@@ -84,5 +84,5 @@ Lines        : 100% ( 132/132 )
 ================================================================================
 > Istanbul reports written to ./coverage/ and ./coverage.json
 # ----------------------------------------------------------------
-# finished: 2026-10-04T03:58:30Z (UTC) duration=29s
+# finished: 2026-10-04T04:06:35Z (UTC) duration=53s
 EXIT_CODE=0
