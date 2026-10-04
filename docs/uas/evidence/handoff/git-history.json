@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "capturedAtUtc": "2026-10-04T18:06:53.519Z",
-  "capturedAtWib": "2026-10-05 01:06:53 +07:00",
-  "head": "1413ebd424a7a914967ad6301c648c5c58842a1d",
-  "scope": "Commit history for the UAS continuation and OCR 70% application revision; the accompanying documentation/handoff commit is available in Git.",
+  "capturedAtUtc": "2026-10-04T18:29:36.585Z",
+  "capturedAtWib": "2026-10-05 01:29:36 +07:00",
+  "head": "573fa37c8d33159ec1b7afd0cf508dab00a4f014",
+  "scope": "Commit history for the UAS continuation including OCR70 validation; the accompanying archive-selection commit is available in Git.",
   "startHead": "7757f76",
   "commits": [
     {
@@ -71,11 +71,17 @@
       "time": "2026-10-05T00:45:55+07:00",
       "author": "Maul",
       "subject": "fix(ocr): accept confidence unless all required fields fall below 70%"
+    },
+    {
+      "hash": "573fa37c8d33159ec1b7afd0cf508dab00a4f014",
+      "time": "2026-10-05T01:10:02+07:00",
+      "author": "Maul",
+      "subject": "docs(uas): record OCR 70% validation and refresh handoff"
     }
   ],
   "shortlog": [
     {
-      "commits": 40,
+      "commits": 41,
       "author": "Maul"
     }
   ],

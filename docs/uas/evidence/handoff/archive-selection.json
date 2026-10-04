@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Curated UAS handoff: nine primary UAS documents, assignment, evidence, diagrams and reproducibility source. Repository troubleshooting history and agent instructions are not exported.",
+  "exact": [
+    "README.md",
+    "PRD.MD",
+    ".env.example",
+    ".gitignore",
+    "eslint.config.mjs",
+    "netlify.toml",
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    "docs/Lanjutan Upgrade UAS/INSTRUKSI_IMPLEMENTASI_UAS_BLOCKCHAIN.md",
+    "docs/Soal UAS/Soal_UAS_Blockchain_TA_2026_2027_Ganjil.pdf",
+    "docs/uas/BAHAN_LAPORAN_UAS.md",
+    "docs/uas/CATATAN_TEMUAN_DAN_RETEST.md",
+    "docs/uas/DEMO.md",
+    "docs/uas/DEPLOYMENT_RECORD.md",
+    "docs/uas/FAKTA_ARSITEKTUR_DAN_PENGUKURAN.md",
+    "docs/uas/KEPATUHAN_UAS.md",
+    "docs/uas/PERUBAHAN_KEBIJAKAN_OCR_70.md",
+    "docs/uas/STATUS_INSTRUKSI_UAS.md",
+    "docs/uas/TEST_RESULTS.md"
+  ],
+  "prefixes": [
+    "docs/uas/evidence/",
+    "docs/uas/diagrams/",
+    "docs/screenshots/",
+    "contracts/",
+    "scripts/",
+    "apps/web/",
+    "packages/",
+    "assets/",
+    ".github/workflows/"
+  ],
+  "excludedFiles": [
+    "apps/web/AGENTS.md",
+    "apps/web/CLAUDE.md",
+    "docs/uas/evidence/handoff/archive-metadata.json"
+  ],
+  "notes": [
+    "Only tracked files matching the exact paths or prefixes are selected. Explicit exclusions take precedence.",
+    "No broad docs/ or docs/uas/ prefix: future documents require an explicit selection decision.",
+    "Loose docs/*.md, docs/superpowers/, PROMPT_LANJUTAN_AGENT.md and root CLAUDE.md remain in the repository only.",
+    "README/PRD links to omitted operational documents are repository references; use docs/uas/BAHAN_LAPORAN_UAS.md for the UAS evidence index.",
+    "Failed-run evidence remains included. Exclusions do not remove files from the repository.",
+    "file-manifest.json is included without a self hash; archive-metadata.json stays outside the ZIP to avoid recursive hashing."
+  ]
+}

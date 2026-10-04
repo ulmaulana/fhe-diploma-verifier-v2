@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "preparedAtUtc": "2026-10-04T18:07:03.966Z",
-  "preparedAtWib": "2026-10-05 01:07:03 +07:00",
-  "headAtPreparation": "1413ebd424a7a914967ad6301c648c5c58842a1d",
+  "preparedAtUtc": "2026-10-04T18:29:42.627Z",
+  "preparedAtWib": "2026-10-05 01:29:42 +07:00",
+  "headAtPreparation": "573fa37c8d33159ec1b7afd0cf508dab00a4f014",
   "applicationVerifiedAt": "1413ebd424a7a914967ad6301c648c5c58842a1d",
   "sepoliaUISource": "f32afe67b39af7b38e524e263bc63b5a0973c5a6",
   "selection": {
+    "policyPath": "docs/uas/evidence/handoff/archive-selection.json",
     "exact": [
       "README.md",
+      "PRD.MD",
       ".env.example",
       ".gitignore",
-      "CLAUDE.md",
-      "PRD.MD",
       "eslint.config.mjs",
       "netlify.toml",
       "package.json",
@@ -19,24 +19,20 @@
       "pnpm-workspace.yaml",
       "docs/Lanjutan Upgrade UAS/INSTRUKSI_IMPLEMENTASI_UAS_BLOCKCHAIN.md",
       "docs/Soal UAS/Soal_UAS_Blockchain_TA_2026_2027_Ganjil.pdf",
-      "docs/acceptance.md",
-      "docs/implementation.md",
-      "docs/netlify-storage.md",
-      "docs/netlify-wallet.md",
-      "docs/netlifynotfound.md",
-      "docs/netlifyv2.md",
-      "docs/pdf-ijazah-testing.md",
-      "docs/pdf-ijazah.md",
-      "docs/testnet.md",
-      "docs/vercel.md",
-      "docs/vercelerror.md",
-      "docs/vercelerror2.md",
-      "docs/vercelerrorv3.md"
+      "docs/uas/BAHAN_LAPORAN_UAS.md",
+      "docs/uas/CATATAN_TEMUAN_DAN_RETEST.md",
+      "docs/uas/DEMO.md",
+      "docs/uas/DEPLOYMENT_RECORD.md",
+      "docs/uas/FAKTA_ARSITEKTUR_DAN_PENGUKURAN.md",
+      "docs/uas/KEPATUHAN_UAS.md",
+      "docs/uas/PERUBAHAN_KEBIJAKAN_OCR_70.md",
+      "docs/uas/STATUS_INSTRUKSI_UAS.md",
+      "docs/uas/TEST_RESULTS.md"
     ],
     "prefixes": [
-      "docs/uas/",
+      "docs/uas/evidence/",
+      "docs/uas/diagrams/",
       "docs/screenshots/",
-      "docs/superpowers/specs/",
       "contracts/",
       "scripts/",
       "apps/web/",
@@ -44,15 +40,21 @@
       "assets/",
       ".github/workflows/"
     ],
+    "excludedFiles": [
+      "apps/web/AGENTS.md",
+      "apps/web/CLAUDE.md",
+      "docs/uas/evidence/handoff/archive-metadata.json"
+    ],
     "excluded": [
+      "Repository troubleshooting history and agent instructions excluded by archive-selection.json",
       "All untracked files except explicitly named public handoff metadata",
       "Secrets, env other than .env.example, dependencies, caches, private storage, traces/cookies/workflow raw state",
       "Archive and archive-metadata.json to avoid recursive hashing",
       "file-manifest.json has no self hash; it is included separately in the ZIP"
     ]
   },
-  "fileCount": 481,
-  "totalInputBytes": 60182849,
+  "fileCount": 464,
+  "totalInputBytes": 59912919,
   "files": [
     {
       "path": ".env.example",
@@ -70,11 +72,6 @@
       "sha256": "17d574314e4b2509162eaeccd151ab50d6210319fc2f3b7351b02cbf3b9f59c0"
     },
     {
-      "path": "CLAUDE.md",
-      "bytes": 23513,
-      "sha256": "ec6a07e00266867165ff041c47536b232bd902263ce91827b2311a98b4c12886"
-    },
-    {
       "path": "PRD.MD",
       "bytes": 71180,
       "sha256": "3b882746445c3188561899c6fb013d3b35d33a9e6ac35941b288efd5b7210698"
@@ -88,16 +85,6 @@
       "path": "apps/web/.gitignore",
       "bytes": 6,
       "sha256": "8bfadbe12929d568158293c2b2b1fa03417e95e344848c42305355d0b3555aa7"
-    },
-    {
-      "path": "apps/web/AGENTS.md",
-      "bytes": 678,
-      "sha256": "63f2c50380ed6303237cce215ce27af1d620d094c215e28d1b1538a3c070e3bb"
-    },
-    {
-      "path": "apps/web/CLAUDE.md",
-      "bytes": 11,
-      "sha256": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49"
     },
     {
       "path": "apps/web/drizzle.config.ts",
@@ -955,46 +942,6 @@
       "sha256": "e865f7fcdc406a3ac5b8c4114077106ffb0d98c546b6dce1801a0a58823fd07e"
     },
     {
-      "path": "docs/acceptance.md",
-      "bytes": 14825,
-      "sha256": "0854b33f3d084bd3f5544a8efd05a30cbd6c00a1e0d74f1c5a9e7737b8b1e01f"
-    },
-    {
-      "path": "docs/implementation.md",
-      "bytes": 16063,
-      "sha256": "ece6eaa360ab7af0a7462f5bd970f6aab7d7443d65ddf49b4e19c61c9c59c67c"
-    },
-    {
-      "path": "docs/netlify-storage.md",
-      "bytes": 8627,
-      "sha256": "79f85006bcf40889140c80039ea9320c70ace304fe4b8dcc1c99a0e7d92587bc"
-    },
-    {
-      "path": "docs/netlify-wallet.md",
-      "bytes": 2950,
-      "sha256": "7bb24b683eb1f6907ab475d45aa9d3d261db08c6da1996195126690e7296e6f4"
-    },
-    {
-      "path": "docs/netlifynotfound.md",
-      "bytes": 6117,
-      "sha256": "b2f69ee67fb22304f1c935b158a0e76b7e47e98d4e4b93155bcf6fd952972b23"
-    },
-    {
-      "path": "docs/netlifyv2.md",
-      "bytes": 10319,
-      "sha256": "3b1f09e641b0c98acc693497f8a9c2c106a123252fa694f36a5282991e8d6c49"
-    },
-    {
-      "path": "docs/pdf-ijazah-testing.md",
-      "bytes": 4833,
-      "sha256": "a9729b07c7e542fd297a5fc8d7be64f5701938641d7748ca4bfbc578f3a01818"
-    },
-    {
-      "path": "docs/pdf-ijazah.md",
-      "bytes": 4879,
-      "sha256": "49f5e6bb9cde7a95034b08d69ec28effdf93b3152b87deac0acb33270bacbf69"
-    },
-    {
       "path": "docs/screenshots/desktop-empty.png",
       "bytes": 130540,
       "sha256": "39fa5a179f65a8c8ce6c100a66513104db9b39bbd8a768a5ff4b687368358706"
@@ -1045,19 +992,9 @@
       "sha256": "21999eef48993f2bfda3e3f58b4549375664a54fb0e7aeca6f71267727df3d25"
     },
     {
-      "path": "docs/superpowers/specs/2026-09-25-ocr-tesseract-js-design.md",
-      "bytes": 16176,
-      "sha256": "d15cb443568441bfe32ae0f87c9b7a56053ae5d899019334dec2305d2b9992b9"
-    },
-    {
-      "path": "docs/testnet.md",
-      "bytes": 9993,
-      "sha256": "e16fbe549f90c5107b79e34de52c6e9b844190f80c4395b0f0126f4a3fc6c918"
-    },
-    {
       "path": "docs/uas/BAHAN_LAPORAN_UAS.md",
-      "bytes": 31900,
-      "sha256": "4a95332e2fb9bbfa57050054723c114c4ea7f4ea89c1a645ccdb430e2ea5c76d"
+      "bytes": 32518,
+      "sha256": "f6a9c3a50c550294bf8d23d8bd3b264af432116fdc09c721352d185a77025e3a"
     },
     {
       "path": "docs/uas/CATATAN_TEMUAN_DAN_RETEST.md",
@@ -1090,14 +1027,9 @@
       "sha256": "348ec283f577d563a582a6e9d54870ba1594f7c7687c65bf46b25b2e540b28f3"
     },
     {
-      "path": "docs/uas/PROMPT_LANJUTAN_AGENT.md",
-      "bytes": 14054,
-      "sha256": "cc99156f3e6f181830a79b25023f8eda8a4711029f3014fd384e4547ede948a4"
-    },
-    {
       "path": "docs/uas/STATUS_INSTRUKSI_UAS.md",
-      "bytes": 14775,
-      "sha256": "9b227b1c3d8be1b321fd135e6614784b5c923897ff0fc925ebeb85a0cc91afae"
+      "bytes": 15209,
+      "sha256": "3b0635f4b279e613c6cf5ce1bdab2da5406f6fc50c612aec70310c1bbf2dab8a"
     },
     {
       "path": "docs/uas/TEST_RESULTS.md",
@@ -1390,19 +1322,24 @@
       "sha256": "2e5b5598ec828eb11b5d4afe528a9a7b4bffe675ae6a476c56eb0a72a188a0e3"
     },
     {
+      "path": "docs/uas/evidence/handoff/archive-selection.json",
+      "bytes": 1970,
+      "sha256": "ea44cd36ed7aff6862f7e0dce46bd5f7be022fd8438e80a029f50df924fcc65a"
+    },
+    {
       "path": "docs/uas/evidence/handoff/cleanup.json",
       "bytes": 5213,
       "sha256": "f36eb6908bab58a20fc4ae7b2be8a554ca61d752f4ed03de1fe856495dce0f06"
     },
     {
       "path": "docs/uas/evidence/handoff/git-history.json",
-      "bytes": 3047,
-      "sha256": "1d36dde02be3994994e3a7ccf079340d8db2524c621212dc9d83fd41f34a8006"
+      "bytes": 3251,
+      "sha256": "00998c548c60a22b456e387ef18f28d06493b095fa8798aec5d6db9301f4890b"
     },
     {
       "path": "docs/uas/evidence/handoff/secret-scan.json",
-      "bytes": 958,
-      "sha256": "919bdb21a4efbd14f6904517bb3b2d2f8b455f5cd190b61ce2f39f70e9de15da"
+      "bytes": 1011,
+      "sha256": "8a28bf8bcc14109bc5a8738757140ff123812faa9b321d8519c78ff11aafe045"
     },
     {
       "path": "docs/uas/evidence/measurements/S-12-bench-state.ts.txt",
@@ -2038,26 +1975,6 @@
       "path": "docs/uas/evidence/tests/pnpm-test-db.log",
       "bytes": 1759,
       "sha256": "dd85d859c9c4ccae11bb02e46828bbfbcdb132377dfd1a82ca9e8881438cfc0c"
-    },
-    {
-      "path": "docs/vercel.md",
-      "bytes": 13260,
-      "sha256": "4c1c95e6053fe5c7cf12e8c8d4faf2a1d9e558be662e42d7e3fd1e66f1cf365b"
-    },
-    {
-      "path": "docs/vercelerror.md",
-      "bytes": 58549,
-      "sha256": "c4fded06e7b831f3b48645343aa2a0242e609e46333353c57cf97d325862365d"
-    },
-    {
-      "path": "docs/vercelerror2.md",
-      "bytes": 54033,
-      "sha256": "78d315b8367c44b1c7a2ea90892bb4d167ded42f2e349233f3d2bf91fcbdef7d"
-    },
-    {
-      "path": "docs/vercelerrorv3.md",
-      "bytes": 14329,
-      "sha256": "1ae740c27538cebf6e3c7fe8c44207dc2377e296fe2285a124c265b02bf94068"
     },
     {
       "path": "eslint.config.mjs",

@@ -13,6 +13,8 @@ Source aplikasi **`1413ebd424a7a914967ad6301c648c5c58842a1d`**, branch main. Keb
 
 Pemindaian evidence sebelum env uji dihapus memeriksa **22 berkas/14 entri rahasia terkonfigurasi**, hits0; [hasil](evidence/ocr-policy-70/pre-cleanup-secret-scan.json). Handoff terbaru menggunakan allowlist, [scan](evidence/handoff/secret-scan.json), [manifest](evidence/handoff/file-manifest.json) dan [metadata arsip](evidence/handoff/archive-metadata.json). Metadata handoff 4 Oktober disimpan di [snapshot terdahulu](evidence/ocr-policy-70/prior-handoff/) agar indeks historis tetap dapat diperiksa.
 
+Seleksi ZIP diperbaiki: hanya sembilan dokumen utama UAS, instruksi dan PDF soal, diagram, evidence serta source/config terpilih. Catatan troubleshooting Vercel/Netlify, `docs/superpowers/` dan instruksi agent tidak dikemas; berkas aslinya tetap di repo. [Aturan seleksi eksplisit](evidence/handoff/archive-selection.json) menjadi acuan manifest. Perubahan ini hanya pengemasan, tanpa pengujian aplikasi atau transaksi Sepolia baru.
+
 **Batas bukti terbaru:** keputusan FHE pada regresi policy70 menggunakan mock terkontrol; OCR/PDF/browser/PostgreSQL lokal memakai komponen nyata. Tidak ada transaksi Sepolia baru untuk revisi70. Bukti 12 UI Sepolia/video/gas/pencabutan di snapshot berikut tetap dari source 4 Oktober dengan policy lama. ❌ Netlify/produksi belum diperbarui, tetap tindakan pengguna menurut DEMO. ❌ Luaran akademik ChatGPT/identitas anggota/CI remote tetap belum tersedia.
 
 ## Snapshot historis — 4 Oktober 2026

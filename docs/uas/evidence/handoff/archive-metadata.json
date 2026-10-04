@@ -1,32 +1,41 @@
 {
   "schemaVersion": 1,
   "archive": "BAHAN_LAPORAN_UAS_BLOCKCHAIN.zip",
-  "createdAtUtc": "2026-10-04T18:07:06.648Z",
-  "createdAtWib": "2026-10-05 01:07:06 +07:00",
-  "headAtPreparation": "1413ebd424a7a914967ad6301c648c5c58842a1d",
+  "createdAtUtc": "2026-10-04T18:29:45.344Z",
+  "createdAtWib": "2026-10-05 01:29:45 +07:00",
+  "headAtPreparation": "573fa37c8d33159ec1b7afd0cf508dab00a4f014",
   "applicationVerifiedAt": "1413ebd424a7a914967ad6301c648c5c58842a1d",
   "sepoliaUISource": "f32afe67b39af7b38e524e263bc63b5a0973c5a6",
+  "selectionPolicy": "docs/uas/evidence/handoff/archive-selection.json",
+  "selectionPolicySHA256": "ea44cd36ed7aff6862f7e0dce46bd5f7be022fd8438e80a029f50df924fcc65a",
   "manifest": "docs/uas/evidence/handoff/file-manifest.json",
-  "manifestSHA256": "f0056dff7501fc3684fa990be3637f63d15bf36cb9fb53e276ba3e4917c5bc83",
-  "archiveSHA256": "16e5cdd2bf63c39f66efe0e82952813fad5b3360814c8f4a30b11573854aa44f",
-  "archiveBytes": 53045812,
-  "fileCount": 481,
+  "manifestSHA256": "c304830d984eac16a215a2350e1a469ca039ca8b4713084916abd95e5103f7a5",
+  "archiveSHA256": "90dd6dcff615a383b336b2e75ff7e1b1f9e3d0d7973cd1710236827dad938770",
+  "archiveBytes": 52955652,
+  "fileCount": 464,
   "method": "Python 3.13 zipfile standard library, explicit allowlist, DEFLATE level 6; no dependency added",
   "verification": {
-    "entries": 481,
+    "entries": 464,
     "crc": "passed",
     "fileSHA256": "passed",
     "pathSelection": "passed",
-    "bytes": 53045812
+    "bytes": 52955652
   },
   "metadataOutsideArchive": true,
   "snapshotNote": "Per-file hashes define the handoff snapshot including documentation awaiting the accompanying commit. HEAD at preparation is provenance, not a claim of an additional application test run.",
   "finalSecretScan": {
-    "recordedAtUtc": "2026-10-04T18:08:33.054Z",
-    "filesScanned": 482,
+    "scannedAtUtc": "2026-10-04T18:30:37.974Z",
+    "scannedAtWib": "2026-10-05 01:30:37 +07:00",
+    "scope": "Current ZIP entry files plus external archive metadata after archive regeneration",
+    "filesScanned": 465,
     "configuredSecretEntries": 13,
-    "hits": 0,
-    "scope": "All 481 archive entries plus external archive metadata, before the accompanying commit; this added public scan metadata is rescanned before commit",
-    "comparison": "OCR revision evidence also scanned with 14 configured entries before local test env deletion; final preserved main env and outside-repo wallets supply 13 configured entries."
+    "hits": 0
+  },
+  "selectionVerification": {
+    "primaryUASDocuments": 9,
+    "irrelevantDocuments": 0,
+    "failedRunEvidenceRetained": true,
+    "sourceAndEvidence": "retained",
+    "repositoryFilesDeleted": 0
   }
 }
