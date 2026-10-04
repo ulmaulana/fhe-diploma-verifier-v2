@@ -1,27 +1,27 @@
 %% Arsitektur Verifikasi Ijazah (versi final UAS, kontrak v2). Subgraph = batas kepercayaan.
-flowchart LR
-  subgraph USERS["Pengguna (tidak tepercaya bagi backend)"]
+flowchart TB
+  subgraph USERS["Client / browser"]
     P["Pemeriksa<br/>browser/HP, tanpa wallet"]
-    K["Pejabat kampus<br/>wallet EOA (RainbowKit / EIP-6963)"]
+    K["Pejabat kampus<br/>wallet EOA"]
     A["Administrator platform<br/>wallet DEFAULT_ADMIN"]
+    UI["UI Next.js: /c/{id}, /verifikasi,<br/>/riwayat, /penerbit, /panduan"]
   end
 
-  subgraph WEB["Aplikasi Next.js 16 (Netlify / lokal) — backend tepercaya"]
-    UI["Halaman: /c/{id} (QR), /verifikasi,<br/>/riwayat, /penerbit, /panduan"]
+  subgraph WEB["Backend tepercaya"]
     API["API route: sesi + CSRF + Origin,<br/>drafts, proof, verifications, dokumen PDF"]
     RL["Rate limit + anggaran global relayer<br/>(reservasi atomik di state)"]
     WF["Eksekusi latar: Workflow (lokal/Vercel)<br/>atau Netlify Background Function"]
     OCR["packages/ocr: MuPDF + zxing + tesseract.js<br/>(in-process, WASM)"]
-    CHS["packages/chain/server: ethers + relayer-sdk/node<br/>kunci ATTESTOR, RELAYER, RESULT_READER (3 alamat berbeda)"]
+    CHS["Chain adapter: ethers + SDK Zama<br/>ATTESTOR, RELAYER, RESULT_READER<br/>tiga kunci/alamat berbeda"]
   end
 
-  subgraph STORE["Penyimpanan off-chain privat"]
-    DB[("PostgreSQL (Supabase di hosting):<br/>verification_state (JSONB), credential_drafts,<br/>signed_credentials, credential_documents, relayer lease")]
-    BL[("Blob privat / disk lokal:<br/>unggahan, hasil OCR, tx bertanda tangan (outbox),<br/>arsip PDF ijazah")]
+  subgraph STORE["Off-chain privat"]
+    DB[("PostgreSQL · state JSONB<br/>Uji: Docker lokal, hosting: Supabase pengguna<br/>Sesi/riwayat: 24 jam<br/>Draft, signed proof, metadata PDF, lease: terpisah")]
+    BL[("Blob privat / disk lokal<br/>Upload/OCR/outbox: 1 jam setelah hasil (≤ 24 jam)<br/>Arsip PDF: retensi terpisah, tanpa purge otomatis")]
   end
 
-  subgraph CHAIN["Ethereum Sepolia (testnet publik, validator berizin)"]
-    SC["VerifikasiIjazah v2<br/>0x65b1…94e0"]
+  subgraph CHAIN["Sepolia"]
+    SC["VerifikasiIjazah — protokol v2<br/>0x65b1…94e0, chain ID 11155111<br/>Testnet publik, validator berizin<br/>schema academic-diploma-v1<br/>normalizer academic-normalizer-v1"]
     LG["VerifikasiIjazah v1 (lama, hanya baca)<br/>0x39de…4903"]
     Z["Kontrak sistem Zama FHEVM:<br/>ACL, executor, input verifier"]
   end
@@ -31,13 +31,11 @@ flowchart LR
 
   P -->|"GET /c/id (tanpa login/wallet/tx)"| UI
   P -->|"unggah PDF/JPG/PNG"| UI
-  K -->|"personal_sign (login), EIP-712 CredentialAuthorization,<br/>tx issueCredential / revoke"| SC
-  A -->|"tx setIssuer / setSigner / grantRole"| SC
-  K --> UI
-  A --> UI
+  K -->|"personal_sign challenge: login di UI/API"| UI
+  A -->|"personal_sign challenge: login di UI/API"| UI
+  UI -->|"Wallet EOA: pengesahan EIP-712;<br/>tx issueCredential / revoke / registry"| RPC
   UI --> API --> RL
-  API --> DB
-  API --> BL
+  API -->|"baca/tulis data dan berkas privat"| STORE
   API --> WF
   WF --> OCR
   WF --> CHS

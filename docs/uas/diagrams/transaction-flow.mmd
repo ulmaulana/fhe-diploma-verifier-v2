@@ -10,17 +10,18 @@ sequenceDiagram
 
   Note over Admin,SC: Registry (sekali per institusi/signer)
   Admin->>SC: setIssuer(issuerId, nama, aktif) -> IssuerUpdated
-  Admin->>SC: setSigner(issuerId, wallet, true) -> SignerUpdated (ditolak bila wallet memegang peran: RoleConflict)
+  Admin->>SC: setSigner(issuerId, wallet, true) -> SignerUpdated
+  Note over Admin,SC: Ditolak bila wallet memegang role atau sudah aktif di issuer lain.<br/>No-op UI tidak mengirim transaksi
 
   Note over Kampus,SC: Penerbitan dengan e-sign data
   Kampus->>Web: login (personal_sign challenge)
   Kampus->>Zama: enkripsi 4 digest atribut (browser) -> handles + inputProof
   Kampus->>Web: simpan draf (profil publik, handles, tanggal privat)
-  Kampus->>Kampus: tanda tangan EIP-712 CredentialAuthorization<br/>(credentialId = keccak(chain, kontrak, issuer, signer, nonce), issuerNameHash, publicDataHash, ...)
+  Kampus->>Kampus: tanda tangan EIP-712 CredentialAuthorization<br/>(ID terikat chain, kontrak, issuer, signer, nonce,<br/>issuerNameHash, publicDataHash dan handles)
   Kampus->>Web: simpan bukti bertanda tangan (sebelum broadcast)
   Kampus->>SC: issueCredential(auth, sig, handles, proof)
-  SC->>SC: cek signer aktif, signature, ID, nama, nonce, deadline, versi; FHE.fromExternal; allowThis
-  SC-->>Kampus: CredentialIssued (setelah 2 konfirmasi)
+  SC->>SC: cek signer aktif, signature, ID, nama, nonce, deadline, versi,<br/>FHE.fromExternal dan allowThis
+  SC-->>Kampus: CredentialIssued (UI/API menunggu ≥ 2 konfirmasi)
   Web->>Web: PDF ijazah dibuat dari data penerbitan (QR -> /c/{credentialId})
 
   Note over Pemeriksa,SC: Jalur QR (RECORD_ONLY, tanpa transaksi)
@@ -32,13 +33,19 @@ sequenceDiagram
   Note over Pemeriksa,SC: Jalur unggahan (CHECKED_ATTRIBUTES)
   Pemeriksa->>Web: unggah PDF/foto
   Web->>Web: OCR (MuPDF, zxing, tesseract) + QR + normalisasi + digest
+  alt QR/target/origin tidak sesuai, data tidak layak atau rekaman dicabut
+    Web-->>Pemeriksa: INCONCLUSIVE / REVOKED, tanpa transaksi baru
+  else Layak dicocokkan dan rekaman aktif
   Web->>Web: cek rekaman, kuota global (reservasi atomik), peran kunci layanan, saldo relayer
   Web->>Zama: enkripsi digest hasil OCR (relayer)
   Web->>SC: verify(attestation EIP-712 attestor, handles, proof) oleh relayer -> ComparisonRequested
   SC->>SC: FHE.eq per atribut, FHE.and, allow(resultReader)
+  Web->>SC: tunggu receipt + ≥ 2 konfirmasi, cocokkan event/request/credential
   Web->>Zama: userDecrypt hasil (result reader)
   Web->>SC: baca ulang status rekaman (pencabutan selama proses -> bukan MATCH)
   Web-->>Pemeriksa: MATCH / MISMATCH / INCONCLUSIVE / REVOKED + laporan PDF
+  end
+  Note over Web,Pemeriksa: Sesi/riwayat 24 jam, artefak upload/OCR/outbox 1 jam setelah hasil (≤ 24 jam).<br/>Akses kedaluwarsa langsung, penghapusan fisik menunggu cleanup.<br/>Arsip ijazah dan signed proof tidak mengikuti purge job.
 
   Note over Kampus,SC: Pencabutan
   Kampus->>SC: revoke(credentialId) -> CredentialRevoked
