@@ -118,10 +118,12 @@ async function installBridgedWallet() {
     window.addEventListener('eip6963:requestProvider', announce);
     announce();
   }, { addresses: [admin!.address, signer!.address], name: WALLET_NAME });
-  // RPC goes through the Node bridge. The browser may reach only this app and the Zama relayer.
+  // RPC goes through the Node bridge. The browser may reach only this app, the Zama relayer, and the Zama
+  // bucket that /v2/keyurl points to for the FHE public key and CRS.
   await context.route(/^https?:\/\//, route => {
     const host = new URL(route.request().url()).hostname;
-    return ['localhost', '127.0.0.1'].includes(host) || /(^|\.)zama\.(cloud|ai|org)$/.test(host) ? route.continue() : route.abort();
+    return ['localhost', '127.0.0.1'].includes(host) || /(^|\.)zama\.(cloud|ai|org)$/.test(host)
+      || /^zama-[a-z0-9-]+\.s3\.[a-z0-9-]+\.amazonaws\.com$/.test(host) ? route.continue() : route.abort();
   });
 }
 
