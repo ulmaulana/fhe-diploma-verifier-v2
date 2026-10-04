@@ -12,9 +12,9 @@ Posisi **4 Oktober 2026**, setelah verifikasi final 22:22:52 WIB. Branch main. I
 | T2 Bagian 8 nyata melalui UI | ✅ agent | [Run final](evidence/sepolia/e2e-run-2026-10-04T14-53-27-678Z/sepolia-e2e-evidence.json): 12/12; lima run sebelumnya gagal/interupsi dipertahankan |
 | T3 Receipt, gas, durasi | ✅ agent | [Receipt](evidence/sepolia/receipts-e2e.json), [stage timing](evidence/measurements/sepolia-ui-stage-timings.json), [dekripsi read-only](evidence/sepolia/fhe-decryption-confirmation.json), [scan event](evidence/sepolia/no-transaction-rejection-confirmation.json); commit 8a13faa |
 | T4 Run worktree bersih | ✅ agent | [Konteks](evidence/final/verification-context.json): delapan perintah exit 0; 417 unit, 9 DB, 25 E2E lokal; commit aa2d754 |
-| T5 Dokumentasi dan indeks | ✅ agent | README, KEPATUHAN, FAKTA, TEST_RESULTS, DEMO, BAHAN B-01–B-33; detail di bawah |
+| T5 Dokumentasi dan indeks | ✅ agent | README, KEPATUHAN, FAKTA, TEST_RESULTS, DEMO, BAHAN B-01–B-34; detail di bawah |
 | T6 Render PNG | ✅ agent | [Arsitektur](diagrams/Architecture_Diagram.png) 4592×4100, [alur](diagrams/Transaction_Flow.png) 3252×5372; Mermaid editable+SVG, render exit 0 dan QA visual; [metadata](diagrams/render-metadata.json), 4 Oktober 22:59–23:00 WIB |
-| T7 Scan dan handoff | ✅ scan sebelum setiap commit; ❌ arsip final | Nilai rahasia diperiksa tanpa dicetak; nol temuan sebelum commit T1–T6. Arsip allowlist tahap berikutnya |
+| T7 Scan dan handoff | ✅ agent | Scan setiap commit dan allowlist penuh: 451 berkas/19 entri rahasia terkonfigurasi, hits0. ZIP lokal berisi bahan/source terpilih+manifest; [scan](evidence/handoff/secret-scan.json), [manifest](evidence/handoff/file-manifest.json), [metadata arsip](evidence/handoff/archive-metadata.json). Metadata handoff/cleanup dipindai lagi sebelum commit; ZIP diregenerasi sesudah T8 |
 | T8 Cleanup | ❌ agent, paling akhir | Worktree uji dan container masih tersedia sampai seluruh pemeriksaan selesai |
 
 ## Bagian 3–5: dasar, kepatuhan, perilaku
@@ -92,7 +92,7 @@ Tujuh transaksi final: tiga issue, tiga verify dari relayer, satu revoke dari si
 - ✅ [DEMO](DEMO.md): fixture, peran, reproduksi, gangguan, seed legacy dan langkah Netlify yang menjadi tugas pengguna.
 - ✅ Screenshot dan MP4 nyata dapat diputar; 555,88s,1280×900, H.264; WebM asli+checksum/QA dipertahankan.
 - ✅ PNG diagram arsitektur/alur, sumber Mermaid, SVG dan metadata render/QA tersedia; tanpa paket npm baru.
-- ❌ Arsip allowlist dan cleanup: tahap T7/T8.
+- ✅ Arsip allowlist, manifest SHA dan metadata handoff tersedia. ❌ Cleanup tahap T8; ZIP diregenerasi setelah status akhir.
 
 ## Bagian 13: G.1–G.10 dan luaran lanjutan
 
@@ -115,4 +115,4 @@ Desain tertulis, matriks enterprise/rekomendasi, evaluasi 2–3 halaman tetap ke
 
 ✅ Alur aplikasi/kontrak final, role, audit, unit/DB/E2E, coverage, debugging, source-match, FHE nyata, revoke, legacy, dan reproduksi lokal tersedia dengan batas bukti. ✅ Matriks, fakta, pengukuran, akses/governance, indeks, sumber/atribusi, gambar/video nyata tersedia untuk bahan laporan.
 
-❌ Hosting belum konsisten dengan v2: pengguna mengikuti DEMO dan memvalidasi header serta storage namespace uji. ❌ Identitas anggota dan kontribusi/presentasi belum lengkap. ❌ Run CI remote belum diamati. ❌ Luaran akademik ChatGPT belum dibuat. Render diagram selesai; arsip akhir dan cleanup diselesaikan sebelum handoff. Tidak mengklaim produksi maupun seluruh paket UAS selesai.
+❌ Hosting belum konsisten dengan v2: pengguna mengikuti DEMO dan memvalidasi header serta storage namespace uji. ❌ Identitas anggota dan kontribusi/presentasi belum lengkap. ❌ Run CI remote belum diamati. ❌ Luaran akademik ChatGPT belum dibuat. Render diagram dan arsip aman selesai; cleanup diselesaikan paling akhir. Tidak mengklaim produksi maupun seluruh paket UAS selesai.

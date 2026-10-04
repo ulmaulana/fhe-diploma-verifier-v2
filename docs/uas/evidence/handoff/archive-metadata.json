@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "archive": "BAHAN_LAPORAN_UAS_BLOCKCHAIN.zip",
+  "createdAtUtc": "2026-10-04T16:11:53.082Z",
+  "createdAtWib": "2026-10-04 23:11:53 +07:00",
+  "headAtPreparation": "d23a8a2e00e03c1678c55c0ebfe73dbeb205e49e",
+  "applicationVerifiedAt": "8a13faaaac696700c8018cc6c947682028393afc",
+  "sepoliaUISource": "f32afe67b39af7b38e524e263bc63b5a0973c5a6",
+  "manifest": "docs/uas/evidence/handoff/file-manifest.json",
+  "manifestSHA256": "05178aa007952488c155eab6f0afe74c6895b0462cf21dc2d4bf79cdc36f73d0",
+  "archiveSHA256": "5558a816bc3bfa56702c29835215520b25312c2bdd74e55043d4629ca537e2ab",
+  "archiveBytes": 52955854,
+  "fileCount": 454,
+  "method": "Python 3.13 zipfile standard library, explicit allowlist, DEFLATE level 6; no dependency added",
+  "verification": {
+    "entries": 454,
+    "crc": "passed",
+    "fileSHA256": "passed",
+    "pathSelection": "passed",
+    "bytes": 52955854
+  },
+  "metadataOutsideArchive": true,
+  "snapshotNote": "Per-file hashes define the handoff snapshot including documentation awaiting the accompanying commit. HEAD at preparation is provenance, not a claim of an additional application test run."
+}
