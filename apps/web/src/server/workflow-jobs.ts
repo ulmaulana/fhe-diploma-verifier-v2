@@ -8,8 +8,8 @@ import { withState } from './store';
 import { getPrivate, putPrivate } from './storage';
 import { readComparison } from '@verifikasi/chain/server';
 import { decideVerification, FIELD_KEYS } from '@verifikasi/domain';
-import { extractDocument } from '@verifikasi/ocr';
-import { FIELD_LABELS, TERMINAL, type Extraction } from './types';
+import { extractDocument, OCR_CONFIG_HASH } from '@verifikasi/ocr';
+import { FIELD_LABELS, resultConfidence, TERMINAL, type Extraction } from './types';
 
 /** Document faults become a stored INCONCLUSIVE result; every other OCR error is retried. */
 const PERMANENT_OCR_ERRORS = new Set(['PDF_PASSWORD', 'TOO_MANY_PAGES', 'INVALID_DOCUMENT', 'RESOLUTION_LIMIT']);
@@ -37,11 +37,15 @@ export async function claimWorkflowRun(id: string, generation: string, runId: st
 export async function extractHosted(id: string, generation: string): Promise<boolean> {
   const job = await workflowJob(id, generation);
   if (!job) return false;
-  if (job.ocrConfigHash) return true;
-  await withState(state => {
+  // A prepared transaction must keep the exact OCR evidence bound to its signed input.
+  if (job.txHash || job.ocrConfigHash === OCR_CONFIG_HASH) return true;
+  const needsExtraction = await withState(state => {
     const item = state.jobs[id]; checkLease(item, generation);
+    if (item.txHash || item.ocrConfigHash === OCR_CONFIG_HASH) return false;
     item.status = 'EXTRACTING'; item.attempts++;
+    return true;
   });
+  if (!needsExtraction) return true;
   // OCR reads exactly the bytes the user finalized; re-check them after reading private storage.
   const bytes = await getPrivate(id, 'upload.bin');
   if (bytes.byteLength > config().maxBytes || `0x${createHash('sha256').update(bytes).digest('hex')}` !== job.digest) throw new Error('DIGEST_MISMATCH');
@@ -50,6 +54,8 @@ export async function extractHosted(id: string, generation: string): Promise<boo
   if (extraction.errorCode && !PERMANENT_OCR_ERRORS.has(extraction.errorCode)) throw new Error('OCR_UNAVAILABLE');
   await withState(async state => {
     const item = state.jobs[id]; checkLease(item, generation);
+    // Another delivery may have prepared the existing input while OCR was running.
+    if (item.txHash) return;
     await putPrivate(id, 'ocr.json', Buffer.from(JSON.stringify(extraction)));
     item.ocrConfigHash = extraction.ocrConfigHash; item.ocrConfigVersion = extraction.ocrConfigVersion;
     item.status = 'AWAITING_CHAIN';
@@ -61,6 +67,8 @@ export async function submitHosted(id: string, generation: string): Promise<bool
   const job = await workflowJob(id, generation);
   if (!job) return false;
   if (job.status === 'AWAITING_DECRYPTION' && job.txHash) return true;
+  // A resumed Workflow can skip its completed extraction step after a config upgrade.
+  if (!job.txHash && job.ocrConfigHash !== OCR_CONFIG_HASH && !await extractHosted(id, generation)) return false;
   const extraction = JSON.parse((await getPrivate(id, 'ocr.json')).toString()) as Extraction;
   await completeExtraction(id, generation, extraction);
   return Boolean(await workflowJob(id, generation));
@@ -75,7 +83,7 @@ export async function concludeHosted(id: string, generation: string): Promise<bo
   const extraction = JSON.parse((await getPrivate(id, 'ocr.json')).toString()) as Extraction;
   const record = await verifyRecord(job.credentialId);
   const decision = decideVerification({ uploadPresent: true, qrValid: true, targetMatches: true, chainReadSucceeded: record.recordVerificationStatus !== 'ERROR', recordFound: record.recordVerificationStatus !== 'NOT_FOUND', revoked: record.recordVerificationStatus === 'REVOKED', issuerAuthorized: record.recordVerificationStatus === 'VERIFIED_RECORD', recordVerificationStatus: record.recordVerificationStatus, ocrEligible: true, fieldMatches: result.matches });
-  await finish(id, { status: decision.decision === 'ERROR' ? 'FAILED' : 'COMPLETED', decision: decision.decision, recordVerificationStatus: record.recordVerificationStatus, reason: decision.reason, issuerName: record.issuerName || undefined, issuanceTxHash: record.issuanceTxHash || undefined, txHash: result.transactionHash, chainId: result.chainId, contractAddress: result.contractAddress, checkedBlock: record.checkedBlock ?? undefined, checkedAt: record.checkedAt }, FIELD_KEYS.map(key => ({ key, label: FIELD_LABELS[key], text: extraction.fields[key]?.text?.slice(0, 500) || null, confidence: extraction.fields[key]?.confidence || 0, status: decision.fields[key] })), generation);
+  await finish(id, { status: decision.decision === 'ERROR' ? 'FAILED' : 'COMPLETED', decision: decision.decision, recordVerificationStatus: record.recordVerificationStatus, reason: decision.reason, issuerName: record.issuerName || undefined, issuanceTxHash: record.issuanceTxHash || undefined, txHash: result.transactionHash, chainId: result.chainId, contractAddress: result.contractAddress, checkedBlock: record.checkedBlock ?? undefined, checkedAt: record.checkedAt }, FIELD_KEYS.map(key => ({ key, label: FIELD_LABELS[key], text: extraction.fields[key]?.text?.slice(0, 500) || null, confidence: resultConfidence(extraction.fields[key]?.confidence), status: decision.fields[key] })), generation);
 
   return true;
 }

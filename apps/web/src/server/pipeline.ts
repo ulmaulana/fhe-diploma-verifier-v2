@@ -1,4 +1,4 @@
-import { assessOcr, resolveQrCandidates, FIELD_KEYS, type OcrIssue } from '@verifikasi/domain';
+import { assessOcr, resolveQrCandidates, FIELD_KEYS, OCR_CONFIDENCE_THRESHOLD, type OcrIssue } from '@verifikasi/domain';
 import { submitComparison, resumeComparisonTransaction } from '@verifikasi/chain/server';
 import { ApiError, config } from './config';
 import { withState, withRelayerLock } from './store';
@@ -7,11 +7,13 @@ import { accessible, finish } from './jobs';
 import { limit } from './http';
 import { releaseComparison, reserveComparison } from './relayer-budget';
 import { verifyRecord } from './credentials';
-import { FIELD_LABELS, type Extraction, type Job, type ResultField } from './types';
+import { FIELD_LABELS, resultConfidence, type Extraction, type Job, type ResultField } from './types';
 
 function ocrReason(issues: OcrIssue[], generated: boolean) {
   return [...new Set(issues.map(issue => {
-    const message = generated && issue.code === 'LOW_CONFIDENCE' ? 'Pembacaan belum cukup jelas. Coba kembali untuk memeriksa PDF ulang.' : issue.message;
+    const message = generated && issue.code === 'LOW_CONFIDENCE'
+      ? `Keyakinan pembacaan keempat atribut berada di bawah ${Math.round(OCR_CONFIDENCE_THRESHOLD * 100)}%. Coba kembali untuk memeriksa PDF ulang.`
+      : issue.message;
     return issue.field ? `${FIELD_LABELS[issue.field]}: ${message}` : message;
   }))].join(' ');
 }
@@ -28,7 +30,7 @@ export async function completeExtraction(id: string, lease: string, extraction: 
     item.ocrConfigHash = extraction.ocrConfigHash; item.ocrConfigVersion = extraction.ocrConfigVersion; item.status = 'AWAITING_CHAIN'; item.leaseUntil = item.expiresAt;
     return { ...item };
   });
-  const fields: ResultField[] = FIELD_KEYS.map(key => ({ key, label: FIELD_LABELS[key], text: extraction.fields[key]?.text?.slice(0, 500) || null, confidence: extraction.fields[key]?.confidence || 0, status: 'NOT_COMPARED' }));
+  const fields: ResultField[] = FIELD_KEYS.map(key => ({ key, label: FIELD_LABELS[key], text: extraction.fields[key]?.text?.slice(0, 500) || null, confidence: resultConfidence(extraction.fields[key]?.confidence), status: 'NOT_COMPARED' }));
   const end = (patch: Partial<Job>, resultFields = fields) => finish(id, patch, resultFields, lease);
   const conclude = (reason: string) => end({ status: 'COMPLETED', decision: 'INCONCLUSIVE', reason });
   if (extraction.errorCode) {

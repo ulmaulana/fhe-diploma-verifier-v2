@@ -2,7 +2,8 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { RecordVerificationResult, RecordVerificationStatus } from '@verifikasi/domain';
+import { FIELD_KEYS, type RecordVerificationResult, type RecordVerificationStatus } from '@verifikasi/domain';
+import { OCR_CONFIG, OCR_CONFIG_HASH } from '@verifikasi/ocr';
 import type { VerificationInput } from '@verifikasi/chain/server';
 import type { Extraction, Session, State } from '../../src/server/types';
 
@@ -16,7 +17,8 @@ vi.mock('../../src/server/store', async original => ({ ...await original<typeof 
   withRelayerLock: async (action: (lease: { assertHeld: () => Promise<void> }) => Promise<unknown>) => action({ assertHeld: async () => {} }),
 }));
 
-import { createJob, readJob } from '../../src/server/jobs';
+import { createJob, publicJob, readJob } from '../../src/server/jobs';
+import { report } from '../../src/server/reports';
 import { submitHosted, concludeHosted, recordWorkflowFailure } from '../../src/server/workflow-jobs';
 import { getPrivate, putPrivate } from '../../src/server/storage';
 
@@ -28,7 +30,7 @@ const contractAddress = `0x${'56'.repeat(20)}`;
 const owner: Session = { id: 'owner', csrf: 'csrf', expiresAt: new Date(Date.now() + 86400_000).toISOString() };
 const extraction: Extraction = {
   qrCandidates: [`http://localhost:3000/c/${credentialId}`], qrPage: 1, pageCount: 1, templateId: 'synthetic-A1',
-  ocrConfigHash: `0x${'cd'.repeat(32)}`, ocrConfigVersion: 'test', dateFormat: 'DMY',
+  ocrConfigHash: OCR_CONFIG_HASH, ocrConfigVersion: OCR_CONFIG.version, dateFormat: 'DMY',
   fields: Object.fromEntries(Object.entries({ full_name: 'CONTOH NAMA', diploma_number: 'IF-2026-001', study_program: 'INFORMATIKA', graduation_date: '15 Agustus 2026' }).map(([key, text]) => [key, { text, confidence: 0.99, page: 1 }])),
 };
 function recordResult(status: RecordVerificationStatus = 'VERIFIED_RECORD', checkedBlock = 100): RecordVerificationResult {
@@ -58,10 +60,10 @@ beforeEach(async () => {
 });
 afterEach(async () => { vi.unstubAllEnvs(); await rm(directory, { recursive: true, force: true }); });
 
-async function fixture(observed = extraction) {
+async function fixture(observed = extraction, generated = false) {
   const body = new FormData(); body.append('file', new Blob(['%PDF-1.7\nsynthetic'], { type: 'application/pdf' }), 'test.pdf');
   const job = await createJob(new Request('http://localhost:3000/api/verifications', { method: 'POST', headers: { 'idempotency-key': 'record-pipeline-123456' }, body }), owner);
-  Object.assign(runtime.state.jobs[job.id]!, { workflowToken: generation, leaseToken: generation, leaseUntil: job.expiresAt });
+  Object.assign(runtime.state.jobs[job.id]!, { workflowToken: generation, leaseToken: generation, leaseUntil: job.expiresAt, ocrConfigHash: observed.ocrConfigHash, ocrConfigVersion: observed.ocrConfigVersion, ...(generated ? { archiveCredentialId: credentialId } : {}) });
   vi.stubEnv('APP_MODE', 'testnet');
   await putPrivate(job.id, 'ocr.json', Buffer.from(JSON.stringify(observed)));
   await submitHosted(job.id, generation);
@@ -131,11 +133,92 @@ describe('document verification requires a valid signed record', () => {
     expect(record.verifyRecord).toHaveBeenCalledTimes(2);
   });
 
-  it('keeps poor OCR inconclusive even when the record is verified', async () => {
-    const poor = { ...extraction, fields: { ...extraction.fields, full_name: { text: 'CONTOH', confidence: 0.4, page: 1 } } };
+  it('continues to MATCH when one field is below 70% and the others are high', async () => {
+    const mixed = { ...extraction, fields: { ...extraction.fields, full_name: { ...extraction.fields.full_name!, confidence: 0.4 } } };
+    const job = await fixture(mixed);
+    await concludeHosted(job.id, generation);
+    expect(await readJob(job.id, owner.id)).toMatchObject({ decision: 'MATCH', recordVerificationStatus: 'VERIFIED_RECORD', txHash: comparisonTxHash });
+    expect(chain.submitComparison).toHaveBeenCalledTimes(1);
+    expect(runtime.state.relayerBudget?.jobs).toEqual([job.id]);
+  });
+
+  it('uses FHE MISMATCH for mixed scores with one at 70%, without an average-confidence gate', async () => {
+    const mixed = { ...extraction, fields: Object.fromEntries(FIELD_KEYS.map((key, index) => [key, { ...extraction.fields[key]!, confidence: index === 1 ? 0.7 : 0.1 }])) };
+    chain.readComparison.mockResolvedValue({ ...comparison(), matches: { ...comparison().matches, full_name: false }, allMatch: false });
+    const job = await fixture(mixed);
+    await concludeHosted(job.id, generation);
+    expect(await readJob(job.id, owner.id)).toMatchObject({ decision: 'MISMATCH', recordVerificationStatus: 'VERIFIED_RECORD', txHash: comparisonTxHash });
+    expect(chain.submitComparison).toHaveBeenCalledTimes(1);
+    const fields = JSON.parse((await getPrivate(job.id, 'result.json')).toString()).fields as { key: string; status: string }[];
+    expect(fields.find(field => field.key === 'full_name')?.status).toBe('MISMATCH');
+    expect(fields.filter(field => field.status === 'MATCH')).toHaveLength(3);
+  });
+
+  it('keeps four valid scores below 70% inconclusive without reserving the relayer budget or submitting a transaction', async () => {
+    const poor = { ...extraction, fields: Object.fromEntries(FIELD_KEYS.map(key => [key, { ...extraction.fields[key]!, confidence: 0.699 }])) };
     const job = await fixture(poor);
     expect(await readJob(job.id, owner.id)).toMatchObject({ decision: 'INCONCLUSIVE', recordVerificationStatus: 'VERIFIED_RECORD' });
-    expect((await readJob(job.id, owner.id)).reason).toContain('Nama lengkap:');
+    expect((await readJob(job.id, owner.id)).reason).toMatch(/seluruh atribut wajib|keempat atribut/);
+    expect((await readJob(job.id, owner.id)).txHash).toBeUndefined();
+    expect(runtime.state.relayerBudget).toBeUndefined();
+    expect(chain.submitComparison).not.toHaveBeenCalled();
+    expect(chain.readComparison).not.toHaveBeenCalled();
+  });
+
+  it('describes all-low generated OCR as a global reading problem without requesting changes to identity data', async () => {
+    const poor = { ...extraction, fields: Object.fromEntries(FIELD_KEYS.map(key => [key, { ...extraction.fields[key]!, confidence: 0.5 }])) };
+    const job = await fixture(poor, true);
+    const result = await readJob(job.id, owner.id);
+    expect(result).toMatchObject({ decision: 'INCONCLUSIVE', reason: 'Keyakinan pembacaan keempat atribut berada di bawah 70%. Coba kembali untuk memeriksa PDF ulang.' });
+    expect(result.reason).not.toMatch(/Nama lengkap:|Nomor ijazah:|ubah/i);
+    expect(runtime.state.relayerBudget).toBeUndefined();
+    expect(chain.submitComparison).not.toHaveBeenCalled();
+  });
+
+  it.each([['missing', undefined], ['negative', -0.1], ['over-one', 1.01], ['not-finite', NaN]] as const)(
+    'rejects an %s field or confidence before reserving the relayer budget', async (label, confidence) => {
+      const invalid: Extraction = { ...extraction, fields: { ...extraction.fields } };
+      if (label === 'missing') delete invalid.fields.full_name;
+      else invalid.fields.full_name = { ...extraction.fields.full_name!, confidence: confidence! };
+      const job = await fixture(invalid);
+      const result = await readJob(job.id, owner.id);
+      expect(result).toMatchObject({ decision: 'INCONCLUSIVE', recordVerificationStatus: 'VERIFIED_RECORD' });
+      expect(result.reason).toContain(label === 'missing' ? 'Atribut wajib belum terbaca' : 'Skor pembacaan atribut tidak valid');
+      expect((await publicJob(result)).fields.find(field => field.key === 'full_name')?.confidence).toBeNull();
+      expect(runtime.state.relayerBudget).toBeUndefined();
+      expect(chain.submitComparison).not.toHaveBeenCalled();
+    },
+  );
+
+  it('preserves a valid zero score through a MATCH result when another attribute reaches 70%', async () => {
+    const mixed = { ...extraction, fields: { ...extraction.fields, full_name: { ...extraction.fields.full_name!, confidence: 0 } } };
+    const job = await fixture(mixed);
+    await concludeHosted(job.id, generation);
+    const result = await publicJob(await readJob(job.id, owner.id));
+    expect(result).toMatchObject({ decision: 'MATCH' });
+    expect(result.fields.find(field => field.key === 'full_name')?.confidence).toBe(0);
+  });
+
+  it('creates a readable PDF report with unavailable confidence after rejecting invalid OCR scores', async () => {
+    const invalid = { ...extraction, fields: { ...extraction.fields, full_name: { ...extraction.fields.full_name!, confidence: NaN } } };
+    const job = await fixture(invalid);
+    const bytes = await report(await readJob(job.id, owner.id));
+    const mupdf = await import('mupdf');
+    const pdf = mupdf.Document.openDocument(bytes, 'application/pdf');
+    const page = pdf.loadPage(0);
+    const text = page.toStructuredText('');
+    try {
+      expect(text.asText()).toContain('confidence OCR: tidak tersedia');
+      expect(text.asText()).not.toContain('confidence OCR: 0.000');
+    } finally { text.destroy(); page.destroy(); pdf.destroy(); }
+  });
+
+  it('keeps REVOKED ahead of the all-low OCR confidence decision', async () => {
+    record.verifyRecord.mockResolvedValue(recordResult('REVOKED'));
+    const poor = { ...extraction, fields: Object.fromEntries(FIELD_KEYS.map(key => [key, { ...extraction.fields[key]!, confidence: 0.3 }])) };
+    const job = await fixture(poor);
+    expect(await readJob(job.id, owner.id)).toMatchObject({ decision: 'REVOKED', reason: 'record REVOKED', recordVerificationStatus: 'REVOKED' });
+    expect(runtime.state.relayerBudget).toBeUndefined();
     expect(chain.submitComparison).not.toHaveBeenCalled();
   });
 

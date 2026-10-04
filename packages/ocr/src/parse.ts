@@ -16,6 +16,21 @@ export interface ParsedPage {
   text: string;
 }
 
+function minimumConfidence(confidences: number[]): number {
+  // A valid lower score must never conceal another word/candidate's invalid score.
+  const invalid = confidences.find(confidence => !Number.isFinite(confidence) || confidence < 0 || confidence > 1);
+  return invalid === undefined ? Math.min(...confidences) : invalid;
+}
+
+/** Normalize valid Tesseract percentages; preserve invalid values for the domain gate. */
+export function minimumWordConfidence(words: OcrWord[]): number {
+  return minimumConfidence(words.map(word => {
+    const normalized = word.confidence / 100;
+    // Division can underflow a tiny negative percentage to -0, which looks valid.
+    return word.confidence < 0 && normalized === 0 ? word.confidence : normalized;
+  }));
+}
+
 /** Label-anchored field extraction; values are never corrected toward any reference. */
 export function parseFields(words: OcrWord[], page: number): ParsedPage {
   const groups = new Map<string, OcrWord[]>();
@@ -44,7 +59,8 @@ export function parseFields(words: OcrWord[], page: number): ParsedPage {
       const right = Math.max(...collected.map(word => word.left + word.width));
       const bottom = Math.max(...collected.map(word => word.top + word.height));
       const previous = fields[active];
-      fields[active] = { text: previous?.text ?? text, candidates: [...(previous?.candidates ?? []), text], confidence: Math.min(previous?.confidence ?? 1, ...collected.map(word => word.confidence / 100)), page, boundingBox: { x, y, width: right - x, height: bottom - y } };
+      const confidence = minimumWordConfidence(collected);
+      fields[active] = { text: previous?.text ?? text, candidates: [...(previous?.candidates ?? []), text], confidence: minimumConfidence(previous ? [previous.confidence, confidence] : [confidence]), page, boundingBox: { x, y, width: right - x, height: bottom - y } };
       collected = [];
     };
     for (const line of lines) {
@@ -80,12 +96,12 @@ export function parseFields(words: OcrWord[], page: number): ParsedPage {
       const bottom = Math.max(...valueWords.map(word => word.top + word.height));
       matches.push({
         text: match[1]!,
-        confidence: Math.max(0, Math.min(...valueWords.map(word => word.confidence)) / 100),
+        confidence: minimumWordConfidence(valueWords),
         page,
         boundingBox: { x, y, width: right - x, height: bottom - y },
       });
     }
-    if (matches.length) fields[key] = { ...matches[0]!, candidates: matches.map(item => item.text) };
+    if (matches.length) fields[key] = { ...matches[0]!, confidence: minimumConfidence(matches.map(item => item.confidence)), candidates: matches.map(item => item.text) };
   }
   return { template, fields, text: combined.slice(0, MAX_TEXT) };
 }

@@ -2,6 +2,10 @@
 
 Tanggal: **4 Oktober 2026 (WIB, UTC+07:00)**. Demo Sepolia lengkap sudah dijalankan lewat UI: **12 lulus, 0 gagal, 0 skip**, kode `f32afe67b39af7b38e524e263bc63b5a0973c5a6`, pukul **21:53–22:02 WIB**. Verifikasi lokal bersih pada `8a13faaaac696700c8018cc6c947682028393afc` juga selesai. [TEST_RESULTS.md](TEST_RESULTS.md) membedakan tes lokal/mock, OCR lokal nyata, dan Sepolia nyata serta mempertahankan run yang gagal.
 
+**Revisi 5 Oktober 2026:** checkout terbaru menerapkan [confidence OCR 70%](PERUBAHAN_KEBIJAKAN_OCR_70.md), dengan penolakan hanya saat keempat skor valid semuanya <70%. Gunakan revisi terbaru untuk demo aturan ini; rekaman video 4 Oktober menampilkan kebijakan lama. Tes keputusan confidence menggunakan fixture terkontrol dan PDF/OCR nyata lokal, bukan klaim transaksi Sepolia baru.
+
+Untuk menerapkan revisi ke Netlify, pengguna perlu membangun dan menerbitkan source terbaru setelah penyelarasan konfigurasi v2 pada bagian Netlify dokumen ini. Ambang/kebijakan bukan environment variable; keduanya dikompilasi dari paket domain dan tercatat pada hash OCR v6. Kontrak, skema atribut dan data penerbitan tidak perlu dimigrasikan untuk perubahan confidence ini. Agent tidak mengubah atau menerbitkan situs produksi.
+
 ## 1. Jalur demo lokal tanpa transaksi
 
 Prasyarat: Node **22.12.0 atau lebih baru** (run aktual memakai 24.21.0), pnpm **10.19.0**, dan browser Chromium untuk E2E. Gunakan checkout bersih pada revisi yang ingin direproduksi. Tidak perlu menambah dependency npm.

@@ -48,3 +48,43 @@ describe('parseFields', () => {
     expect(text.startsWith('TEMPLATE A1\n')).toBe(true);
   });
 });
+
+describe.each([
+  ['A1', 'Nama'],
+  ['B1', 'Full Name'],
+  ['D1', 'Nama lengkap'],
+])('%s raw value-word confidence', (template, label) => {
+  it('keeps a genuine minimum below 70% and ignores label scores', () => {
+    const words = ocrWords([`TEMPLATE ${template}`, `${label}: ANDI PRATAMA`], 100);
+    words.find(word => word.text === 'PRATAMA')!.confidence = 63;
+    words.find(word => word.text.endsWith(':'))!.confidence = -1;
+    expect(parseFields(words, 1).fields.full_name).toMatchObject({ text: 'ANDI PRATAMA', confidence: 0.63, candidates: ['ANDI PRATAMA'] });
+  });
+
+  it.each([
+    ['negative', -1, -0.01],
+    ['negative underflow', -Number.MIN_VALUE, -Number.MIN_VALUE],
+    ['above 100', 101, 1.01],
+    ['positive infinity', Infinity, Infinity],
+    ['negative infinity', -Infinity, -Infinity],
+    ['not a number', NaN, NaN],
+  ])('propagates a %s score alongside a valid lower score', (_name, score, expected) => {
+    const words = ocrWords([`TEMPLATE ${template}`, `${label}: ANDI PRATAMA`], 63);
+    words.find(word => word.text === 'PRATAMA')!.confidence = score as number;
+    const field = parseFields(words, 1).fields.full_name;
+    expect(field?.text).toBe('ANDI PRATAMA');
+    expect(field?.confidence).toBe(expected);
+  });
+
+  it.each([0, 1])('preserves invalid confidence from duplicate candidate %i', index => {
+    const words = ocrWords([`TEMPLATE ${template}`, `${label}: ANDI`, `${label}: BUDI`], 63);
+    words.find(word => word.text === (index === 0 ? 'ANDI' : 'BUDI'))!.confidence = 101;
+    expect(parseFields(words, 1).fields.full_name).toMatchObject({ text: 'ANDI', candidates: ['ANDI', 'BUDI'], confidence: 1.01 });
+  });
+});
+
+it('retains invalid scores across D1 wrapped value lines', () => {
+  const words = ocrWords(['TEMPLATE D1', 'Nama lengkap: ANDI', 'PRATAMA', 'Nomor ijazah: NOMOR'], 63);
+  words.find(word => word.text === 'PRATAMA')!.confidence = Infinity;
+  expect(parseFields(words, 1).fields.full_name).toMatchObject({ text: 'ANDI PRATAMA', confidence: Infinity, candidates: ['ANDI PRATAMA'] });
+});

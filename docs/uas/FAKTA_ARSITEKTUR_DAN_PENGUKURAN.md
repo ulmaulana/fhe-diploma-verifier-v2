@@ -2,6 +2,8 @@
 
 Catatan teknis untuk bahan B.1–B.6, E.1–E.5, dan F.4–F.6; bukan laporan evaluasi enterprise. Penyajian waktu memakai WIB (UTC+07:00), sementara bukti mesin mempertahankan UTC.
 
+**Revisi OCR 5 Oktober 2026:** [kebijakan confidence 70%](PERUBAHAN_KEBIJAKAN_OCR_70.md) menggantikan gate per-field 90%. Penolakan confidence hanya bila keempat skor valid semuanya <70%; FHE tetap membandingkan keempat atribut. Skema/normalisasi dan kontrak tetap sama, versi/hash konfigurasi OCR berubah ke v6. Bukti Sepolia, gas, durasi, dan video 4 Oktober berikut merupakan snapshot historis, bukan pengukuran kebijakan baru. Hasil revisi lokal tersedia di [TEST_RESULTS](TEST_RESULTS.md).
+
 ## Versi dan ruang bukti
 
 | Objek | Versi dan kondisi yang benar-benar diperiksa |

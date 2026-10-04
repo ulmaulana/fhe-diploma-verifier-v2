@@ -2,6 +2,8 @@
 
 Bahan faktual untuk dibawa ke ChatGPT. Implementasi yang diuji bersih: 8a13faaaac696700c8018cc6c947682028393afc, branch main; source UI Sepolia: f32afe67b39af7b38e524e263bc63b5a0973c5a6. Revisi berikutnya melengkapi dokumentasi, renderer, dan handoff; [status](STATUS_INSTRUKSI_UAS.md) dan Git mencatat versi dokumen terakhir.
 
+**Tambahan 5 Oktober 2026:** implementasi [kebijakan confidence OCR 70%](PERUBAHAN_KEBIJAKAN_OCR_70.md) mengikuti keputusan pengguna: hanya keempat skor valid semuanya <70% yang menghentikan proses karena confidence. Satu skor ≥70% cukup; syarat kelengkapan dan keputusan FHE tetap. Source, hasil regresi dan run lokal revisi ini dicatat terpisah dari snapshot 4 Oktober di [TEST_RESULTS](TEST_RESULTS.md). Persentase coverage lama 97,90%/91,41% adalah cakupan kode, bukan keberhasilan deteksi dokumen.
+
 Semua ijazah evidence adalah fixture sintetis. Unit/kontrak mock, OCR/PDF/PostgreSQL nyata lokal, dan transaksi/dekripsi Sepolia memiliki tingkat bukti berbeda. Pengujian tidak memakai Supabase atau mainnet; Netlify tidak diubah. Bahan ini belum menjadi paket UAS lengkap. Laporan, audit formal PDF, desain singkat, rekomendasi enterprise, evaluasi tertulis, dan slide disusun ChatGPT setelah diminta pengguna.
 
 ## Sumber kanonis

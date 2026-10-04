@@ -1,10 +1,16 @@
 'use client';
 import { AlertIcon, CheckCheckIcon, CheckIcon, CloseIcon, CopyIcon, DownloadIcon, InfoIcon, LockIcon, MatchAttributeIcon, ReadDocumentIcon, RetryIcon, SpinnerIcon } from '@/features/shared/icons';
 import { useState } from 'react';
+import { OCR_CONFIDENCE_THRESHOLD } from '@verifikasi/domain';
 import { CertificateArt } from '@/features/shared/CertificateArt';
 import { formatTime, shortId } from '@/features/shared/api';
 import { decisions, isRunning, stages, type VerificationJob } from './types';
 import { recordStatuses } from '@/features/credentials/record-status';
+function confidenceNote(confidence: number | null) {
+  if (confidence === null) return 'Keyakinan pembacaan tidak tersedia';
+  if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) return 'Skor keyakinan tidak valid';
+  return confidence < OCR_CONFIDENCE_THRESHOLD ? 'Keyakinan pembacaan rendah' : null;
+}
 export function ResultPanel({job,onRetry}:{job:VerificationJob|null;onRetry:()=>void}) {
   const [copied,setCopied]=useState(false);
   const decision=job?.documentDecision ?? job?.decision;
@@ -19,7 +25,7 @@ export function ResultPanel({job,onRetry}:{job:VerificationJob|null;onRetry:()=>
       {job.reason && <p className="result-reason">{job.reason}</p>}
       <dl className="result-metadata"><div><dt>Penerbit</dt><dd>{job.issuerName||'Belum teridentifikasi'}</dd></div><div><dt>ID Kredensial</dt><dd>{job.credentialId?<button className="copy-id" title={job.credentialId} onClick={async()=>{try{await navigator.clipboard.writeText(job.credentialId!);setCopied(true);setTimeout(()=>setCopied(false),1800);}catch{setCopied(false);}}}>{shortId(job.credentialId)}{copied?<CheckCheckIcon size={13}/>:<CopyIcon size={13}/>}</button>:'—'}</dd></div><div><dt>QR</dt><dd>{job.credentialId?'Rekaman teridentifikasi':'Belum teridentifikasi'}</dd></div></dl>
       {job.recordVerificationStatus&&<p className="result-reason">Status rekaman: {recordStatuses[job.recordVerificationStatus].label}.{job.credentialId&&<> <a href={`/c/${encodeURIComponent(job.credentialId)}`} style={{textDecoration:'underline'}}>Lihat rekaman terkini</a></>}</p>}
-      <div className="attribute-table"><table><thead><tr><th>Atribut</th><th>Hasil OCR</th><th>Kecocokan</th></tr></thead><tbody>{job.fields.map(field=><tr key={field.key}><td>{field.label}</td><td>{field.text||'Tidak terbaca'}{field.text && (field.confidence??0)<0.9&&<span className="confidence-note">Pembacaan belum pasti</span>}</td><td><span className={`field-status ${field.status.toLowerCase()}`}>{field.status==='MATCH'?<CheckIcon size={13}/>:field.status==='MISMATCH'?<CloseIcon size={13}/>:<span className="not-compared-dot"/>}{field.status==='MATCH'?'Sesuai':field.status==='MISMATCH'?'Berbeda':'Belum dibandingkan'}</span></td></tr>)}</tbody></table></div>
+      <div className="attribute-table"><table><thead><tr><th>Atribut</th><th>Hasil OCR</th><th>Kecocokan</th></tr></thead><tbody>{job.fields.map(field=>{const note=confidenceNote(field.confidence);return <tr key={field.key}><td>{field.label}</td><td>{field.text||'Tidak terbaca'}{field.text&&note&&<span className="confidence-note">{note}</span>}</td><td><span className={`field-status ${field.status.toLowerCase()}`}>{field.status==='MATCH'?<CheckIcon size={13}/>:field.status==='MISMATCH'?<CloseIcon size={13}/>:<span className="not-compared-dot"/>}{field.status==='MATCH'?'Sesuai':field.status==='MISMATCH'?'Berbeda':'Belum dibandingkan'}</span></td></tr>;})}</tbody></table></div>
       {job.checkedAt && <p className="checked-time">Diperiksa {formatTime(job.checkedAt)}{job.checkedBlock ? ` · Blok ${job.checkedBlock}`:''}</p>}
       <details className="technical-details"><summary>Detail pemeriksaan</summary><p>ID pekerjaan: {job.id}</p><p>Cakupan: CHECKED_ATTRIBUTES · Empat atribut pada unggahan.</p><p>Transaksi penerbitan: {job.issuanceTxHash||'Belum tersedia'}</p><p>Transaksi pencocokan: {job.txHash||'Tidak ada transaksi pencocokan'}</p><p>Jaringan: {job.chainId??'Belum tersedia'} · Kontrak: {job.contractAddress||'Belum tersedia'}</p></details>
     </div>}

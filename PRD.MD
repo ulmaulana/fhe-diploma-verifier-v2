@@ -68,12 +68,12 @@ Portal HR, skor kandidat, marketplace/NFT, gambar tanda tangan, penandatanganan 
 | Atribut wajib | Nama, nomor ijazah, program studi, tanggal lulus |
 | Batas unggahan | PDF/JPG/PNG, maksimum 10 MiB, maksimum 5 halaman, satu ijazah per pekerjaan |
 | Bahasa OCR | Indonesia dan Inggris |
-| Ambang OCR awal | Confidence field minimal 0,90 pada adapter Tesseract; angka ini bukan probabilitas benar |
+| Kebijakan confidence OCR (revisi pengguna 5 Oktober 2026) | Ambang 0,70; confidence menghentikan proses hanya jika keempat atribut wajib semuanya di bawah ambang. Satu atribut tepat atau di atas 0,70 cukup untuk melewati gate confidence; angka ini bukan probabilitas benar |
 | Retensi unggahan pemeriksa | Maksimum 1 jam setelah pekerjaan terminal, dengan batas keras 24 jam sejak unggah |
 | Riwayat sesi | Metadata minimal maksimum 24 jam; isi OCR tidak disimpan setelah TTL unggahan |
 | Rekaman penerbitan | Payload bertanda tangan dan profil publik dipertahankan sebagai rekaman penerbitan, terpisah dari TTL unggahan pemeriksa |
 
-Nilai kapasitas, ambang, dan retensi di atas adalah konfigurasi awal, bukan hasil pengukuran atau ketentuan yang telah ditetapkan pengguna. Ambang harus dikalibrasi dengan dokumen uji sebelum klaim keandalan dibuat. Setiap perubahan aturan pembacaan dicatat dalam versi konfigurasi OCR.
+Nilai kapasitas dan retensi di atas adalah konfigurasi awal. Kebijakan confidence telah ditetapkan pengguna pada 5 Oktober 2026, menggantikan ambang awal 0,90 per atribut. Kebijakan ini bukan hasil kalibrasi akurasi; klaim keandalan tetap memerlukan pengukuran dokumen uji. Setiap perubahan aturan pembacaan dicatat dalam versi konfigurasi OCR.
 
 ### 3.5 Ketentuan wajib monorepo
 
@@ -199,8 +199,8 @@ Status pekerjaan berbeda dari keputusan verifikasi. Pekerjaan bergerak melalui `
 
 | Keputusan | Kondisi | Teks UI dan tindakan |
 | --- | --- | --- |
-| `MATCH` | Rekaman `VERIFIED_RECORD`, seluruh atribut wajib andal dan cocok menurut hasil FHE | **Atribut cocok**; subteks **Kredensial aktif**; unduh hasil |
-| `MISMATCH` | Rekaman aktif dan sah, OCR andal, minimal satu atribut wajib berbeda | **Ditemukan ketidaksesuaian**; tunjukkan field berbeda, sarankan periksa unggahan atau hubungi penerbit |
+| `MATCH` | Rekaman `VERIFIED_RECORD`, OCR memenuhi seluruh syarat pembacaan termasuk kebijakan confidence, dan keempat atribut cocok menurut hasil FHE | **Atribut cocok**; subteks **Kredensial aktif**; unduh hasil |
+| `MISMATCH` | Rekaman aktif dan sah, OCR memenuhi syarat pembacaan, minimal satu atribut wajib berbeda menurut FHE | **Ditemukan ketidaksesuaian**; tunjukkan field berbeda, sarankan periksa unggahan atau hubungi penerbit |
 | `REVOKED` | Rekaman ditemukan dan status resminya dicabut | **Kredensial dicabut**; tampilkan waktu/status pencabutan yang tersedia |
 | `NOT_FOUND` | QR valid secara format, pencarian berhasil, tetapi rekaman tidak ditemukan | **Rekaman tidak ditemukan**; jelaskan bahwa dokumen tidak dapat diverifikasi melalui platform ini |
 | `INVALID_PROOF` | Bukti kredensial gagal pada pemeriksaan rekaman | **Bukti kredensial tidak valid**; tidak meneruskan pencocokan terhadap referensi yang belum sah |
@@ -209,7 +209,9 @@ Status pekerjaan berbeda dari keputusan verifikasi. Pekerjaan bergerak melalui `
 
 Status dicabut mengalahkan kecocokan atribut. Penerbit yang dinonaktifkan atau penerbitan yang masih pending menghasilkan `INCONCLUSIVE` pada jalur dokumen dan tidak boleh menghasilkan `MATCH`. Gangguan pembacaan chain tidak boleh ditafsirkan sebagai `NOT_FOUND`. Rekaman tetap diperiksa ulang setelah FHE selesai agar pencabutan saat pekerjaan berlangsung tidak terlewat.
 
-Field hasil memakai `MATCH`, `MISMATCH`, atau `NOT_COMPARED`. Jika satu atribut tidak memenuhi syarat OCR, pekerjaan berakhir `INCONCLUSIVE` tanpa mengirim empat tebakan parsial ke kontrak. UI tetap boleh menampilkan teks OCR yang tersedia dengan penanda ketidakpastian.
+Field hasil memakai `MATCH`, `MISMATCH`, atau `NOT_COMPARED`. Gate confidence memakai kebijakan **semua atribut di bawah 70%**: hanya jika keempat skor valid semuanya <0,70 pekerjaan berakhir `INCONCLUSIVE` sebelum reservasi anggaran relayer dan transaksi pencocokan. Satu skor tepat atau di atas 0,70 mengizinkan pencocokan, sekalipun skor lain rendah atau rata-ratanya di bawah 0,70. Rata-rata dan minimum seluruh field tidak menjadi gate tambahan.
+
+Keempat teks tetap wajib tersedia, memiliki satu kandidat, dapat dinormalisasi, dan berasal dari halaman yang sama dengan QR. Confidence setiap field harus numerik, finite, dan dalam rentang 0–1. Pelanggaran syarat ini tetap menghasilkan `INCONCLUSIVE`. UI menandai skor field <70% sebagai informasi pembacaan rendah, tanpa menetapkan keputusan dari satu skor. Confidence rendah dan `MISMATCH` tidak otomatis menyatakan dokumen palsu.
 
 Laporan mencantumkan waktu dan blok status terakhir yang dipakai. Pemeriksaan ulang dapat berubah setelah pencabutan. Klik ulang tombol selama pekerjaan berjalan tidak membuat transaksi kedua.
 

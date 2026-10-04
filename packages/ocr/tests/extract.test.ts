@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { assessOcr } from '@verifikasi/domain';
 import { extractDocument } from '../src/extract';
 import { OCR_CONFIG, OCR_CONFIG_HASH } from '../src/config';
 import { DocumentError, type OcrEngine, type OcrWord } from '../src/types';
@@ -7,12 +8,12 @@ import { concatenated, DEFAULT_QR, encrypted, fixture, pdfWithPages, rasterized,
 const REAL_OCR_TIMEOUT = 180_000;
 
 /** A stand-in engine that "reads" the same lines on every page. */
-function fakeEngine(lines: string[] | (() => never)): OcrEngine {
+function fakeEngine(lines: string[] | (() => never), confidence: number | ((text: string) => number) = 96): OcrEngine {
   return {
     async read(): Promise<OcrWord[]> {
       if (typeof lines === 'function') lines();
       return (lines as string[]).flatMap((line, index) => line.split(' ').map((text, column) => ({
-        text, confidence: 96, block: 1, paragraph: 1, line: index + 1, left: column * 80, top: index * 30, width: 75, height: 20,
+        text, confidence: typeof confidence === 'function' ? confidence(text) : confidence, block: 1, paragraph: 1, line: index + 1, left: column * 80, top: index * 30, width: 75, height: 20,
       })));
     },
     async close() {},
@@ -45,6 +46,16 @@ describe('extractDocument with a stand-in engine', () => {
     const result = await extractDocument(new TextEncoder().encode('%PDF-broken'), 'application/pdf', { engine: fakeEngine([]) });
     expect(result).toMatchObject({ errorCode: 'INVALID_DOCUMENT', ocrConfigVersion: OCR_CONFIG.version, ocrConfigHash: OCR_CONFIG_HASH });
   });
+
+  it('passes an invalid raw word score through extraction to the domain rejection', async () => {
+    const engine = fakeEngine(['TEMPLATE A1', 'Nama: ANDI PRATAMA', 'Nomor Ijazah: CONTOH/2026/0042', 'Program Studi: INFORMATIKA', 'Tanggal Lulus: 15 Agustus 2026'], text => text === 'PRATAMA' ? 101 : 96);
+    const result = await extractDocument(fixture('synthetic-A1.pdf'), 'application/pdf', { engine });
+    expect(result.errorCode).toBeUndefined();
+    expect(result.fields.full_name).toMatchObject({ text: 'ANDI PRATAMA', confidence: 1.01 });
+    const assessment = assessOcr(result.fields, { qrPage: 1, templateSupported: true, dateFormat: result.dateFormat });
+    expect(assessment.eligible).toBe(false);
+    expect(assessment.issues).toContainEqual(expect.objectContaining({ code: 'INVALID_CONFIDENCE', field: 'full_name' }));
+  });
 });
 
 describe('extractDocument with real tesseract.js OCR (stage 0 parity gate)', () => {
@@ -59,17 +70,19 @@ describe('extractDocument with real tesseract.js OCR (stage 0 parity gate)', () 
 
   /**
    * Documented deviation: tesseract.js 7.0.0 reads CONTOH/2026/0042 at 89.96 on the A1 160-DPI JPEG,
-   * where native Tesseract recorded >= 0.91 (docs/acceptance.md). Values stay exact; below the 0.9
-   * domain threshold the field yields INCONCLUSIVE, never a wrong match. Every other case keeps 0.9.
+   * where native Tesseract recorded >= 0.91 (docs/acceptance.md). This historical 90% parity benchmark
+   * stays independent of the current domain gate, which rejects confidence only when all four fields
+   * are below 70% (and always rejects invalid scores). Every other parity case keeps its 0.9 floor.
    */
   const minimumConfidence: Record<string, number> = { 'A1-photo': 0.899 };
 
-  it.each(cases)('%s: one QR, four fields, exact values, confidence >= 0.9', async (name, bytes, mime) => {
+  it.each(cases)('%s: one QR, four exact fields, historical parity confidence floor', async (name, bytes, mime) => {
     const started = performance.now();
     const result = await extractDocument(bytes(), mime);
     const seconds = ((performance.now() - started) / 1000).toFixed(1);
     const confidences = Object.values(result.fields).map(field => field.confidence);
     console.info(`[ocr-parity] ${name}: ${seconds}s, min confidence ${Math.min(...confidences).toFixed(2)}`);
+    console.info(`[ocr-parity-scores] ${name}: ${Object.entries(result.fields).map(([key, field]) => `${key}=${field.confidence.toFixed(4)}`).join(', ')}`);
     expect(result.errorCode).toBeUndefined();
     expect(result.qrCandidates).toEqual([DEFAULT_QR]);
     expect(Object.keys(result.fields).sort()).toEqual(['diploma_number', 'full_name', 'graduation_date', 'study_program']);
@@ -79,10 +92,11 @@ describe('extractDocument with real tesseract.js OCR (stage 0 parity gate)', () 
     expect(result.fields.graduation_date?.text).toBe(name.startsWith('A1') ? '15 Agustus 2026' : 'August 15, 2026');
     expect(Math.min(...confidences)).toBeGreaterThanOrEqual(minimumConfidence[name] ?? 0.9);
     expect(result).toMatchObject({ qrPage: 1, pageCount: 1, templateId: `synthetic-${name.slice(0, 2).toLowerCase()}-v1`, dateFormat: name.startsWith('A1') ? 'DMY' : 'MDY' });
+    expect(assessOcr(result.fields, { qrPage: result.qrPage ?? undefined, templateSupported: result.templateId !== null, dateFormat: result.dateFormat })).toMatchObject({ eligible: true, issues: [] });
   }, REAL_OCR_TIMEOUT);
 
   it.each(['A1', 'B1'])('%s photo from a different JPEG encoder still reads exact values', async template => {
-    // Confidence here is informational: a value below the domain threshold yields INCONCLUSIVE, not a wrong match.
+    // Confidence here is informational; the current gate checks all four scores together and rejects invalid scores.
     const result = await extractDocument(rasterized(fixture(`synthetic-${template}.pdf`), 160, 'jpeg'), 'image/jpeg');
     const confidences = Object.values(result.fields).map(field => field.confidence);
     console.info(`[ocr-parity] ${template}-mupdf-jpeg: min confidence ${Math.min(...confidences).toFixed(4)}`);

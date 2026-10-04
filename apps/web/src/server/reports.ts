@@ -22,7 +22,7 @@ export async function report(job: Job) {
   line(`Keputusan dokumen: ${job.decision}`, true); line(job.reason || '');
   line(`Request ID: ${job.id}`); line(`Dokumen: ${job.fileName}`); line(`Credential ID: ${job.credentialId || 'Tidak tersedia'}`);
   line(`Penerbit: ${job.issuerName || 'Tidak tersedia'}`); line(`Diperiksa: ${job.checkedAt || job.createdAt}`); line(`Halaman: ${job.verifiedPage || 'Tidak tersedia'}`); y -= 10;
-  for (const field of view.fields) { line(`${field.label}: ${field.text || 'Belum terbaca'}`, true); line(`Hasil: ${field.status}; confidence OCR: ${field.confidence.toFixed(3)}`); }
+  for (const field of view.fields) { line(`${field.label}: ${field.text || 'Belum terbaca'}`, true); line(`Hasil: ${field.status}; confidence OCR: ${field.confidence === null ? 'tidak tersedia' : field.confidence.toFixed(3)}`); }
   y -= 10;
   line(`SHA-256 berkas: ${job.digest || 'Tidak tersedia pada contoh'}`); line(`Upload commitment: ${job.commitment || 'Tidak tersedia pada contoh'}`); line(`Salt privat: ${job.salt || 'Tidak tersedia pada contoh'}`);
   line(`Chain ID: ${job.chainId || 'Tidak tersedia'}`); line(`Kontrak: ${job.contractAddress || 'Tidak tersedia'}`); line(`Blok status terakhir: ${job.checkedBlock ?? 'Tidak tersedia'}`);

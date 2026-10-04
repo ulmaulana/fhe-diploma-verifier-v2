@@ -3,7 +3,11 @@ import type { CredentialAuthorization, CredentialDomain, CredentialPublicProfile
 
 export type JobStatus = 'RECEIVED' | 'EXTRACTING' | 'AWAITING_CHAIN' | 'AWAITING_DECRYPTION' | 'COMPLETED' | 'FAILED' | 'EXPIRED';
 export type Decision = 'MATCH' | 'MISMATCH' | 'REVOKED' | 'NOT_FOUND' | 'INVALID_PROOF' | 'INCONCLUSIVE' | 'ERROR';
-export type ResultField = { key: FieldKey; label: string; text: string | null; confidence: number; status: 'MATCH' | 'MISMATCH' | 'NOT_COMPARED' };
+export type ResultField = { key: FieldKey; label: string; text: string | null; confidence: number | null; status: 'MATCH' | 'MISMATCH' | 'NOT_COMPARED' };
+/** Preserve zero as a real score; unavailable or invalid scores are never coerced to zero. */
+export function resultConfidence(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1 ? value : null;
+}
 export interface Job {
   id: string; owner: string; idempotencyKey: string; status: JobStatus; decision?: Decision; reason?: string;
   fileName: string; fileSize: number; mimeType: string; createdAt: string; expiresAt: string; artifactsExpireAt: string;

@@ -23,6 +23,7 @@ describe('private job lifecycle',()=>{
     const first=await createJob(upload(),session);const second=await createJob(upload(),session);
     expect(first.id).toBe(second.id);expect(first.id).toMatch(/^0x[0-9a-f]{64}$/);
     expect(first.commitment).toMatch(/^0x[0-9a-f]{64}$/);
+    expect((await publicJob(first)).fields.every(field=>field.confidence===null)).toBe(true);
     await expect(createJob(upload('idempotency-12345678','%PDF-1.7 changed'),session)).rejects.toMatchObject({status:409});
   });
   it('hides jobs from another session and rejects file signature spoofing',async()=>{

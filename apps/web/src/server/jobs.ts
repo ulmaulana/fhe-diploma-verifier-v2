@@ -93,7 +93,7 @@ export async function createJobFromBytes(request: Request, current: Session, fil
   });
 }
 export async function publicJob(job: Job) {
-  let fields: ResultField[] = FIELD_KEYS.map(key => ({ key, label: FIELD_LABELS[key], text: null, confidence: 0, status: 'NOT_COMPARED' }));
+  let fields: ResultField[] = FIELD_KEYS.map(key => ({ key, label: FIELD_LABELS[key], text: null, confidence: null, status: 'NOT_COMPARED' }));
   if (accessible(job) && TERMINAL.includes(job.status)) {
     fields = await getPrivate(job.id, 'result.json').then(bytes => JSON.parse(bytes.toString()).fields as ResultField[]).catch(() => fields);
   }
