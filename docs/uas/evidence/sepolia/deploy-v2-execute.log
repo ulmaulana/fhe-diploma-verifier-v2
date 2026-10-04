@@ -1,0 +1,91 @@
+# command : env ADMIN_ADDRESS=0xCa01c8C68840cd1C9fdF06F124723a5339224096 ATTESTOR_ADDRESS=0x6512e69e2aDb0bba5cF96548546809b9B6f702b5 RELAYER_ADDRESS=0xea36d9628c7CaCa078FbD0a9164A5cF0FAc52933 RESULT_READER_ADDRESS=0x84Bd1D6C317554Ff3539Ec62Da6B2F8f882c8B5e PLANNED_SIGNER_ADDRESSES=0x399a8A182631de9389B3fB3488537c9461d3a43e node --env-file=../.env node_modules/hardhat/internal/cli/cli.js uas:deploy --network sepolia --expected-chain-id 11155111 --confirmations 2 --execute
+# cwd     : /contracts
+# commit  : 714a2af tracked-changes=0
+# started : 2026-10-04T08:58:37Z (UTC) / 2026-10-04T15:58:37 WIB
+# node    : v24.21.0  pnpm: 10.19.0  os: MINGW64_NT-10.0-26300
+# ----------------------------------------------------------------
+{
+  "executed": true,
+  "recordPath": "C:\\Users\\Maulana\\Pictures\\Matkul IF\\Semester 7\\Blockchain\\UAS\\Degree-E-Sign-and-Verifier-ZamaFHE-main\\contracts\\deployments\\sepolia\\0x65b1C8C7B59D9651F8619F287Bc1c309FaE094e0.json",
+  "record": {
+    "schema": "verifikasi-deployment-record/v1",
+    "network": "sepolia",
+    "chainId": 11155111,
+    "contract": {
+      "name": "VerifikasiIjazah",
+      "address": "0x65b1C8C7B59D9651F8619F287Bc1c309FaE094e0",
+      "eip712": {
+        "name": "VerifikasiIjazah",
+        "version": "2"
+      }
+    },
+    "deployment": {
+      "transactionHash": "0x4340dd1a4f5c8e87f7e0f0865a6400e1230fd96f13a17605dabb484c42c20258",
+      "blockNumber": 11841227,
+      "blockHash": "0xac03468b89bcaf33fd6a148a0535b92dbebd88b5c759188469646e728564c809",
+      "blockTimestampUtc": "2026-10-04T08:58:48.000Z",
+      "deployer": "0xCa01c8C68840cd1C9fdF06F124723a5339224096",
+      "gasUsed": "3041734",
+      "effectiveGasPriceWei": "1193096193",
+      "confirmations": 2
+    },
+    "constructorArgs": [
+      "0xCa01c8C68840cd1C9fdF06F124723a5339224096",
+      "0x6512e69e2aDb0bba5cF96548546809b9B6f702b5",
+      "0xea36d9628c7CaCa078FbD0a9164A5cF0FAc52933",
+      "0x84Bd1D6C317554Ff3539Ec62Da6B2F8f882c8B5e"
+    ],
+    "roles": {
+      "DEFAULT_ADMIN_ROLE": [
+        "0xCa01c8C68840cd1C9fdF06F124723a5339224096"
+      ],
+      "ATTESTOR_ROLE": [
+        "0x6512e69e2aDb0bba5cF96548546809b9B6f702b5"
+      ],
+      "RELAYER_ROLE": [
+        "0xea36d9628c7CaCa078FbD0a9164A5cF0FAc52933"
+      ],
+      "RESULT_READER_ROLE": [
+        "0x84Bd1D6C317554Ff3539Ec62Da6B2F8f882c8B5e"
+      ]
+    },
+    "adminCount": "1",
+    "plannedSigners": [
+      "0x399a8A182631de9389B3fB3488537c9461d3a43e"
+    ],
+    "build": {
+      "solc": {
+        "version": "0.8.28",
+        "longVersion": "0.8.28+commit.7893614a.Emscripten.clang"
+      },
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "viaIR": true,
+      "evmVersion": "cancun",
+      "buildInfoId": "4f6da20f1bbc826e68430cd60a8da0be",
+      "sourceSha256": "05e13e94fad101b487e70def7e70033c9933309a0b4e7446a4d1bf248398c4b8",
+      "creationBytecodeKeccak256": "0x984b734e3424fb534381f52df52d366d1a992e1fefc38de2331de5d872f35d15",
+      "deployedBytecodeKeccak256": "0xa4d9e6c6bfeb8ad6f7f97d5a9f8dc0ff1c96599ddcaf9f5b5870412c8c2858db"
+    },
+    "dependencies": {
+      "hardhat": "2.28.6",
+      "@openzeppelin/contracts": "5.6.1",
+      "@fhevm/solidity": "0.11.1",
+      "@zama-fhe/relayer-sdk": "0.4.1",
+      "ethers": null,
+      "solc": "0.8.28"
+    },
+    "source": {
+      "gitCommit": "714a2af0a6bf51f0f7a2ad88d73579891714b7e5",
+      "gitDirtyTrackedFiles": 0
+    },
+    "registrations": [],
+    "sourceVerification": null,
+    "recordedAtUtc": "2026-10-04T08:59:03.886Z"
+  }
+}
+# ----------------------------------------------------------------
+# finished: 2026-10-04T08:59:03Z (UTC) duration=25s
+EXIT_CODE=0
