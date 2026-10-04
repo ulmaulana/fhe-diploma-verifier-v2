@@ -9,8 +9,9 @@
     "build": "node scripts/build.cjs",
     "typecheck": "node scripts/build.cjs",
     "test": "node scripts/build.cjs --quiet && hardhat test --no-compile",
-    "deploy:sepolia": "hardhat run scripts/deploy.cjs --network sepolia",
-    "coverage": "node scripts/coverage.cjs"
+    "deploy:sepolia": "hardhat uas:deploy --network sepolia --expected-chain-id 11155111",
+    "coverage": "node scripts/coverage.cjs",
+    "roles:sepolia": "hardhat uas:roles --network sepolia"
   },
   "dependencies": {
     "@fhevm/solidity": "0.11.1",

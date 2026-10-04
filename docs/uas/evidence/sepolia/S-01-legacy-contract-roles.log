@@ -1,0 +1,79 @@
+# command : node --env-file=../.env node_modules/hardhat/internal/cli/cli.js uas:roles --network sepolia
+# cwd     : /contracts
+# commit  : ceefce7 tracked-changes=4
+# started : 2026-10-04T04:14:37Z (UTC) / 2026-10-04T11:14:37 WIB
+# node    : v24.21.0  pnpm: 10.19.0  os: MINGW64_NT-10.0-26300
+# ----------------------------------------------------------------
+{
+  "network": {
+    "name": "sepolia",
+    "chainId": "11155111"
+  },
+  "contract": "0x39de125002edA28c886d9125AE5d61BB5BE04903",
+  "blockNumber": 11839966,
+  "roles": {
+    "DEFAULT_ADMIN_ROLE": [
+      "0xCa01c8C68840cd1C9fdF06F124723a5339224096"
+    ],
+    "ATTESTOR_ROLE": [
+      "0xCa01c8C68840cd1C9fdF06F124723a5339224096"
+    ],
+    "RELAYER_ROLE": [
+      "0xCa01c8C68840cd1C9fdF06F124723a5339224096"
+    ],
+    "RESULT_READER_ROLE": [
+      "0xCa01c8C68840cd1C9fdF06F124723a5339224096"
+    ]
+  },
+  "signers": [
+    {
+      "wallet": "0xCa01c8C68840cd1C9fdF06F124723a5339224096",
+      "issuerId": "0x1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8",
+      "active": true,
+      "authorizationId": "1"
+    }
+  ],
+  "adminCount": null,
+  "events": {
+    "roleGranted": 4,
+    "roleRevoked": 0,
+    "signerUpdated": 1
+  },
+  "history": [
+    {
+      "event": "RoleGranted",
+      "role": "DEFAULT_ADMIN_ROLE",
+      "account": "0xCa01c8C68840cd1C9fdF06F124723a5339224096",
+      "sender": "0xCa01c8C68840cd1C9fdF06F124723a5339224096",
+      "blockNumber": 11774130,
+      "transactionHash": "0xf94424d537ff0cd5fd1fd0a513f6fc9d3dc27ab537714d2cd72a15988784449a"
+    },
+    {
+      "event": "RoleGranted",
+      "role": "ATTESTOR_ROLE",
+      "account": "0xCa01c8C68840cd1C9fdF06F124723a5339224096",
+      "sender": "0xCa01c8C68840cd1C9fdF06F124723a5339224096",
+      "blockNumber": 11774130,
+      "transactionHash": "0xf94424d537ff0cd5fd1fd0a513f6fc9d3dc27ab537714d2cd72a15988784449a"
+    },
+    {
+      "event": "RoleGranted",
+      "role": "RELAYER_ROLE",
+      "account": "0xCa01c8C68840cd1C9fdF06F124723a5339224096",
+      "sender": "0xCa01c8C68840cd1C9fdF06F124723a5339224096",
+      "blockNumber": 11774130,
+      "transactionHash": "0xf94424d537ff0cd5fd1fd0a513f6fc9d3dc27ab537714d2cd72a15988784449a"
+    },
+    {
+      "event": "RoleGranted",
+      "role": "RESULT_READER_ROLE",
+      "account": "0xCa01c8C68840cd1C9fdF06F124723a5339224096",
+      "sender": "0xCa01c8C68840cd1C9fdF06F124723a5339224096",
+      "blockNumber": 11774130,
+      "transactionHash": "0xf94424d537ff0cd5fd1fd0a513f6fc9d3dc27ab537714d2cd72a15988784449a"
+    }
+  ]
+}
+# ----------------------------------------------------------------
+# finished: 2026-10-04T04:14:57Z (UTC) duration=20s
+EXIT_CODE=0

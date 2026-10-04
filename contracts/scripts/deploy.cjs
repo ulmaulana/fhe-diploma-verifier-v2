@@ -1,15 +1,7 @@
+// Compatibility wrapper for `hardhat run scripts/deploy.cjs --network sepolia`.
+// The deployment logic, role-separation preflight and record live in the uas:deploy task.
+// Without DEPLOY_EXECUTE=true this only prints the preflight plan.
 const hre = require('hardhat');
 
-async function main() {
-  const names = ['ADMIN_ADDRESS', 'ATTESTOR_ADDRESS', 'RELAYER_ADDRESS', 'RESULT_READER_ADDRESS'];
-  const addresses = names.map((name) => {
-    if (!process.env[name] || !hre.ethers.isAddress(process.env[name])) throw new Error(`Configure ${name}`);
-    return process.env[name];
-  });
-  if (hre.network.name !== 'sepolia') throw new Error('This deployment script targets Sepolia only.');
-  if (!process.env.RPC_URL || !process.env.DEPLOYER_PRIVATE_KEY) throw new Error('RPC_URL and DEPLOYER_PRIVATE_KEY required.');
-  const contract = await hre.ethers.deployContract('VerifikasiIjazah', addresses);
-  const receipt = await contract.deploymentTransaction().wait(2);
-  console.log(JSON.stringify({ chainId: 11155111, address: await contract.getAddress(), transactionHash: receipt.hash, blockNumber: receipt.blockNumber }));
-}
-main().catch((error) => { console.error(error.message); process.exitCode = 1; });
+hre.run('uas:deploy', { expectedChainId: 11155111, confirmations: 2, execute: process.env.DEPLOY_EXECUTE === 'true' })
+  .catch(error => { console.error(error.message); process.exitCode = 1; });

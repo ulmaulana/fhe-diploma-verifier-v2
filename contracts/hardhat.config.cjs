@@ -3,6 +3,8 @@ require('@nomicfoundation/hardhat-ethers');
 // Coverage and source verification follow zama-ai/fhevm-hardhat-template (solidity-coverage 0.8.17, hardhat-verify 2.1.3).
 require('solidity-coverage');
 require('@nomicfoundation/hardhat-verify');
+// UAS role, deployment, registration and verification tasks (dry-run unless --execute).
+require('./scripts/tasks.cjs');
 const { subtask } = require('hardhat/config');
 const { TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD } = require('hardhat/builtin-tasks/task-names');
 
