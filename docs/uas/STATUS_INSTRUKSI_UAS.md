@@ -1,6 +1,23 @@
 # Status pengerjaan instruksi UAS Blockchain
 
-Posisi **4 Oktober 2026**, setelah verifikasi final 22:22:52 WIB dan cleanup worktree/container 23:20:43 WIB. Branch main. Implementasi yang diuji bersih: **8a13faaaac696700c8018cc6c947682028393afc**; UI Sepolia nyata: **f32afe67b39af7b38e524e263bc63b5a0973c5a6**. Commit dokumentasi/evidence berikutnya tidak mengubah perilaku aplikasi. Riwayat checklist lama tersedia di Git pada 7757f76.
+## Posisi terbaru — revisi OCR 5 Oktober 2026
+
+Source aplikasi **`1413ebd424a7a914967ad6301c648c5c58842a1d`**, branch main. Kebijakan pengguna telah diterapkan: ambang **70%**, penolakan confidence hanya bila **keempat skor valid semuanya di bawah 70%**. Satu skor ≥70% cukup untuk melewati gate confidence; empat teks/halaman/QR/kandidat/tanggal tetap wajib valid. [Kebijakan dan contoh](PERUBAHAN_KEBIJAKAN_OCR_70.md).
+
+- ✅ Backend, UI dan konfigurasi OCR v6 konsisten; nilai resmi tidak diubah demi skor. Skor field rendah hanya informasi, keputusan tetap menurut FHE.
+- ✅ Skor invalid tidak dijepit/disembunyikan; DTO/PDF memakai null untuk skor invalid/missing dan mempertahankan skor valid0. Crop invalid gagal teknis. Resume hash lama tanpa tx memakai OCR ulang; prepared/broadcast tx mempertahankan bukti untuk recovery.
+- ✅ Verifikasi worktree awal bersih **5 Oktober 00:46:25–00:55:30 WIB**: install frozen, lint, typecheck, test, test:db, build, test:e2e, coverage; **8/8 exit0**. **515 unit/kontrak** =34/79/14/95/71/222; **9 DB**; **25 E2E lokal** lulus, **12 Sepolia opt-in skip**. [Konteks](evidence/ocr-policy-70/final/verification-context.json), [hasil mesin](evidence/ocr-policy-70/final/verification-results.json), [hasil tes](TEST_RESULTS.md).
+- ✅ Coverage kode S/L: kontrak100%,web63,81%,domain94,37%,credentials97,90%,OCR97,31%,chain80,07%. Coverage bukan confidence/deteksi dokumen. Kontrak awal12 lulus/22 gagal decode instrumentasi; retry34 lulus, kedua hasil disimpan.
+- ✅ Dokumentasi kebutuhan, README, fakta, kepatuhan, demo, retest A-09–A-11 dan bahan diperbarui; indeks B-36–B-40 untuk revisi. Bukti lama tetap dipertahankan.
+- ✅ Cleanup ulang **5 Oktober01:01:14 WIB**: worktree final, private test artifacts, env DB lokal, dan container verifikasi-uas-pg dihapus; workspace utama/env/wallet/helper/seed dipertahankan. [Metadata](evidence/ocr-policy-70/cleanup.json).
+
+Pemindaian evidence sebelum env uji dihapus memeriksa **22 berkas/14 entri rahasia terkonfigurasi**, hits0; [hasil](evidence/ocr-policy-70/pre-cleanup-secret-scan.json). Handoff terbaru menggunakan allowlist, [scan](evidence/handoff/secret-scan.json), [manifest](evidence/handoff/file-manifest.json) dan [metadata arsip](evidence/handoff/archive-metadata.json). Metadata handoff 4 Oktober disimpan di [snapshot terdahulu](evidence/ocr-policy-70/prior-handoff/) agar indeks historis tetap dapat diperiksa.
+
+**Batas bukti terbaru:** keputusan FHE pada regresi policy70 menggunakan mock terkontrol; OCR/PDF/browser/PostgreSQL lokal memakai komponen nyata. Tidak ada transaksi Sepolia baru untuk revisi70. Bukti 12 UI Sepolia/video/gas/pencabutan di snapshot berikut tetap dari source 4 Oktober dengan policy lama. ❌ Netlify/produksi belum diperbarui, tetap tindakan pengguna menurut DEMO. ❌ Luaran akademik ChatGPT/identitas anggota/CI remote tetap belum tersedia.
+
+## Snapshot historis — 4 Oktober 2026
+
+Posisi **4 Oktober 2026**, setelah verifikasi final 22:22:52 WIB dan cleanup worktree/container 23:20:43 WIB. Branch main. Implementasi yang diuji bersih: **8a13faaaac696700c8018cc6c947682028393afc**; UI Sepolia nyata: **f32afe67b39af7b38e524e263bc63b5a0973c5a6**. Commit dokumentasi/evidence hingga d4415d3 tidak mengubah perilaku aplikasi; revisi perilaku berikutnya 1413ebd dan retestnya dicatat pada posisi terbaru di atas. Riwayat checklist lama tersedia di Git pada 7757f76.
 
 ✅ selesai dengan bukti; ❌ belum selesai, dengan pihak penanggung jawab disebutkan. Mock = tes terkontrol/FHEVM lokal; lokal nyata = OCR/PDF/browser/PostgreSQL lokal; Sepolia = transaksi, state dan dekripsi Zama nyata. Aplikasi siap dalam lingkup lokal+Sepolia yang diuji; hosting produksi dan seluruh paket akademik belum selesai.
 
@@ -14,7 +31,7 @@ Posisi **4 Oktober 2026**, setelah verifikasi final 22:22:52 WIB dan cleanup wor
 | T4 Run worktree bersih | ✅ agent | [Konteks](evidence/final/verification-context.json): delapan perintah exit 0; 417 unit, 9 DB, 25 E2E lokal; commit aa2d754 |
 | T5 Dokumentasi dan indeks | ✅ agent | README, KEPATUHAN, FAKTA, TEST_RESULTS, DEMO, BAHAN B-01–B-35; detail di bawah |
 | T6 Render PNG | ✅ agent | [Arsitektur](diagrams/Architecture_Diagram.png) 4592×4100, [alur](diagrams/Transaction_Flow.png) 3252×5372; Mermaid editable+SVG, render exit 0 dan QA visual; [metadata](diagrams/render-metadata.json), 4 Oktober 22:59–23:00 WIB |
-| T7 Scan dan handoff | ✅ agent | Scan setiap commit dan allowlist penuh: 451 berkas/19 entri rahasia terkonfigurasi, hits0. ZIP akhir memuat status T8+manifest; [scan](evidence/handoff/secret-scan.json), [manifest](evidence/handoff/file-manifest.json), [metadata arsip](evidence/handoff/archive-metadata.json). Metadata akhir dipindai lagi sebelum commit; CRC/SHA dan allowlist ZIP lulus |
+| T7 Scan dan handoff | ✅ agent | Scan setiap commit dan allowlist penuh: 451 berkas/19 entri rahasia terkonfigurasi, hits0. ZIP akhir memuat status T8+manifest; [scan](evidence/ocr-policy-70/prior-handoff/secret-scan.json), [manifest](evidence/ocr-policy-70/prior-handoff/file-manifest.json), [metadata arsip](evidence/ocr-policy-70/prior-handoff/archive-metadata.json). Metadata akhir dipindai lagi sebelum commit; CRC/SHA dan allowlist ZIP lulus |
 | T8 Cleanup | ✅ agent | Worktree base/e2e1/live/final beserta env uji dan container verifikasi-uas-pg dihapus. Path Windows panjang ditangani; artefak sementara sesi dibersihkan. Workspace utama/env, wallet luar repo, helper/seed dan evidence final dipertahankan; [metadata cleanup](evidence/handoff/cleanup.json) |
 
 ## Bagian 3–5: dasar, kepatuhan, perilaku

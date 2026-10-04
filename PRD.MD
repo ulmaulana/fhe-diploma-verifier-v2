@@ -557,7 +557,7 @@ Simpan bukti penerbitan dan snapshot publik secara konsisten serta dapat dipulih
 | AC-04 | Dokumen difoto/disimpan ulang sehingga hash berbeda, atribut tetap sama dan OCR andal | Tidak ditolak karena hash; hasil pencocokan tetap sesuai atribut |
 | AC-05 | Jalur unggahan: QR A ditempel pada dokumen dengan nomor ijazah berbeda dan terbaca | `MISMATCH` pada field yang berbeda |
 | AC-06 | Nama atau tanggal diubah pada dokumen | Perubahan tidak hilang akibat normalisasi yang terlalu longgar |
-| AC-07 | OCR buram, tanggal ambigu, field hilang, atau template tak dikenal | `INCONCLUSIVE`, tanpa label palsu dan tanpa menebak |
+| AC-07 | Keempat confidence valid semuanya <70%, confidence invalid, tanggal ambigu, field hilang, atau template tak dikenal | `INCONCLUSIVE`, tanpa label palsu dan tanpa menebak; satu skor rendah saja tidak menggagalkan gate confidence |
 | AC-08 | QR tidak ada, ambigu, asing, atau berbeda dari QR tautan awal | Alasan spesifik dan `INCONCLUSIVE`; tidak mengakses URL asing |
 | AC-09 | QR berformat benar tetapi rekaman tidak ada | `NOT_FOUND` hanya setelah pembacaan chain berhasil |
 | AC-10 | Kredensial dicabut sebelum/saat pekerjaan berjalan | Hasil akhir tidak `MATCH`; status pencabutan terlihat |

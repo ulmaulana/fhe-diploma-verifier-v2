@@ -1,0 +1,69 @@
+sourceCommit=1413ebd424a7a914967ad6301c648c5c58842a1d
+command=pnpm install --frozen-lockfile
+startedAtUtc=2026-10-04T17:46:25.047Z
+Scope: all 8 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +1506
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1506, reused 876, downloaded 0, added 0
+Progress: resolved 1506, reused 1024, downloaded 0, added 0
+Progress: resolved 1506, reused 1493, downloaded 0, added 21
+Progress: resolved 1506, reused 1495, downloaded 0, added 85
+Progress: resolved 1506, reused 1496, downloaded 0, added 231
+Progress: resolved 1506, reused 1499, downloaded 0, added 325
+Progress: resolved 1506, reused 1499, downloaded 0, added 415
+Progress: resolved 1506, reused 1499, downloaded 0, added 471
+Progress: resolved 1506, reused 1499, downloaded 0, added 503
+Progress: resolved 1506, reused 1499, downloaded 0, added 585
+Progress: resolved 1506, reused 1499, downloaded 0, added 662
+Progress: resolved 1506, reused 1499, downloaded 0, added 753
+Progress: resolved 1506, reused 1499, downloaded 0, added 811
+Progress: resolved 1506, reused 1499, downloaded 0, added 851
+Progress: resolved 1506, reused 1499, downloaded 0, added 873
+Progress: resolved 1506, reused 1499, downloaded 0, added 931
+Progress: resolved 1506, reused 1499, downloaded 0, added 964
+Progress: resolved 1506, reused 1499, downloaded 0, added 1001
+Progress: resolved 1506, reused 1499, downloaded 0, added 1073
+Progress: resolved 1506, reused 1499, downloaded 0, added 1103
+Progress: resolved 1506, reused 1499, downloaded 0, added 1157
+Progress: resolved 1506, reused 1499, downloaded 0, added 1201
+Progress: resolved 1506, reused 1499, downloaded 0, added 1209
+Progress: resolved 1506, reused 1499, downloaded 0, added 1222
+Progress: resolved 1506, reused 1499, downloaded 0, added 1321
+Progress: resolved 1506, reused 1499, downloaded 0, added 1494
+Progress: resolved 1506, reused 1499, downloaded 0, added 1497
+Progress: resolved 1506, reused 1499, downloaded 0, added 1498
+Progress: resolved 1506, reused 1499, downloaded 0, added 1500
+Progress: resolved 1506, reused 1499, downloaded 0, added 1501
+Progress: resolved 1506, reused 1499, downloaded 0, added 1502
+Progress: resolved 1506, reused 1499, downloaded 0, added 1503
+Progress: resolved 1506, reused 1499, downloaded 0, added 1504
+Progress: resolved 1506, reused 1499, downloaded 0, added 1505
+Progress: resolved 1506, reused 1499, downloaded 0, added 1506, done
+
+devDependencies:
++ @netlify/zip-it-and-ship-it 16.2.0
++ @types/node 22.19.15
++ @vitest/coverage-v8 3.2.7
++ esbuild 0.28.1
++ eslint 10.11.0
++ toml 5.0.0
++ tsx 4.23.15
++ typescript 5.9.3
++ typescript-eslint 8.70.1
++ vitest 3.2.7
++ yauzl 3.4.0
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @swc/core, bufferutil, cbor-extract,                │
+│   tesseract.js, utf-8-validate.                                              │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 46.7s using pnpm v10.19.0
+originalExitCode=0
+finishedAtUtc=2026-10-04T17:47:12.016Z

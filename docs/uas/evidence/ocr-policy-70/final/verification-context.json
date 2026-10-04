@@ -1,0 +1,106 @@
+{
+  "sourceCommit": "1413ebd424a7a914967ad6301c648c5c58842a1d",
+  "initialStatus": "clean",
+  "startedAtUtc": "2026-10-04T17:46:24.648Z",
+  "node": "v24.21.0",
+  "pnpm": "10.19.0",
+  "mode": "demo except PostgreSQL database tests",
+  "dbTestTarget": {
+    "host": "loopback",
+    "port": 54329,
+    "database": "verifikasi_test",
+    "container": "verifikasi-uas-pg"
+  },
+  "runs": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "cwd": "C:/Users/Maulana/AppData/Local/Temp/uasw/final",
+      "startedAtUtc": "2026-10-04T17:46:25.047Z",
+      "log": "docs/uas/evidence/ocr-policy-70/final/01-install.log",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T17:47:12.016Z",
+      "durationSeconds": 46.969,
+      "startedAtWib": "2026-10-05T00:46:25.047+07:00",
+      "finishedAtWib": "2026-10-05T00:47:12.016+07:00"
+    },
+    {
+      "command": "pnpm lint",
+      "cwd": "C:/Users/Maulana/AppData/Local/Temp/uasw/final",
+      "startedAtUtc": "2026-10-04T17:47:12.017Z",
+      "log": "docs/uas/evidence/ocr-policy-70/final/02-lint.log",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T17:47:15.694Z",
+      "durationSeconds": 3.677,
+      "startedAtWib": "2026-10-05T00:47:12.017+07:00",
+      "finishedAtWib": "2026-10-05T00:47:15.694+07:00"
+    },
+    {
+      "command": "pnpm typecheck",
+      "cwd": "C:/Users/Maulana/AppData/Local/Temp/uasw/final",
+      "startedAtUtc": "2026-10-04T17:47:15.695Z",
+      "log": "docs/uas/evidence/ocr-policy-70/final/03-typecheck.log",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T17:47:50.783Z",
+      "durationSeconds": 35.088,
+      "startedAtWib": "2026-10-05T00:47:15.695+07:00",
+      "finishedAtWib": "2026-10-05T00:47:50.783+07:00"
+    },
+    {
+      "command": "pnpm test",
+      "cwd": "C:/Users/Maulana/AppData/Local/Temp/uasw/final",
+      "startedAtUtc": "2026-10-04T17:47:50.784Z",
+      "log": "docs/uas/evidence/ocr-policy-70/final/04-test.log",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T17:49:27.833Z",
+      "durationSeconds": 97.049,
+      "startedAtWib": "2026-10-05T00:47:50.784+07:00",
+      "finishedAtWib": "2026-10-05T00:49:27.833+07:00"
+    },
+    {
+      "command": "pnpm test:db",
+      "cwd": "C:/Users/Maulana/AppData/Local/Temp/uasw/final",
+      "startedAtUtc": "2026-10-04T17:49:27.833Z",
+      "log": "docs/uas/evidence/ocr-policy-70/final/05-test-db.log",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T17:49:31.536Z",
+      "durationSeconds": 3.703,
+      "startedAtWib": "2026-10-05T00:49:27.833+07:00",
+      "finishedAtWib": "2026-10-05T00:49:31.536+07:00"
+    },
+    {
+      "command": "pnpm build",
+      "cwd": "C:/Users/Maulana/AppData/Local/Temp/uasw/final",
+      "startedAtUtc": "2026-10-04T17:49:31.537Z",
+      "log": "docs/uas/evidence/ocr-policy-70/final/06-build.log",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T17:51:10.696Z",
+      "durationSeconds": 99.159,
+      "startedAtWib": "2026-10-05T00:49:31.537+07:00",
+      "finishedAtWib": "2026-10-05T00:51:10.696+07:00"
+    },
+    {
+      "command": "pnpm test:e2e",
+      "cwd": "C:/Users/Maulana/AppData/Local/Temp/uasw/final",
+      "startedAtUtc": "2026-10-04T17:51:10.697Z",
+      "log": "docs/uas/evidence/ocr-policy-70/final/07-test-e2e.log",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T17:51:57.537Z",
+      "durationSeconds": 46.84,
+      "startedAtWib": "2026-10-05T00:51:10.697+07:00",
+      "finishedAtWib": "2026-10-05T00:51:57.537+07:00"
+    },
+    {
+      "command": "pnpm coverage",
+      "cwd": "C:/Users/Maulana/AppData/Local/Temp/uasw/final",
+      "startedAtUtc": "2026-10-04T17:51:57.538Z",
+      "log": "docs/uas/evidence/ocr-policy-70/final/08-coverage.log",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T17:55:30.617Z",
+      "durationSeconds": 213.079,
+      "startedAtWib": "2026-10-05T00:51:57.538+07:00",
+      "finishedAtWib": "2026-10-05T00:55:30.617+07:00"
+    }
+  ],
+  "finishedAtUtc": "2026-10-04T17:55:30.617Z",
+  "finalWorktreeStatus": "M apps/web/next-env.d.ts\n M docs/screenshots/desktop-empty.png\n M docs/screenshots/desktop-sample.png\n M docs/screenshots/mobile-360.png\n M docs/screenshots/mobile-390.png\n M docs/screenshots/real-ocr-demo.png\n M docs/screenshots/v12-portal.png\n M docs/screenshots/v12-record-desktop.png\n M docs/screenshots/v12-record-mobile-360.png\n M docs/screenshots/v12-record-mobile.png\n M docs/screenshots/v12-record-unconfigured.png"
+}

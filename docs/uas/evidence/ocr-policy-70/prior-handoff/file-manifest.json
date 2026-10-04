@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "preparedAtUtc": "2026-10-04T18:07:03.966Z",
-  "preparedAtWib": "2026-10-05 01:07:03 +07:00",
-  "headAtPreparation": "1413ebd424a7a914967ad6301c648c5c58842a1d",
-  "applicationVerifiedAt": "1413ebd424a7a914967ad6301c648c5c58842a1d",
+  "preparedAtUtc": "2026-10-04T16:25:03.503Z",
+  "preparedAtWib": "2026-10-04 23:25:03 +07:00",
+  "headAtPreparation": "170bfb8b92193a283b611e28625ff8c9a5b7432b",
+  "applicationVerifiedAt": "8a13faaaac696700c8018cc6c947682028393afc",
   "sepoliaUISource": "f32afe67b39af7b38e524e263bc63b5a0973c5a6",
   "selection": {
     "exact": [
@@ -51,8 +51,8 @@
       "file-manifest.json has no self hash; it is included separately in the ZIP"
     ]
   },
-  "fileCount": 481,
-  "totalInputBytes": 60182849,
+  "fileCount": 455,
+  "totalInputBytes": 59832037,
   "files": [
     {
       "path": ".env.example",
@@ -76,13 +76,13 @@
     },
     {
       "path": "PRD.MD",
-      "bytes": 71180,
-      "sha256": "3b882746445c3188561899c6fb013d3b35d33a9e6ac35941b288efd5b7210698"
+      "bytes": 70142,
+      "sha256": "a96262448f3c090d2970768ada3c25528b6aa58ec2554d68734805bf6f290300"
     },
     {
       "path": "README.md",
-      "bytes": 24959,
-      "sha256": "0876a975e4a4d78027173ddfadf7cf6bffe60bf84b1dbdd299e0820fee88f41e"
+      "bytes": 24255,
+      "sha256": "64208577f6211988defcf2d8ab982f32df037ad8ef17e564742c0717a837da0c"
     },
     {
       "path": "apps/web/.gitignore",
@@ -466,8 +466,8 @@
     },
     {
       "path": "apps/web/src/features/verification/ResultPanel.tsx",
-      "bytes": 5781,
-      "sha256": "0538d0516b171b656c44c23411493ea99b3e6eefca9cf8395e5a14b71cc20a70"
+      "bytes": 5380,
+      "sha256": "e18c01b3f87fea7f38f4cf2a1072c337a32668fef82a6abb00040eab222efed1"
     },
     {
       "path": "apps/web/src/features/verification/VerificationWorkspace.tsx",
@@ -596,8 +596,8 @@
     },
     {
       "path": "apps/web/src/server/jobs.ts",
-      "bytes": 11780,
-      "sha256": "5f46302c899f26938c22a3fcd1c87a125bc310cbcf7afa4e649c96cef04255d2"
+      "bytes": 11777,
+      "sha256": "1f4478e74db9ffe165e85a773321e714d6d67907a56634f8ddc55c66d116955d"
     },
     {
       "path": "apps/web/src/server/maintenance.ts",
@@ -626,8 +626,8 @@
     },
     {
       "path": "apps/web/src/server/pipeline.ts",
-      "bytes": 10065,
-      "sha256": "c2196ce48814416f76692ff92bc2c6c87a4ae00c9d131c6518e0e7c68df3ab32"
+      "bytes": 9925,
+      "sha256": "30d0d28a7bbca1bbf180b577e081254926d049fa7b3f19bae0f346282eb93807"
     },
     {
       "path": "apps/web/src/server/relayer-budget.ts",
@@ -636,8 +636,8 @@
     },
     {
       "path": "apps/web/src/server/reports.ts",
-      "bytes": 3544,
-      "sha256": "5bb2a20c44c33893148755d81a90d6d08a5af28614271ec8608852cdcc2f7f1f"
+      "bytes": 3497,
+      "sha256": "4372b2fe007a4f7b7a425109e32cb1fae0181361797330064ddc2d9a49d3a793"
     },
     {
       "path": "apps/web/src/server/storage.ts",
@@ -651,8 +651,8 @@
     },
     {
       "path": "apps/web/src/server/types.ts",
-      "bytes": 3697,
-      "sha256": "540faddf7c0fe82a6a63604c8dee4dc3a745db67583004cbc50db9af58d07f52"
+      "bytes": 3422,
+      "sha256": "5a70df9de18357216ab5ad306e0507d303bf635bd14a983bc1c1f4ac0c06a2c6"
     },
     {
       "path": "apps/web/src/server/upload-intents.ts",
@@ -666,8 +666,8 @@
     },
     {
       "path": "apps/web/src/server/workflow-jobs.ts",
-      "bytes": 7390,
-      "sha256": "c26dac2d22bcb21e3d8626617940a135b046a29447c4a471afa212da23c78ecb"
+      "bytes": 6751,
+      "sha256": "a07a2d51c53819406f077a3b31065d9dbe2f561d8164740799dca921140a0e98"
     },
     {
       "path": "apps/web/src/workflows/verification-steps.ts",
@@ -756,8 +756,8 @@
     },
     {
       "path": "apps/web/tests/unit/jobs.test.ts",
-      "bytes": 4311,
-      "sha256": "31f0f6821a5baa42b686c200ec9669993b18ded7052eaf983264a40326a45e44"
+      "bytes": 4217,
+      "sha256": "8ae72eebac4b6f9fcde701b66032280e05c13ce0c7beb1e8ba8f58c9ef50c3a7"
     },
     {
       "path": "apps/web/tests/unit/netlify-blobs.test.ts",
@@ -781,18 +781,13 @@
     },
     {
       "path": "apps/web/tests/unit/record-pipeline.test.ts",
-      "bytes": 17124,
-      "sha256": "e9c1808a28de64c16149f602ec4ffac4131d10dfb6e251b31a2fe4f6ae82550d"
+      "bytes": 11216,
+      "sha256": "49010ded1a0549b8356f0c43e0386ea1be7b562475d19042a930a7547664b682"
     },
     {
       "path": "apps/web/tests/unit/relayer-budget.test.ts",
       "bytes": 3615,
       "sha256": "6908721d4fbbb6d894201793f2b3db9db64bcd394e9d352a24bd711d701eae14"
-    },
-    {
-      "path": "apps/web/tests/unit/result-panel.test.ts",
-      "bytes": 2793,
-      "sha256": "2f128ae647908ecfefdc2006f31dfbdaed62d730cd846c88bc2763d2eb6f8405"
     },
     {
       "path": "apps/web/tests/unit/session-api.test.ts",
@@ -821,8 +816,8 @@
     },
     {
       "path": "apps/web/tests/unit/workflow.test.ts",
-      "bytes": 18554,
-      "sha256": "0b9c7f0e351e54e0f1994d4574b15b2804e2ac1d6193cf12fd576fd168059c6e"
+      "bytes": 11755,
+      "sha256": "a70a6e33c8d66624645c937fc55abb3348368844861102a9b0970ed176d3a5a1"
     },
     {
       "path": "apps/web/tsconfig.json",
@@ -956,13 +951,13 @@
     },
     {
       "path": "docs/acceptance.md",
-      "bytes": 14825,
-      "sha256": "0854b33f3d084bd3f5544a8efd05a30cbd6c00a1e0d74f1c5a9e7737b8b1e01f"
+      "bytes": 14599,
+      "sha256": "5943517e2371bd9035a460c5dca3cff337a7cba24dd2bb6849d9aa783a608b35"
     },
     {
       "path": "docs/implementation.md",
-      "bytes": 16063,
-      "sha256": "ece6eaa360ab7af0a7462f5bd970f6aab7d7443d65ddf49b4e19c61c9c59c67c"
+      "bytes": 15415,
+      "sha256": "e74a15589535084ec070eecfce5a5ff1e4410f141d0f2a02977d6e6c0b7179ed"
     },
     {
       "path": "docs/netlify-storage.md",
@@ -1056,18 +1051,18 @@
     },
     {
       "path": "docs/uas/BAHAN_LAPORAN_UAS.md",
-      "bytes": 31900,
-      "sha256": "4a95332e2fb9bbfa57050054723c114c4ea7f4ea89c1a645ccdb430e2ea5c76d"
+      "bytes": 27662,
+      "sha256": "3a8431196e10b2a1a83423a13950216afbd2509ff68c3b29d207a59aebaa7ae0"
     },
     {
       "path": "docs/uas/CATATAN_TEMUAN_DAN_RETEST.md",
-      "bytes": 22508,
-      "sha256": "cc670107cc790ad11c3d02229577c2904a178d3b941f3f4fcaf1240873be84b6"
+      "bytes": 21246,
+      "sha256": "15ff5e4790e37a10ec742be90d76d31a9ca5367d7e7a528655e81cd26abd4747"
     },
     {
       "path": "docs/uas/DEMO.md",
-      "bytes": 22302,
-      "sha256": "300a4cd6fa4a8b25b647fd547efd61c518b75c2ee1b9e0b88e358b2f2188a628"
+      "bytes": 21102,
+      "sha256": "bbee68dd9535d957cc874b769adaa011a4f7b6eb369aebed838dac8f76d8412b"
     },
     {
       "path": "docs/uas/DEPLOYMENT_RECORD.md",
@@ -1076,18 +1071,13 @@
     },
     {
       "path": "docs/uas/FAKTA_ARSITEKTUR_DAN_PENGUKURAN.md",
-      "bytes": 30571,
-      "sha256": "258960c097a3a137260b39b5a8102e9665edf95a3a3f715cd155f9e930b41296"
+      "bytes": 29402,
+      "sha256": "252091303df182a39753b823eed90c7848415e0e5c98f1d3b3c06379558a78af"
     },
     {
       "path": "docs/uas/KEPATUHAN_UAS.md",
-      "bytes": 30353,
-      "sha256": "7fbfc7490c1b089c7f10b2ef52a6c008b956e5621d5beb82e803bc1a8f9e6dd1"
-    },
-    {
-      "path": "docs/uas/PERUBAHAN_KEBIJAKAN_OCR_70.md",
-      "bytes": 4971,
-      "sha256": "348ec283f577d563a582a6e9d54870ba1594f7c7687c65bf46b25b2e540b28f3"
+      "bytes": 29610,
+      "sha256": "0d86e891f6d20eb18d135d6b2ada6157dc0031259c65a6178b066c082ec7a162"
     },
     {
       "path": "docs/uas/PROMPT_LANJUTAN_AGENT.md",
@@ -1096,13 +1086,13 @@
     },
     {
       "path": "docs/uas/STATUS_INSTRUKSI_UAS.md",
-      "bytes": 14775,
-      "sha256": "9b227b1c3d8be1b321fd135e6614784b5c923897ff0fc925ebeb85a0cc91afae"
+      "bytes": 11695,
+      "sha256": "543a238cfa18c03170ee8462f693d33cf22fc7a45a2faf6f57e7910ab75baabb"
     },
     {
       "path": "docs/uas/TEST_RESULTS.md",
-      "bytes": 24703,
-      "sha256": "e04307c4d95b5cf7134e0bb250708bb6a8e7617b308dac17de9a0462e33ea5f4"
+      "bytes": 19732,
+      "sha256": "62241e4b2b14cce69cc074e172dfad05c08b44b49e9c7fce8993a84e5946c9e8"
     },
     {
       "path": "docs/uas/diagrams/Architecture_Diagram.png",
@@ -1396,13 +1386,13 @@
     },
     {
       "path": "docs/uas/evidence/handoff/git-history.json",
-      "bytes": 3047,
-      "sha256": "1d36dde02be3994994e3a7ccf079340d8db2524c621212dc9d83fd41f34a8006"
+      "bytes": 2325,
+      "sha256": "13779c36f5c7ad26a0ea9e7f0bcd831bedcde373c7ddba2bad42dc8ee7312e43"
     },
     {
       "path": "docs/uas/evidence/handoff/secret-scan.json",
       "bytes": 958,
-      "sha256": "919bdb21a4efbd14f6904517bb3b2d2f8b455f5cd190b61ce2f39f70e9de15da"
+      "sha256": "1ee6359d15c1dd44a816f260c71ad6d5869ddda68337bf23a34afc709550c840"
     },
     {
       "path": "docs/uas/evidence/measurements/S-12-bench-state.ts.txt",
@@ -1418,126 +1408,6 @@
       "path": "docs/uas/evidence/measurements/sepolia-ui-stage-timings.json",
       "bytes": 129523,
       "sha256": "249e094dfd1b5e1573391617a0df708143d396445f5f45543d65ad4c74187c63"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/cleanup.json",
-      "bytes": 1484,
-      "sha256": "efcbfabb05ad4395deb744f36b4aa16987160947a9e7af085d0937b901043aa7"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/01-install.log",
-      "bytes": 3862,
-      "sha256": "f5196d1779f555909ed5852fd215a2d7ee9a011b2e0687dadba58f7ac2642b3a"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/02-lint.log",
-      "bytes": 574,
-      "sha256": "bf6c8fbfcf6b70c02c23991d6cb6b522b2c9dfd7fdfed92d923dbf19d98b08d8"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/03-typecheck.log",
-      "bytes": 822,
-      "sha256": "0d74fbfcf4e0537a1c6ef2b68266acfa3c88194fea38be124d468717655af2a9"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/04-test.log",
-      "bytes": 19682,
-      "sha256": "df2df3bf563c61b283a53e91dec498c3c8942f8196ece0e9d589f1faa1afdfda"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/05-test-db.log",
-      "bytes": 740,
-      "sha256": "c3676ada4a0d78468282a0110ed5d4c72644755123448b23ab5a354a0b05303d"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/06-build.log",
-      "bytes": 5061,
-      "sha256": "f571050fc3049542045871b1d87be544a2b952f8132c96968daddf750292dfdf"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/07-test-e2e.log",
-      "bytes": 5819,
-      "sha256": "5c265c6d992c7d8f9a8a8225979da0433538723c665b56a7dfd3670dda1283bc"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/08-coverage.log",
-      "bytes": 65661,
-      "sha256": "3ec42ec0e5bab6b136733e576dd9a34602e5c3ae7cc102bef48ed5c02baa1b81"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/coverage/chain-coverage-summary.json",
-      "bytes": 1988,
-      "sha256": "4fad200a210ee71ec9e5302c00bdc8d72da5ef2809981e5f672d3b51564cc61e"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/coverage/contracts-coverage-summary.json",
-      "bytes": 2996,
-      "sha256": "caa230efe0d35119ec71eb34777ed63cc1cb072a34665977746ca3459d5d9cc9"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/coverage/contracts-coverage.json",
-      "bytes": 23683,
-      "sha256": "c6521da272f285c3c31a92c8e20a34b52a742934d0a9931bae53f80ae85a6207"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/coverage/contracts-lcov.info",
-      "bytes": 4410,
-      "sha256": "2c4400af361ff9a876ce6345bd2ca80e5a02f510926ccf9ad8976df994dcc9d7"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/coverage/credentials-coverage-summary.json",
-      "bytes": 667,
-      "sha256": "5e2d922a2c392c5be53f0b457e7e2c2160062a7adf5e18eea88d6b24468a6b93"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/coverage/domain-coverage-summary.json",
-      "bytes": 3029,
-      "sha256": "b3bdc5402c37c089a262ac2207f15b255717fd76acaab89e0e01332a92191334"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/coverage/ocr-coverage-summary.json",
-      "bytes": 3574,
-      "sha256": "d8f86212a4085c68906720ba8ee6f4305371189b4a679f42f1f3b5a169d50125"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/coverage/web-coverage-summary.json",
-      "bytes": 31723,
-      "sha256": "6a33d2d7d426c1c6c648656f7045737b9fe7819aeecadce690e5b42222361d05"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/verification-context.json",
-      "bytes": 4450,
-      "sha256": "3b234ea6984166cd676ef86b82c9f49403422a3954c1a8ec38224e38ee08843f"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/final/verification-results.json",
-      "bytes": 23221,
-      "sha256": "c44dd4ac4f7ddbfd59d35ff27170c6f9c53e34b0c284a941a22be026bd6e348d"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/pre-cleanup-secret-scan.json",
-      "bytes": 446,
-      "sha256": "4ad940c4095c80c4dc1b8715bbbf5045ca372bc3c849cd61159ab386c2d04f03"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/prior-handoff/archive-metadata.json",
-      "bytes": 1725,
-      "sha256": "18c9571a13490c8bde39604f78aded4fa4f5278938294488bef92dbd3edb440a"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/prior-handoff/file-manifest.json",
-      "bytes": 84213,
-      "sha256": "16d06053f6f0c937bc49f7f32d7c7d193c155e2e243b26fd22de59510f717c32"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/prior-handoff/git-history.json",
-      "bytes": 2325,
-      "sha256": "13779c36f5c7ad26a0ea9e7f0bcd831bedcde373c7ddba2bad42dc8ee7312e43"
-    },
-    {
-      "path": "docs/uas/evidence/ocr-policy-70/prior-handoff/secret-scan.json",
-      "bytes": 958,
-      "sha256": "1ee6359d15c1dd44a816f260c71ad6d5869ddda68337bf23a34afc709550c840"
     },
     {
       "path": "docs/uas/evidence/remediation/S-01-green.log",
@@ -2211,13 +2081,13 @@
     },
     {
       "path": "packages/domain/src/ocr/assessment.ts",
-      "bytes": 3167,
-      "sha256": "44176e18583fcc0531502b238069f34668e89522295a0962198ebb6fccc08ae7"
+      "bytes": 2805,
+      "sha256": "a09b358f03eb3fc2de61cd7af2be369c80f84680307ad690b3f4d8ed8e2a72e4"
     },
     {
       "path": "packages/domain/src/schema.ts",
-      "bytes": 6646,
-      "sha256": "7394ee41568d72824dd2c17bd7cf7d37a205e352913cf085ef5c336b0329629b"
+      "bytes": 6570,
+      "sha256": "3eff2c93c4c4d41cf6cef2b753e2be47d07565ddb1829b760756199c3d887f0e"
     },
     {
       "path": "packages/domain/src/verification/decision.ts",
@@ -2241,8 +2111,8 @@
     },
     {
       "path": "packages/domain/tests/ocr.test.ts",
-      "bytes": 8697,
-      "sha256": "240d1477c3e6f0a226973118712a42d9d9632da0c473074a219bebcae17ac956"
+      "bytes": 2227,
+      "sha256": "da8cad05f699057c555d03ce7bc3c33e43a6e78b8f086eb63a987a5c7fe64ed4"
     },
     {
       "path": "packages/domain/tests/verification.test.ts",
@@ -2266,8 +2136,8 @@
     },
     {
       "path": "packages/ocr/src/config.ts",
-      "bytes": 1481,
-      "sha256": "1b39c9dd6a6caa8926ec739448fa4578bad0ede7bb1ab86b943455b9b7f68282"
+      "bytes": 1364,
+      "sha256": "e17fab3170d6522076bc101a2bed133c2dd79da8b8bc5dc1f5357daf112011ba"
     },
     {
       "path": "packages/ocr/src/engine.ts",
@@ -2286,8 +2156,8 @@
     },
     {
       "path": "packages/ocr/src/parse.ts",
-      "bytes": 5563,
-      "sha256": "f5d496a40037a5dca337f7d07a11245d030a7ff4730ddb4c0ce11126306b3747"
+      "bytes": 4721,
+      "sha256": "08b144362311ae072fc51c20a193a95415210e5cae544a19ab06cc268381b199"
     },
     {
       "path": "packages/ocr/src/qr.ts",
@@ -2296,8 +2166,8 @@
     },
     {
       "path": "packages/ocr/src/regions.ts",
-      "bytes": 2160,
-      "sha256": "fd70085090a4e9b92c1a6db72795885e766d96ca2125002b015ca1b88741308e"
+      "bytes": 1872,
+      "sha256": "a23c372e00d75b5e0fe64b5aa5e61218ed5454929042997a620862197c26f0da"
     },
     {
       "path": "packages/ocr/src/render.ts",
@@ -2311,13 +2181,13 @@
     },
     {
       "path": "packages/ocr/tests/config.test.ts",
-      "bytes": 2093,
-      "sha256": "6f1ddd56ba74ff99ef9a950b4799d8eaa7418e42074a88a2d8602057e6600302"
+      "bytes": 1100,
+      "sha256": "b9a1499a3c6f68d5666458f5b5c37c4c1a8243c68ece771a85c1bf0550383cdc"
     },
     {
       "path": "packages/ocr/tests/extract.test.ts",
-      "bytes": 9093,
-      "sha256": "6dfd9a3981d81fb8e03c673f50c87c30e2ad6efa67b0dfcfacf0bd0a17633245"
+      "bytes": 7611,
+      "sha256": "d76e9ef194fccf6d6004032747decdd9d9169608a0325b031964b13ac4aa9dfc"
     },
     {
       "path": "packages/ocr/tests/fixtures/changed-diploma_number.pdf",
@@ -2381,8 +2251,8 @@
     },
     {
       "path": "packages/ocr/tests/parse.test.ts",
-      "bytes": 4680,
-      "sha256": "45f5c70ad12343e8eb765ed269f5aab518db711133723c0751e1631c52697a92"
+      "bytes": 2623,
+      "sha256": "83132ac5db81f0174e0cfd1c13f85634d641ca4ccd79d34bde6171a9e8544fc6"
     },
     {
       "path": "packages/ocr/tests/qr.test.ts",
@@ -2391,8 +2261,8 @@
     },
     {
       "path": "packages/ocr/tests/regions.test.ts",
-      "bytes": 6048,
-      "sha256": "7e090c099febcacd91b7190061aab3eaf76314a7d180741439f93c71a7b7515d"
+      "bytes": 3107,
+      "sha256": "cb69c3fb2792b4ad5c8f4ac54a58e4e91113c6c6f76c106f23f86aa10beeefc2"
     },
     {
       "path": "packages/ocr/tests/render.test.ts",

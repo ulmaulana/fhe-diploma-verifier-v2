@@ -4,6 +4,8 @@ Tanggal: **4 Oktober 2026 (WIB, UTC+07:00)**. Demo Sepolia lengkap sudah dijalan
 
 **Revisi 5 Oktober 2026:** checkout terbaru menerapkan [confidence OCR 70%](PERUBAHAN_KEBIJAKAN_OCR_70.md), dengan penolakan hanya saat keempat skor valid semuanya <70%. Gunakan revisi terbaru untuk demo aturan ini; rekaman video 4 Oktober menampilkan kebijakan lama. Tes keputusan confidence menggunakan fixture terkontrol dan PDF/OCR nyata lokal, bukan klaim transaksi Sepolia baru.
 
+Reproduksi final lokal telah dijalankan pada source `1413ebd424a7a914967ad6301c648c5c58842a1d`, 5 Oktober 00:46:25–00:55:30 WIB: delapan exit0, 515 unit/kontrak, 9 tes DB lokal dan 25 E2E lokal lulus. Log/config coverage tersedia di [evidence revisi](evidence/ocr-policy-70/final/verification-results.json). Gunakan source ini atau commit dokumentasi turunannya untuk aturan 70%.
+
 Untuk menerapkan revisi ke Netlify, pengguna perlu membangun dan menerbitkan source terbaru setelah penyelarasan konfigurasi v2 pada bagian Netlify dokumen ini. Ambang/kebijakan bukan environment variable; keduanya dikompilasi dari paket domain dan tercatat pada hash OCR v6. Kontrak, skema atribut dan data penerbitan tidak perlu dimigrasikan untuk perubahan confidence ini. Agent tidak mengubah atau menerbitkan situs produksi.
 
 ## 1. Jalur demo lokal tanpa transaksi

@@ -8,6 +8,8 @@ Catatan teknis untuk bahan B.1–B.6, E.1–E.5, dan F.4–F.6; bukan laporan ev
 
 | Objek | Versi dan kondisi yang benar-benar diperiksa |
 | --- | --- |
+| Revisi confidence OCR 70% | Source `1413ebd424a7a914967ad6301c648c5c58842a1d`, worktree awal bersih; 5 Oktober 2026 00:46:25–00:55:30 WIB. Delapan perintah exit0; 515 unit/kontrak, 9 DB dan 25 E2E lokal lulus; 12 Sepolia opt-in skip. OCR nyata lokal, keputusan FHE baru mock terkontrol. [Konteks](evidence/ocr-policy-70/final/verification-context.json), [hasil](TEST_RESULTS.md). |
+| Identitas OCR terbaru | `tesseract-js-ind-eng-v6`; hash `0x84703946bb83afe03a55ab481950ea151af627e85615ad98ead4872d4a99a51d`, minimum-word, threshold0,70, policy all-required-fields-below-threshold. Empat atribut tetap dibandingkan; schema/normalizer/protokol/kontrak tidak berubah. |
 | Kontrak v2 | Sepolia `11155111`, `0x65b1C8C7B59D9651F8619F287Bc1c309FaE094e0`; deployment blok 11841227; source Solidity identik sejak `131dcbb`; Sourcify exact_match. Detail ada di [deployment record](DEPLOYMENT_RECORD.md). |
 | UI Sepolia nyata | Source `f32afe67b39af7b38e524e263bc63b5a0973c5a6`, 4 Oktober 2026, 21:53–22:02 WIB; 12 skenario lulus. Next.js lokal, PostgreSQL Docker `verifikasi_local`, OCR dan Zama nyata, wallet uji khusus; [bukti UI](evidence/sepolia/e2e-run-2026-10-04T14-53-27-678Z/sepolia-e2e-evidence.json). |
 | Verifikasi checkout bersih | Source `8a13faaaac696700c8018cc6c947682028393afc`; 4 Oktober 2026, 22:14:32–22:22:52 WIB. Delapan perintah exit 0; 417 unit/kontrak, 9 database, 25 E2E lokal lulus; 12 tes Sepolia opt-in dilewati pada run lokal. [Konteks final](evidence/final/verification-context.json), [hasil tes](TEST_RESULTS.md). |

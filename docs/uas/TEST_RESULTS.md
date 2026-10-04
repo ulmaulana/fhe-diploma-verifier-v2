@@ -1,6 +1,45 @@
 # Hasil pengujian UAS Blockchain
 
-Tanggal: **4 Oktober 2026**, zona WIB (UTC+07:00). Dokumen ini mencatat hasil aktual dan batas buktinya. Verifikasi lokal final memakai kode commit `8a13faaaac696700c8018cc6c947682028393afc`; skenario Sepolia lengkap memakai `f32afe67b39af7b38e524e263bc63b5a0973c5a6`. Perubahan sesudah run tersebut berupa dokumen dan evidence, bukan perubahan perilaku aplikasi.
+## Revisi confidence OCR — 5 Oktober 2026
+
+Source aplikasi **`1413ebd424a7a914967ad6301c648c5c58842a1d`**, worktree awal bersih, **00:46:25–00:55:30 WIB** (UTC mentah 4 Oktober pada log). Instalasi beku, lint, typecheck, test, test:db, build, test:e2e, dan coverage: **8/8 exit 0**. Node 24.21.0/pnpm 10.19.0; mode demo tanpa env produksi, PostgreSQL Docker lokal `verifikasi-uas-pg`/`verifikasi_test`. [Konteks/perintah/durasi](evidence/ocr-policy-70/final/verification-context.json), [hasil mesin dan hash coverage](evidence/ocr-policy-70/final/verification-results.json).
+
+Kebijakan [OCR 70%](PERUBAHAN_KEBIJAKAN_OCR_70.md): confidence menolak hanya bila keempat skor valid semuanya <0,70. Satu skor ≥0,70 cukup untuk melewati gate confidence; tidak ada gate rata-rata. Empat teks dan syarat non-confidence tetap wajib. Data akademik, normalisasi, dan keputusan FHE tetap.
+
+| Suite revisi | Lulus | Gagal | Skip | Tingkat bukti |
+| --- | ---: | ---: | ---: | --- |
+| Kontrak/tooling | 34 | 0 | 0 | FHEVM mock, 29 kontrak+5 tooling; kontrak tidak diubah |
+| Domain | 79 | 0 | 0 | Unit terkontrol; semua-vs-satu, tepat70, invalid dan gate lainnya |
+| Credentials | 14 | 0 | 0 | Unit signature/hash |
+| OCR | 95 | 0 | 0 | Parser/reread terkontrol dan mesin OCR/QR nyata lokal |
+| Chain | 71 | 0 | 0 | Unit adapter/mock, tanpa transaksi Sepolia baru |
+| Web | 222 | 0 | 0 | Pipeline/workflow terkontrol; PDF/OCR nyata lokal; render UI static |
+| Total unit/kontrak | **515** | **0** | **0** | [log unit](evidence/ocr-policy-70/final/04-test.log) |
+| PostgreSQL lokal | 9 | 0 | 0 | [DB nyata lokal](evidence/ocr-policy-70/final/05-test-db.log), tidak memakai Supabase |
+| Browser E2E lokal | 25 | 0 | 12 | [E2E](evidence/ocr-policy-70/final/07-test-e2e.log); 12 Sepolia opt-in dilewati |
+
+Regresi membuktikan satu field rendah tetap dapat `MATCH`; tepat70 dengan rata-rata rendah tetap lanjut dan dapat `MISMATCH` menurut FHE. Semua skor <70 menghasilkan `INCONCLUSIVE` sebelum reservasi anggaran relayer/tx. Invalid/missing score tetap ditolak dan ditampilkan null, sedangkan skor valid0 dipertahankan. Crop invalid gagal teknis tanpa mengubah confidence asli. Pekerjaan hash lama tanpa transaksi memakai OCR ulang dari berkas asli; prepared/broadcast tx mempertahankan bukti untuk recovery. Penghapusan/digest/lease dan prioritas pencabutan tetap diuji.
+
+Foto A1 sintetis dibaca mesin nyata: nama94,85%; nomor89,96%; prodi96,06%; tanggal96,54%, dengan teks dan QR tepat serta eligible=true. Benchmark minimum historis .899/.9 tetap dipertahankan sebagai regresi kualitas fixture; angka itu tidak menjadi gate produk. [Log OCR dalam run unit](evidence/ocr-policy-70/final/04-test.log) mencatat skor per field.
+
+**Coverage di bawah mengukur cakupan kode oleh tes, bukan keberhasilan OCR, probabilitas dokumen asli, atau ambang confidence.** Metode, include `src/**`, defaults/exclusions dan batas unit-only identik dengan snapshot 4 Oktober pada bagian3 di bawah; konfigurasi diverifikasi lagi dalam hasil mesin. Tidak ada threshold coverage baru.
+
+| Workspace | Statements | Branches | Functions | Lines | JSON |
+| --- | --- | --- | --- | --- | --- |
+| Kontrak | 100% (99/99) | 100% (132/132) | 100% (18/18) | 100% (132/132) | [contracts](evidence/ocr-policy-70/final/coverage/contracts-coverage-summary.json) |
+| Web | 63,81% (2159/3383) | 80,85% (1195/1478) | 78,29% (184/235) | 63,81% (2159/3383) | [web](evidence/ocr-policy-70/final/coverage/web-coverage-summary.json) |
+| Domain | 94,37% (319/338) | 96,77% (180/186) | 75,86% (22/29) | 94,37% (319/338) | [domain](evidence/ocr-policy-70/final/coverage/domain-coverage-summary.json) |
+| Credentials | 97,90% (187/191) | 89,33% (67/75) | 100% (26/26) | 97,90% (187/191) | [credentials](evidence/ocr-policy-70/final/coverage/credentials-coverage-summary.json) |
+| OCR | 97,31% (435/447) | 89,67% (191/213) | 90,62% (29/32) | 97,31% (435/447) | [ocr](evidence/ocr-policy-70/final/coverage/ocr-coverage-summary.json) |
+| Chain | 80,07% (434/542) | 84,11% (233/277) | 79,54% (35/44) | 80,07% (434/542) | [chain](evidence/ocr-policy-70/final/coverage/chain-coverage-summary.json) |
+
+Coverage kontrak percobaan pertama **12 lulus/22 gagal** akibat dekode custom error saat instrumentasi; retry cache terbatas menghasilkan **34 lulus/0 gagal**. Dua percobaan tersimpan di [log coverage](evidence/ocr-policy-70/final/08-coverage.log); exit final0 tidak berarti percobaan pertama lulus. Build/trace OCR dan SDK lulus. Worktree akhir memiliki artefak generated next-env dan screenshot, tercatat dalam konteks.
+
+Kebijakan baru belum diuji melalui transaksi Sepolia baru atau deployment Netlify. FHE `MATCH`/`MISMATCH` revisi ini dibuktikan dengan mock terkontrol; OCR, PDF, browser dan PostgreSQL lokal memakai komponen nyata. Bukti 12 UI Sepolia/video/gas di bawah tetap snapshot **4 Oktober**, memakai kebijakan lama. Run CI remote tetap belum diamati.
+
+## Snapshot historis — 4 Oktober 2026
+
+Tanggal: **4 Oktober 2026**, zona WIB (UTC+07:00). Verifikasi lokal saat itu memakai `8a13faaaac696700c8018cc6c947682028393afc`; skenario Sepolia lengkap memakai `f32afe67b39af7b38e524e263bc63b5a0973c5a6`. Hingga `d4415d3` perubahan sesudah run berupa dokumen/evidence. Perubahan perilaku 70% pada `1413ebd` beserta retestnya tercatat terpisah di atas; angka historis berikut dipertahankan.
 
 ## 1. Lingkungan dan hasil final
 

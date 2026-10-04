@@ -1,0 +1,201 @@
+sourceCommit=1413ebd424a7a914967ad6301c648c5c58842a1d
+command=pnpm test
+startedAtUtc=2026-10-04T17:47:50.784Z
+
+> verifikasi-monorepo@ test C:\Users\Maulana\AppData\Local\Temp\uasw\final
+> pnpm -r --if-present test
+
+Scope: 7 of 8 workspace projects
+contracts test$ node scripts/build.cjs --quiet && hardhat test --no-compile
+contracts test:   UAS tooling: deployment, registration and role rotation — local mock (not testnet evidence)
+contracts test:     ✔ rejects a bad deployment configuration before sending any transaction
+contracts test:     ✔ deploys, verifies role holders and writes a non-secret record (245ms)
+contracts test:     ✔ registers institution and signer idempotently and refuses a service account as signer (254ms)
+contracts test:     ✔ shows holders from events, blocks conflicting grants locally and rotates a service role (219ms)
+contracts test:     ✔ transfers the administrator by granting and verifying before renouncing (229ms)
+contracts test:   VerifikasiIjazah — local FHEVM mock (not testnet evidence)
+contracts test:     ✔ rejects unauthorized registry updates, issuance and revocation (57ms)
+contracts test:     ✔ compares all 256 digest bits and decrypts only for the result reader (256ms)
+contracts test:     ✔ S-05: grants no account a decrypt permission on reference values, including the issuing signer (130ms)
+contracts test:     ✔ detects a change in each field, including high digest bits (798ms)
+contracts test:     ✔ rejects replay of request IDs and attestor nonces (52ms)
+contracts test:     ✔ rejects incorrect signer, domain, relayer, deadline and altered input bindings (122ms)
+contracts test:     ✔ disables comparisons for revoked credentials and inactive issuers (44ms)
+contracts test:     ✔ requires a credential payload signature even when the transaction is signed by the authorized wallet
+contracts test:     ✔ rejects payload tampering, cross-domain signatures and ordered ciphertext substitutions (66ms)
+contracts test:     ✔ rejects issuance replay and expiration without expiring already issued records (66ms)
+contracts test:     ✔ S-09: maps malformed and malleable signatures to the contract domain errors (49ms)
+contracts test:     ✔ S-10: validates registry input by byte length with specific errors
+contracts test:     ✔ S-10: rejects signer updates that would not change state instead of succeeding silently
+contracts test:     ✔ S-03: binds the credential ID to institution, signer and nonce so another signer cannot occupy it (50ms)
+contracts test:     ✔ S-04: binds the reviewed institution name into the e-signed payload (protocol v2)
+contracts test:     ✔ rolls back both nonce and record when FHE input proof fails
+contracts test:     ✔ retains historical signer evidence after rotation and permits the replacement to revoke (55ms)
+contracts test:     ✔ retains every authorization period and rejects cross-institution signer reassignment while active
+contracts test:     S-01/S-02: role separation, rotation and administrator continuity
+contracts test:       ✔ rejects a deployment that places two roles on one address (44ms)
+contracts test:       ✔ rejects grants that combine roles or make a signer a service account, in both directions
+contracts test:       ✔ rotates relayer, attestor and reader: revoked accounts fail and replacements work (213ms)
+contracts test:       ✔ transfers the administrator without ever leaving the contract without one
+contracts test:     T-02: boundaries, access control, business states and events
+contracts test:       ✔ accepts issuance exactly at the deadline and rejects one second later
+contracts test:       ✔ accepts an attestation exactly at its deadline and rejects one second later (40ms)
+contracts test:       ✔ rejects zero values, unsupported versions and wrong version strings (140ms)
+contracts test:       ✔ enforces relayer, result reader and institution boundaries (49ms)
+contracts test:       ✔ handles inactive institutions, missing credentials and repeated revocation (46ms)
+contracts test:       ✔ paginates issuer credentials with empty, exact, beyond and clamped windows (1552ms)
+contracts test:       ✔ emits every state-change event with the expected arguments (43ms)
+contracts test:   34 passing (6s)
+contracts test: Done
+packages/domain test$ vitest run
+packages/domain test:  RUN  v3.2.7 C:/Users/Maulana/AppData/Local/Temp/uasw/final/packages/domain
+packages/domain test:  ✓ tests/ocr.test.ts (32 tests) 12ms
+packages/domain test:  ✓ tests/verification.test.ts (18 tests) 6ms
+packages/domain test:  ✓ tests/normalization.test.ts (23 tests) 8ms
+packages/domain test:  ✓ tests/encoding.test.ts (6 tests) 67ms
+packages/domain test:  Test Files  4 passed (4)
+packages/domain test:       Tests  79 passed (79)
+packages/domain test:    Start at  00:48:00
+packages/domain test:    Duration  958ms (transform 328ms, setup 0ms, collect 1.50s, tests 93ms, environment 1ms, prepare 904ms)
+packages/domain test: Done
+packages/ocr test$ vitest run
+packages/credentials test$ vitest run
+packages/ocr test:  RUN  v3.2.7 C:/Users/Maulana/AppData/Local/Temp/uasw/final/packages/ocr
+packages/credentials test:  RUN  v3.2.7 C:/Users/Maulana/AppData/Local/Temp/uasw/final/packages/credentials
+packages/ocr test:  ✓ tests/parse.test.ts (34 tests) 15ms
+packages/ocr test:  ✓ tests/regions.test.ts (26 tests) 20ms
+packages/ocr test:  ✓ tests/config.test.ts (3 tests) 13ms
+packages/ocr test:  ✓ tests/render.test.ts (7 tests) 551ms
+packages/credentials test:  ✓ tests/credentials.test.ts (14 tests) 235ms
+packages/ocr test:  ✓ tests/qr.test.ts (4 tests) 763ms
+packages/ocr test:    ✓ readQrCodes > survives PDF resave and PNG rasterization  379ms
+packages/credentials test:  Test Files  1 passed (1)
+packages/credentials test:       Tests  14 passed (14)
+packages/credentials test:    Start at  00:48:02
+packages/credentials test:    Duration  1.89s (transform 183ms, setup 0ms, collect 653ms, tests 235ms, environment 0ms, prepare 385ms)
+packages/credentials test: Done
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-pdf: one QR, four exact fields, historical parity confidence floor
+packages/ocr test: [ocr-parity] A1-pdf: 1.2s, min confidence 0.92
+packages/ocr test: [ocr-parity-scores] A1-pdf: full_name=0.9567, diploma_number=0.9158, study_program=0.9592, graduation_date=0.9561
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-photo: one QR, four exact fields, historical parity confidence floor
+packages/ocr test: [ocr-parity] A1-photo: 1.2s, min confidence 0.90
+packages/ocr test: [ocr-parity-scores] A1-photo: full_name=0.9485, diploma_number=0.8996, study_program=0.9606, graduation_date=0.9654
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-resaved: one QR, four exact fields, historical parity confidence floor
+packages/ocr test: [ocr-parity] A1-resaved: 1.4s, min confidence 0.92
+packages/ocr test: [ocr-parity-scores] A1-resaved: full_name=0.9567, diploma_number=0.9158, study_program=0.9592, graduation_date=0.9561
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-scan: one QR, four exact fields, historical parity confidence floor
+packages/ocr test: [ocr-parity] A1-scan: 1.2s, min confidence 0.90
+packages/ocr test: [ocr-parity-scores] A1-scan: full_name=0.9506, diploma_number=0.9010, study_program=0.9604, graduation_date=0.9645
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-pdf: one QR, four exact fields, historical parity confidence floor
+packages/ocr test: [ocr-parity] B1-pdf: 1.3s, min confidence 0.91
+packages/ocr test: [ocr-parity-scores] B1-pdf: full_name=0.9475, diploma_number=0.9149, study_program=0.9590, graduation_date=0.9619
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-photo: one QR, four exact fields, historical parity confidence floor
+packages/ocr test: [ocr-parity] B1-photo: 1.2s, min confidence 0.91
+packages/ocr test: [ocr-parity-scores] B1-photo: full_name=0.9588, diploma_number=0.9061, study_program=0.9581, graduation_date=0.9608
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-resaved: one QR, four exact fields, historical parity confidence floor
+packages/ocr test: [ocr-parity] B1-resaved: 1.3s, min confidence 0.91
+packages/ocr test: [ocr-parity-scores] B1-resaved: full_name=0.9475, diploma_number=0.9149, study_program=0.9590, graduation_date=0.9619
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-scan: one QR, four exact fields, historical parity confidence floor
+packages/ocr test: [ocr-parity] B1-scan: 1.2s, min confidence 0.91
+packages/ocr test: [ocr-parity-scores] B1-scan: full_name=0.9574, diploma_number=0.9076, study_program=0.9579, graduation_date=0.9616
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1 photo from a different JPEG encoder still reads exact values
+packages/ocr test: [ocr-parity] A1-mupdf-jpeg: min confidence 0.8996
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1 photo from a different JPEG encoder still reads exact values
+packages/ocr test: [ocr-parity] B1-mupdf-jpeg: min confidence 0.9061
+packages/ocr test: stdout | tests/extract.test.ts > extractDocument with real tesseract.js OCR (stage 0 parity gate) > processes a five-page document within the time budget
+packages/ocr test: [ocr-parity] five-page-pdf: 3.5s
+packages/ocr test:  ✓ tests/extract.test.ts (21 tests) 22445ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-pdf: one QR, four exact fields, historical parity confidence floor  1234ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-photo: one QR, four exact fields, historical parity confidence floor  1174ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-resaved: one QR, four exact fields, historical parity confidence floor  1352ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1-scan: one QR, four exact fields, historical parity confidence floor  1205ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-pdf: one QR, four exact fields, historical parity confidence floor  1322ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-photo: one QR, four exact fields, historical parity confidence floor  1166ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-resaved: one QR, four exact fields, historical parity confidence floor  1329ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1-scan: one QR, four exact fields, historical parity confidence floor  1218ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > A1 photo from a different JPEG encoder still reads exact values  1325ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > B1 photo from a different JPEG encoder still reads exact values  1221ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > changed-full_name.pdf reads the altered full_name as written  1288ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > changed-diploma_number.pdf reads the altered diploma_number as written  1244ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > changed-study_program.pdf reads the altered study_program as written  1179ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > changed-graduation_date.pdf reads the altered graduation_date as written  1143ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > reads a QR that points to a different person than the printed name  1094ms
+packages/ocr test:    ✓ extractDocument with real tesseract.js OCR (stage 0 parity gate) > processes a five-page document within the time budget  3467ms
+packages/ocr test:  Test Files  6 passed (6)
+packages/ocr test:       Tests  95 passed (95)
+packages/ocr test:    Start at  00:48:02
+packages/ocr test:    Duration  24.09s (transform 1.01s, setup 0ms, collect 2.93s, tests 23.81s, environment 2ms, prepare 2.25s)
+packages/ocr test: Done
+packages/chain test$ vitest run
+packages/chain test:  RUN  v3.2.4 C:/Users/Maulana/AppData/Local/Temp/uasw/final/packages/chain
+packages/chain test:  ✓ tests/config.test.ts (2 tests) 8ms
+packages/chain test:  ✓ tests/portal-state.test.ts (2 tests) 11ms
+packages/chain test:  ✓ tests/chain-errors.test.ts (3 tests) 15ms
+packages/chain test:  ✓ tests/credential-read.test.ts (10 tests) 26ms
+packages/chain test:  ✓ tests/rpc-provider.test.ts (8 tests) 107ms
+packages/chain test:  ✓ tests/service-policy.test.ts (8 tests) 71ms
+packages/chain test:  ✓ tests/credential-browser.test.ts (18 tests) 176ms
+packages/chain test:  ✓ tests/recovery.test.ts (20 tests) 192ms
+packages/chain test:  Test Files  8 passed (8)
+packages/chain test:       Tests  71 passed (71)
+packages/chain test:    Start at  00:48:27
+packages/chain test:    Duration  1.55s (transform 1.05s, setup 0ms, collect 4.76s, tests 606ms, environment 2ms, prepare 2.14s)
+packages/chain test: Done
+apps/web test$ vitest run
+apps/web test:  RUN  v3.2.7 C:/Users/Maulana/AppData/Local/Temp/uasw/final/apps/web
+apps/web test: stderr | tests/unit/credentials.test.ts > public record proof verification > distinguishes a missing off-chain payload, an absent chain record, and an RPC failure
+apps/web test: {"event":"verification_failure","stage":"RPC","code":"RPC_UNAVAILABLE"}
+apps/web test: stderr | tests/unit/credentials.test.ts > public record proof verification > distinguishes a missing off-chain payload, an absent chain record, and an RPC failure
+apps/web test: {"event":"verification_failure","stage":"RPC","code":"RPC_UNAVAILABLE"}
+apps/web test:  ✓ tests/unit/credentials.test.ts (30 tests) 263ms
+apps/web test: stderr | tests/unit/workflow.test.ts > durable verification jobs > persists dispatch intent, recovers queue failure and suppresses acknowledged duplicates
+apps/web test: {"event":"verification_failure","stage":"DISPATCH","code":"DISPATCH_UNAVAILABLE"}
+apps/web test:  ✓ tests/unit/workflow.test.ts (18 tests) 150ms
+apps/web test:  ✓ tests/unit/record-pipeline.test.ts (28 tests) 337ms
+apps/web test:  ✓ tests/unit/wallet-authentication.test.ts (24 tests) 512ms
+apps/web test: stderr | tests/unit/documents.test.ts > issuer PDF lifecycle, independent of OCR (real PDF and storage) > retries storage failure with the same PDF and origin, without any verification job
+apps/web test: {"event":"verification_failure","stage":"ARCHIVE","code":"ARCHIVE_UNAVAILABLE"}
+apps/web test: stderr | tests/unit/documents.test.ts > issuer PDF lifecycle, independent of OCR (real PDF and storage) > checks revocation during archiving and again before downloading
+apps/web test: {"event":"verification_failure","stage":"ARCHIVE","code":"ARCHIVE_UNAVAILABLE"}
+apps/web test: stderr | tests/unit/documents.test.ts > portal document statuses > leaves rows to load on their own when the batch read fails
+apps/web test: {"event":"verification_failure","stage":"PROOF_STORAGE","code":"PROOF_STORAGE_UNAVAILABLE"}
+apps/web test: stderr | tests/unit/documents.test.ts > portal document statuses > leaves rows to load on their own when the batch read fails
+apps/web test: {"event":"verification_failure","stage":"ARCHIVE","code":"ARCHIVE_UNAVAILABLE"}
+apps/web test:  ✓ tests/unit/documents.test.ts (19 tests) 2215ms
+apps/web test:    ✓ issuer PDF lifecycle, independent of OCR (real PDF and storage) > deduplicates concurrent generation and preserves the archive across login, cleanup and new dates  310ms
+apps/web test:  ✓ tests/unit/uploads.test.ts (9 tests) 275ms
+apps/web test:  ✓ tests/unit/netlify-queue.test.ts (9 tests) 89ms
+apps/web test:  ✓ tests/unit/netlify-blobs.test.ts (6 tests) 23697ms
+apps/web test:    ✓ uploads 10 MiB through bounded requests, finalizes once and cleans staging  23428ms
+apps/web test:  ✓ tests/unit/portal-session.test.ts (9 tests) 46ms
+apps/web test:  ✓ tests/unit/credentials-api.test.ts (4 tests) 152ms
+apps/web test:  ✓ tests/unit/jobs.test.ts (6 tests) 257ms
+apps/web test:  ✓ tests/unit/relayer-budget.test.ts (3 tests) 352ms
+apps/web test:    ✓ global relayer budget (S-08) > atomic reservation through the real state lock > admits exactly the budget when twelve jobs reserve concurrently  347ms
+apps/web test: stderr | tests/unit/client-source.test.ts > client source for rate limits (S-08) > uses only the Netlify connection header on Netlify, never X-Forwarded-For
+apps/web test: {"event":"untrusted_client_source","via":"netlify"}
+apps/web test:  ✓ tests/unit/client-source.test.ts (4 tests) 34ms
+apps/web test:  ✓ tests/unit/diploma-pdf.test.ts (6 tests) 6851ms
+apps/web test:    ✓ generated diploma, real OCR and QR engines > reads mixed case names and short programs: Maulana Y / IF / 2027-03-09  1222ms
+apps/web test:    ✓ generated diploma, real OCR and QR engines > reads mixed case names and short programs: Maulana Y / IF / 2026-08-15  1069ms
+apps/web test:    ✓ generated diploma, real OCR and QR engines > reads mixed case names and short programs: Budi S / TI / 2027-03-09  1073ms
+apps/web test:    ✓ generated diploma, real OCR and QR engines > reads mixed case names and short programs: Siti Aminah / Informatika / 2027-03-09  1091ms
+apps/web test:    ✓ generated diploma, real OCR and QR engines > reads all visible attributes including wrapped name ANDI PRATAMA  1123ms
+apps/web test:    ✓ generated diploma, real OCR and QR engines > reads all visible attributes including wrapped name ANDI PRATAMA PUTRA WIJAYA KUSUMA NUGRAHA SAPUTRA BUDI SANTOSO WIRAWAN SETIAWAN KURNIAWAN  1270ms
+apps/web test:  ✓ tests/unit/result-panel.test.ts (4 tests) 17ms
+apps/web test: stderr | tests/unit/store-config.test.ts > deployment persistence configuration > returns an actionable 503 without setting a session cookie on Netlify (build)
+apps/web test: {"event":"untrusted_client_source","via":"netlify"}
+apps/web test:  ✓ tests/unit/store-config.test.ts (5 tests) 11ms
+apps/web test:  ✓ tests/unit/netlify-upload-client.test.ts (2 tests) 10ms
+apps/web test:  ✓ tests/unit/diagnostics.test.ts (3 tests) 6ms
+apps/web test:  ✓ tests/unit/guide-search.test.ts (20 tests) 18ms
+apps/web test:  ✓ tests/unit/session-api.test.ts (3 tests) 11ms
+apps/web test:  ✓ tests/unit/session-storage.test.ts (2 tests) 4ms
+apps/web test:  ✓ tests/unit/explorer.test.ts (8 tests) 3ms
+apps/web test:  Test Files  22 passed (22)
+apps/web test:       Tests  222 passed (222)
+apps/web test:    Start at  00:48:30
+apps/web test:    Duration  57.56s (transform 760ms, setup 0ms, collect 15.69s, tests 35.31s, environment 3ms, prepare 2.70s)
+apps/web test: Done
+originalExitCode=0
+finishedAtUtc=2026-10-04T17:49:27.833Z

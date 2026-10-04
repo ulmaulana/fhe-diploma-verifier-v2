@@ -1,32 +1,32 @@
 {
   "schemaVersion": 1,
   "archive": "BAHAN_LAPORAN_UAS_BLOCKCHAIN.zip",
-  "createdAtUtc": "2026-10-04T16:25:06.144Z",
-  "createdAtWib": "2026-10-04 23:25:06 +07:00",
-  "headAtPreparation": "170bfb8b92193a283b611e28625ff8c9a5b7432b",
-  "applicationVerifiedAt": "8a13faaaac696700c8018cc6c947682028393afc",
+  "createdAtUtc": "2026-10-04T18:07:06.648Z",
+  "createdAtWib": "2026-10-05 01:07:06 +07:00",
+  "headAtPreparation": "1413ebd424a7a914967ad6301c648c5c58842a1d",
+  "applicationVerifiedAt": "1413ebd424a7a914967ad6301c648c5c58842a1d",
   "sepoliaUISource": "f32afe67b39af7b38e524e263bc63b5a0973c5a6",
   "manifest": "docs/uas/evidence/handoff/file-manifest.json",
-  "manifestSHA256": "16d06053f6f0c937bc49f7f32d7c7d193c155e2e243b26fd22de59510f717c32",
-  "archiveSHA256": "44d017e65b7cc8b4043ff3229380866089b5392c8d2155873121f2a9c9dc02e7",
-  "archiveBytes": 52958119,
-  "fileCount": 455,
+  "manifestSHA256": "f0056dff7501fc3684fa990be3637f63d15bf36cb9fb53e276ba3e4917c5bc83",
+  "archiveSHA256": "16e5cdd2bf63c39f66efe0e82952813fad5b3360814c8f4a30b11573854aa44f",
+  "archiveBytes": 53045812,
+  "fileCount": 481,
   "method": "Python 3.13 zipfile standard library, explicit allowlist, DEFLATE level 6; no dependency added",
   "verification": {
-    "entries": 455,
+    "entries": 481,
     "crc": "passed",
     "fileSHA256": "passed",
     "pathSelection": "passed",
-    "bytes": 52958119
+    "bytes": 53045812
   },
   "metadataOutsideArchive": true,
   "snapshotNote": "Per-file hashes define the handoff snapshot including documentation awaiting the accompanying commit. HEAD at preparation is provenance, not a claim of an additional application test run.",
   "finalSecretScan": {
-    "recordedAtUtc": "2026-10-04T16:26:33.102Z",
-    "filesScanned": 456,
+    "recordedAtUtc": "2026-10-04T18:08:33.054Z",
+    "filesScanned": 482,
     "configuredSecretEntries": 13,
     "hits": 0,
-    "scope": "All 455 archive entries plus this external archive metadata, before the closure commit. Final changed documents are rescanned after adding this public scan result.",
-    "comparison": "The initial 451-file scan checked 19 configured entries while live env existed; after authorized env deletion, 13 entries remain in the preserved main env and outside-repo wallet source. No secret values are printed."
+    "scope": "All 481 archive entries plus external archive metadata, before the accompanying commit; this added public scan metadata is rescanned before commit",
+    "comparison": "OCR revision evidence also scanned with 14 configured entries before local test env deletion; final preserved main env and outside-repo wallets supply 13 configured entries."
   }
 }
