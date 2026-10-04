@@ -9,13 +9,14 @@ import {
 import type { CredentialDraft, Session, State, StoredCredential } from '../../src/server/types';
 
 const mocks = vi.hoisted(() => ({
-  lookup: vi.fn(), issuer: vi.fn(), configuration: vi.fn(),
+  lookup: vi.fn(), issuer: vi.fn(), configuration: vi.fn(), legacyContracts: vi.fn(), legacyLookup: vi.fn(),
   drafts: new Map<string, CredentialDraft>(), records: new Map<string, StoredCredential>(),
   state: { sessions: {}, jobs: {}, rates: {}, audit: [] } as State,
   saveDraft: vi.fn(), saveRecord: vi.fn(), fetch: vi.fn(),
 }));
 vi.mock('@verifikasi/chain/server', () => ({
   lookupCredential: mocks.lookup, getIssuer: mocks.issuer, serverChainConfig: mocks.configuration,
+  legacyCredentialContracts: mocks.legacyContracts, lookupLegacyCredential: mocks.legacyLookup,
   submitComparison: vi.fn(() => { throw new Error('QR must not submit a comparison'); }),
   decryptComparison: vi.fn(() => { throw new Error('QR must not decrypt'); }),
 }));
@@ -87,6 +88,7 @@ beforeEach(async () => {
   for (const key of ['RELAYER_PRIVATE_KEY', 'ATTESTOR_PRIVATE_KEY', 'RESULT_READER_PRIVATE_KEY']) vi.stubEnv(key, '');
   vi.stubEnv('APP_MODE', 'testnet'); vi.stubEnv('APP_ORIGIN', 'https://verifikasi.example');
   vi.stubEnv('DATABASE_URL', ''); vi.stubEnv('VERCEL', '');
+  mocks.legacyContracts.mockReturnValue([]);
   mocks.configuration.mockReturnValue({ chainId: domain.chainId, contractAddress: domain.verifyingContract, rpcUrl: 'https://rpc.invalid' });
   mocks.issuer.mockResolvedValue({ wallet: wallet.address, issuerId, name: profile.issuerDisplayName, active: true, exists: true, signerActive: true, authorizationId: '5' });
   mocks.saveDraft.mockImplementation(async (draft: CredentialDraft) => { mocks.drafts.set(draft.credentialId, structuredClone(draft)); });
@@ -271,5 +273,55 @@ describe('frozen issuance and durable proof submission', () => {
     mocks.lookup.mockResolvedValue(null); mocks.saveRecord.mockClear();
     await expect(submitCredentialProof(session, id, { signedCredential: proof })).rejects.toMatchObject({ code: 'ISSUANCE_EXPIRED' });
     expect(mocks.saveRecord).not.toHaveBeenCalled();
+  });
+});
+
+describe('records issued on a legacy protocol v1 contract (6.4.7)', () => {
+  const legacyAddress = `0x${'77'.repeat(20)}`;
+  const legacyId = `0x${'ab'.repeat(32)}` as Hex32;
+  async function legacyProof(override: Partial<CredentialPublicProfile> = {}) {
+    const { legacyCredentialAuthorizationTypesV1, legacyCredentialDomainV1, legacyCredentialDigestV1 } = await import('@verifikasi/credentials');
+    const legacyDomain = legacyCredentialDomainV1({ chainId: domain.chainId, contractAddress: legacyAddress });
+    const legacyProfile = { ...profile, ...override };
+    const authorization = { credentialId: legacyId, issuerId, signer: wallet.address, publicDataHash: hashPublicProfile(profile),
+      encryptedAttributesHash: hashEncryptedAttributes(inputHandles), schemaVersion: 1, encodingVersion: 1, disclosurePolicyVersion: 1, nonce: '7', issuanceDeadline: '1' };
+    const signed = { authorization, profile: legacyProfile, domain: legacyDomain, signature: await wallet.signTypedData(legacyDomain, legacyCredentialAuthorizationTypesV1, authorization) };
+    const chain: CredentialMetadata = { ...chainRecord(proof), credentialId: legacyId, contractAddress: legacyAddress, issuanceBlock: 100,
+      credentialDigest: legacyCredentialDigestV1(authorization, legacyDomain), publicDataHash: authorization.publicDataHash,
+      issuerNameHash: hashIssuerName(profile.issuerDisplayName) };
+    mocks.records.set(legacyId, { credentialId: legacyId, ownerWallet: wallet.address.toLowerCase(), signed: structuredClone(signed) as never, issuanceTxHash: txHash, createdAt: new Date().toISOString() });
+    mocks.lookup.mockResolvedValue(null);
+    mocks.legacyLookup.mockResolvedValue(chain);
+  }
+
+  it('verifies a v1 record read-only from a server-trusted legacy contract before the cutoff', async () => {
+    mocks.legacyContracts.mockReturnValue([{ address: legacyAddress, cutoffBlock: 1000 }]);
+    await legacyProof();
+    const result = await verifyRecord(legacyId);
+    expect(result).toMatchObject({ recordVerificationStatus: 'VERIFIED_RECORD', legacyContract: true, contractAddress: legacyAddress, documentDecision: null, profile });
+    expect(result.reason).toContain('kontrak versi 1');
+    expect(mocks.legacyLookup).toHaveBeenCalledWith(legacyId, legacyAddress);
+  });
+
+  it('explains an untrusted legacy contract without calling the record forged and without reading it', async () => {
+    await legacyProof();
+    const result = await verifyRecord(legacyId);
+    expect(result).toMatchObject({ recordVerificationStatus: 'ERROR', profile: null, legacyContract: false });
+    expect(result.reason).toContain('tidak terdaftar sebagai kontrak resmi');
+    expect(mocks.legacyLookup).not.toHaveBeenCalled();
+  });
+
+  it('does not trust a legacy record issued after the migration cutoff', async () => {
+    mocks.legacyContracts.mockReturnValue([{ address: legacyAddress, cutoffBlock: 50 }]);
+    await legacyProof();
+    const result = await verifyRecord(legacyId);
+    expect(result).toMatchObject({ recordVerificationStatus: 'ERROR', profile: null, legacyContract: true });
+    expect(result.reason).toContain('batas migrasi');
+  });
+
+  it('rejects a tampered v1 public profile as INVALID_PROOF', async () => {
+    mocks.legacyContracts.mockReturnValue([{ address: legacyAddress, cutoffBlock: 1000 }]);
+    await legacyProof({ fullName: 'Nama Diubah' });
+    expect(await verifyRecord(legacyId)).toMatchObject({ recordVerificationStatus: 'INVALID_PROOF', profile: null });
   });
 });

@@ -2,11 +2,11 @@ import { diagnostic, readWithRetry } from './diagnostics';
 import { getAddress } from 'ethers';
 import { isCredentialId, type RecordVerificationResult } from '@verifikasi/domain';
 import {
-  credentialDomain, credentialDigest, hashEncryptedAttributes, hashPublicProfile,
-  parseCredentialAuthorization, parsePublicProfile, validateSignedCredential,
-  type SignedCredential,
+  LEGACY_CREDENTIAL_PROTOCOL_VERSION, credentialDomain, credentialDigest, hashEncryptedAttributes, hashPublicProfile,
+  legacyCredentialDomainV1, parseCredentialAuthorization, parsePublicProfile, validateLegacySignedCredentialV1, validateSignedCredential,
+  type LegacySignedCredentialV1, type SignedCredential,
 } from '@verifikasi/credentials';
-import { getIssuer, lookupCredential, serverChainConfig } from '@verifikasi/chain/server';
+import { getIssuer, legacyCredentialContracts, lookupCredential, lookupLegacyCredential, serverChainConfig, type CredentialMetadata } from '@verifikasi/chain/server';
 import { ApiError, config } from './config';
 import { readDraft, readStoredCredential, saveDraft, saveStoredCredential } from './credentials-repository';
 import { audit, withState } from './store';
@@ -61,21 +61,55 @@ export async function createCredentialDraft(current: Session, value: unknown) {
   return { credentialId: id, status: 'DRAFT' as const };
 }
 
-export async function inspectCredential(value: string): Promise<{ verification: RecordVerificationResult; signedCredential: SignedCredential | null }> {
+type RecordProof = SignedCredential | LegacySignedCredentialV1;
+const INVALID_PROOF_REASON = 'Profil publik atau bukti pengesahan tidak sesuai dengan rekaman penerbitan. Data ini tidak ditampilkan sebagai rekaman resmi.';
+const LEGACY_NOTE = 'Rekaman ini diterbitkan pada kontrak versi 1 yang dipertahankan untuk pembacaan. Pemeriksaan dokumen dengan FHE hanya tersedia untuk kontrak aktif.';
+
+function storedDomainOf(value: unknown): Record<string, unknown> | null {
+  const domain = value && typeof value === 'object' ? (value as { domain?: unknown }).domain : null;
+  return domain && typeof domain === 'object' ? domain as Record<string, unknown> : null;
+}
+
+/** Status of a validated proof bound to a successful chain read. */
+function statusPatch(metadata: CredentialMetadata | null, signed: RecordProof, note = ''): Partial<RecordVerificationResult> {
+  if (!metadata || !metadata.confirmed) return { recordVerificationStatus: 'PENDING', reason: 'Bukti pengesahan tersimpan; penerbitan belum terkonfirmasi pada blockchain.', checkedBlock: metadata?.checkedBlock ?? null };
+  const status = metadata.revoked ? 'REVOKED' : !metadata.issuerActive ? 'ISSUER_INACTIVE' : 'VERIFIED_RECORD';
+  const reason = status === 'REVOKED' ? 'Kredensial telah dicabut oleh penerbit.' : status === 'ISSUER_INACTIVE' ? 'Bukti pengesahan valid, tetapi kewenangan kampus saat ini tidak aktif.' : 'Pengesahan dan rekaman penerbit valid. Cocokkan informasi ini dengan dokumen yang Anda periksa.';
+  return {
+    recordVerificationStatus: status, profile: signed.profile, issuerName: signed.profile.issuerDisplayName,
+    checkedAt: metadata.checkedAt, checkedBlock: metadata.checkedBlock, issuanceTxHash: metadata.issuanceTransactionHash,
+    issuanceBlock: metadata.issuanceBlock, revokedAt: metadata.revokedAt, revocationBlock: metadata.revocationBlock,
+    revocationTxHash: metadata.revocationTransactionHash,
+    signer: metadata.signer, credentialDigest: metadata.credentialDigest,
+    reason: note ? `${reason} ${note}` : reason,
+  };
+}
+
+function boundProof<T extends RecordProof>(validate: () => T, id: string, metadata: CredentialMetadata | null, issuanceTxHash: string | null): T {
+  const signed = validate();
+  if (!equal(signed.authorization.credentialId, id) || metadata && !metadata.historicalSignerAuthorized) proofError();
+  if (metadata && issuanceTxHash && !equal(issuanceTxHash, metadata.issuanceTransactionHash)) proofError();
+  return signed;
+}
+
+export async function inspectCredential(value: string): Promise<{ verification: RecordVerificationResult; signedCredential: RecordProof | null }> {
   const id = credentialId(value);
   const base: RecordVerificationResult = {
     mode: 'RECORD', environment: config().mode, scope: 'RECORD_ONLY', credentialId: id,
     recordVerificationStatus: 'ERROR', documentDecision: null,
     reason: 'Bukti penerbitan atau blockchain belum dapat diperiksa. Coba kembali.',
     profile: null, issuerName: null, checkedAt: new Date().toISOString(), checkedBlock: null,
-    chainId: null, contractAddress: null, issuanceTxHash: null, issuanceBlock: null, revokedAt: null, revocationBlock: null,
+    chainId: null, contractAddress: null, legacyContract: false, issuanceTxHash: null, issuanceBlock: null, revokedAt: null, revocationBlock: null,
     revocationTxHash: null, signer: null, credentialDigest: null,
   };
-  const answer = (patch: Partial<RecordVerificationResult>, signedCredential: SignedCredential | null = null) => ({ verification: { ...base, ...patch }, signedCredential });
+  // A signed proof is disclosed only with a confirmed status; a PENDING answer never carries it.
+  const answer = (patch: Partial<RecordVerificationResult>, signedCredential: RecordProof | null = null) => ({ verification: { ...base, ...patch },
+    signedCredential: patch.recordVerificationStatus === 'PENDING' ? null : signedCredential });
   if (config().mode !== 'testnet') return answer({ reason: 'Mode demonstrasi tidak memverifikasi rekaman blockchain. Konfigurasikan testnet untuk pemeriksaan resmi.' });
   let stage: 'CONFIGURATION' | 'RPC' | 'PROOF_STORAGE' = 'CONFIGURATION';
   try {
-    const trustedDomain = credentialDomain(serverChainConfig());
+    const chain = serverChainConfig();
+    const trustedDomain = credentialDomain(chain);
     base.chainId = trustedDomain.chainId; base.contractAddress = trustedDomain.verifyingContract;
     stage = 'RPC';
     const metadata = await readWithRetry('RPC', () => lookupCredential(id));
@@ -83,24 +117,38 @@ export async function inspectCredential(value: string): Promise<{ verification: 
     const stored = await readWithRetry('PROOF_STORAGE', () => readStoredCredential(id));
     if (!metadata && !stored) return answer({ recordVerificationStatus: 'NOT_FOUND', reason: 'Pembacaan blockchain berhasil; rekaman tidak ditemukan.' });
     if (!stored) return answer({ checkedAt: metadata!.checkedAt, checkedBlock: metadata!.checkedBlock, reason: 'Rekaman blockchain ditemukan, tetapi bukti penerbitan belum tersedia. Hubungi penerbit.' });
+    // A protocol v1 proof belongs to an earlier contract. It is never validated against the active (v2) domain;
+    // it is read only from a contract the server lists as trusted, never from an address in the proof alone.
+    const storedDomain = storedDomainOf(stored.signed);
+    if (!metadata && storedDomain?.version === LEGACY_CREDENTIAL_PROTOCOL_VERSION) {
+      stage = 'CONFIGURATION';
+      const legacy = legacyCredentialContracts().find(entry => typeof storedDomain.verifyingContract === 'string' && equal(entry.address, storedDomain.verifyingContract));
+      if (!legacy || storedDomain.chainId !== chain.chainId) {
+        return answer({ reason: 'Bukti tersimpan berasal dari kontrak versi 1 yang tidak terdaftar sebagai kontrak resmi pada konfigurasi server. Rekaman tidak dinyatakan palsu, tetapi tidak dapat diverifikasi oleh kontrak aktif; hubungi penerbit untuk penerbitan ulang.' });
+      }
+      const legacyBase = { contractAddress: legacy.address, legacyContract: true };
+      stage = 'RPC';
+      const legacyMetadata = await readWithRetry('RPC', () => lookupLegacyCredential(id, legacy.address));
+      if (!legacyMetadata) return answer({ ...legacyBase, recordVerificationStatus: 'NOT_FOUND', reason: 'Pembacaan kontrak versi 1 berhasil; rekaman tidak ditemukan.' });
+      if (legacyMetadata.issuanceBlock > legacy.cutoffBlock) {
+        return answer({ ...legacyBase, checkedBlock: legacyMetadata.checkedBlock, reason: `Rekaman pada kontrak versi 1 diterbitkan setelah batas migrasi (blok ${legacy.cutoffBlock}) sehingga tidak diperlakukan sebagai rekaman resmi.` });
+      }
+      let signed: LegacySignedCredentialV1;
+      try {
+        signed = boundProof(() => validateLegacySignedCredentialV1(stored.signed, legacyCredentialDomainV1({ chainId: chain.chainId, contractAddress: legacy.address }), legacyMetadata),
+          id, legacyMetadata, stored.issuanceTxHash);
+      } catch {
+        return answer({ ...legacyBase, recordVerificationStatus: 'INVALID_PROOF', checkedBlock: legacyMetadata.checkedBlock, reason: INVALID_PROOF_REASON });
+      }
+      return answer({ ...legacyBase, ...statusPatch(legacyMetadata, signed, LEGACY_NOTE) }, signed);
+    }
     let signed: SignedCredential;
     try {
-      signed = validateSignedCredential(stored.signed, trustedDomain, metadata || undefined);
-      if (!equal(signed.authorization.credentialId, id) || metadata && !metadata.historicalSignerAuthorized) proofError();
-      if (metadata && stored.issuanceTxHash && !equal(stored.issuanceTxHash, metadata.issuanceTransactionHash)) proofError();
+      signed = boundProof(() => validateSignedCredential(stored.signed, trustedDomain, metadata || undefined), id, metadata, stored.issuanceTxHash);
     } catch {
-      return answer({ recordVerificationStatus: 'INVALID_PROOF', checkedBlock: metadata?.checkedBlock ?? null, reason: 'Profil publik atau bukti pengesahan tidak sesuai dengan rekaman penerbitan. Data ini tidak ditampilkan sebagai rekaman resmi.' });
+      return answer({ recordVerificationStatus: 'INVALID_PROOF', checkedBlock: metadata?.checkedBlock ?? null, reason: INVALID_PROOF_REASON });
     }
-    if (!metadata || !metadata.confirmed) return answer({ recordVerificationStatus: 'PENDING', reason: 'Bukti pengesahan tersimpan; penerbitan belum terkonfirmasi pada blockchain.', checkedBlock: metadata?.checkedBlock ?? null });
-    const status = metadata.revoked ? 'REVOKED' : !metadata.issuerActive ? 'ISSUER_INACTIVE' : 'VERIFIED_RECORD';
-    return answer({
-      recordVerificationStatus: status, profile: signed.profile, issuerName: signed.profile.issuerDisplayName,
-      checkedAt: metadata.checkedAt, checkedBlock: metadata.checkedBlock, issuanceTxHash: metadata.issuanceTransactionHash,
-      issuanceBlock: metadata.issuanceBlock, revokedAt: metadata.revokedAt, revocationBlock: metadata.revocationBlock,
-      revocationTxHash: metadata.revocationTransactionHash,
-      signer: metadata.signer, credentialDigest: metadata.credentialDigest,
-      reason: status === 'REVOKED' ? 'Kredensial telah dicabut oleh penerbit.' : status === 'ISSUER_INACTIVE' ? 'Bukti pengesahan valid, tetapi kewenangan kampus saat ini tidak aktif.' : 'Pengesahan dan rekaman penerbit valid. Cocokkan informasi ini dengan dokumen yang Anda periksa.',
-    }, signed);
+    return answer(statusPatch(metadata, signed), signed);
   } catch (error) {
     const code = diagnostic(stage, error);
     const reasons = { CONFIGURATION: 'Konfigurasi jaringan atau kontrak belum valid.', RPC: 'Layanan RPC belum dapat membaca rekaman blockchain.', PROOF_STORAGE: 'Penyimpanan bukti penerbitan belum dapat dibaca.' };

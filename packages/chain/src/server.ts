@@ -83,6 +83,30 @@ export async function lookupCredential(id: string) {
   return readCredential(config, await checkedProvider(config), id);
 }
 
+/** Earlier (protocol v1) contracts the server still trusts for read-only records, from
+ * LEGACY_CREDENTIAL_CONTRACTS="0xAddress:cutoffBlock[,...]". Records issued after the cutoff block are not
+ * trusted, because the legacy contract's keys may still exist. Addresses never come from a QR or payload. */
+export function legacyCredentialContracts(): { address: string; cutoffBlock: number }[] {
+  const raw = process.env.LEGACY_CREDENTIAL_CONTRACTS?.trim();
+  if (!raw) return [];
+  return raw.split(',').map(entry => {
+    const [address, cutoff] = entry.trim().split(':');
+    const cutoffBlock = Number(cutoff);
+    let checked: string;
+    try { checked = getAddress(address ?? ''); } catch { throw new ChainConfigurationError('LEGACY_CREDENTIAL_CONTRACTS berisi alamat yang tidak valid.'); }
+    if (!Number.isSafeInteger(cutoffBlock) || cutoffBlock <= 0) throw new ChainConfigurationError('LEGACY_CREDENTIAL_CONTRACTS memerlukan blok batas migrasi yang valid.');
+    return { address: checked, cutoffBlock };
+  });
+}
+
+/** Read a record from a trusted legacy contract on the configured chain. */
+export async function lookupLegacyCredential(id: string, contractAddress: string) {
+  const legacy = legacyCredentialContracts().find(entry => entry.address === getAddress(contractAddress));
+  if (!legacy) throw new ChainConfigurationError('Kontrak versi lama tidak terdaftar pada konfigurasi server.');
+  const config = assertChainConfig({ ...serverChainConfig(), contractAddress: legacy.address });
+  return readCredential(config, await checkedProvider(config), id);
+}
+
 export async function getIssuer(wallet: string) {
   const config = serverChainConfig();
   const provider = await checkedProvider(config);

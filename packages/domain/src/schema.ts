@@ -160,6 +160,8 @@ export interface RecordVerificationResult {
   checkedBlock: number | null;
   chainId: number | null;
   contractAddress: string | null;
+  /** True when the record was read from a server-trusted protocol v1 contract (read-only support). */
+  legacyContract: boolean;
   issuanceTxHash: string | null;
   issuanceBlock: number | null;
   /** Revocation time and block come from contract state; the hash is null when its log could not be read. */

@@ -35,7 +35,7 @@ function recordResult(status: RecordVerificationStatus = 'VERIFIED_RECORD', chec
   return { mode: 'RECORD', environment: 'testnet', scope: 'RECORD_ONLY', credentialId,
     recordVerificationStatus: status, documentDecision: null, reason: `record ${status}`, profile: null,
     issuerName: status === 'INVALID_PROOF' ? null : 'Kampus Contoh', checkedAt: new Date(1_800_000_000_000 + checkedBlock * 1000).toISOString(),
-    checkedBlock, chainId: 11155111, contractAddress, issuanceTxHash, issuanceBlock: 50, revokedAt: null, revocationBlock: null, revocationTxHash: null,
+    checkedBlock, chainId: 11155111, contractAddress, legacyContract: false, issuanceTxHash, issuanceBlock: 50, revokedAt: null, revocationBlock: null, revocationTxHash: null,
     signer: null, credentialDigest: null };
 }
 const comparison = () => ({
@@ -147,6 +147,14 @@ describe('document verification requires a valid signed record', () => {
     expect(chain.submitComparison).not.toHaveBeenCalled();
     // The QR record path is independent of the relayer budget.
     expect(record.verifyRecord).toHaveBeenCalledTimes(1);
+  });
+
+  it('refuses document matching for a legacy v1 record without a transaction (6.4.7)', async () => {
+    record.verifyRecord.mockResolvedValue({ ...recordResult(), legacyContract: true });
+    const job = await fixture();
+    expect(await readJob(job.id, owner.id)).toMatchObject({ decision: 'INCONCLUSIVE', recordVerificationStatus: 'VERIFIED_RECORD' });
+    expect((await readJob(job.id, owner.id)).reason).toContain('kontrak versi 1');
+    expect(chain.submitComparison).not.toHaveBeenCalled();
   });
 
   it('returns the reservation when submission fails before a transaction is prepared', async () => {

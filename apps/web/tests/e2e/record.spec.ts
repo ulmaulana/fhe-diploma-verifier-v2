@@ -8,7 +8,7 @@ const profile = {schemaVersion:1,disclosurePolicyVersion:1,issuerId:`0x${'11'.re
 function record(status:RecordVerificationStatus):RecordVerificationResult {
   return {mode:'RECORD',environment:'testnet',scope:'RECORD_ONLY',credentialId:id,recordVerificationStatus:status,documentDecision:null,
     profile:['VERIFIED_RECORD','REVOKED','ISSUER_INACTIVE'].includes(status)?profile:null,issuerName:profile.issuerDisplayName,
-    checkedAt:'2026-09-24T04:00:00.000Z',checkedBlock:123456,chainId:11155111,contractAddress:`0x${'12'.repeat(20)}`,
+    checkedAt:'2026-09-24T04:00:00.000Z',checkedBlock:123456,chainId:11155111,contractAddress:`0x${'12'.repeat(20)}`,legacyContract:false,
     issuanceTxHash:`0x${'21'.repeat(32)}`,issuanceBlock:123400,revokedAt:status==='REVOKED'?'2026-09-25T04:00:00.000Z':null,revocationBlock:status==='REVOKED'?123450:null,revocationTxHash:status==='REVOKED'?revocationTx:null,signer:`0x${'34'.repeat(20)}`,credentialDigest:`0x${'56'.repeat(32)}`,reason:''};
 }
 

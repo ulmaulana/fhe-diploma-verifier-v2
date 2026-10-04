@@ -54,6 +54,10 @@ export async function completeExtraction(id: string, lease: string, extraction: 
   const record = await verifyRecord(qr.credentialId);
   const meta: Partial<Job> = { credentialId: qr.credentialId, recordVerificationStatus: record.recordVerificationStatus, issuerName: record.issuerName || undefined, checkedBlock: record.checkedBlock ?? undefined, checkedAt: record.checkedAt, chainId: record.chainId ?? undefined, contractAddress: record.contractAddress || undefined, issuanceTxHash: record.issuanceTxHash || undefined };
   await withState(state => { const item = state.jobs[id]; checkLease(item, lease); Object.assign(item, meta); });
+  // Records on a legacy (protocol v1) contract are readable via QR only; the active contract cannot compare them.
+  if (record.recordVerificationStatus === 'VERIFIED_RECORD' && record.legacyContract) {
+    return conclude('Rekaman ini berada pada kontrak versi 1 yang hanya didukung untuk pembacaan QR. Pencocokan dokumen dengan FHE tersedia untuk kredensial pada kontrak aktif; tidak ada transaksi yang dikirim.');
+  }
   if (record.recordVerificationStatus !== 'VERIFIED_RECORD') {
     const decision = record.recordVerificationStatus === 'REVOKED' ? 'REVOKED' : record.recordVerificationStatus === 'NOT_FOUND' ? 'NOT_FOUND' : record.recordVerificationStatus === 'INVALID_PROOF' ? 'INVALID_PROOF' : record.recordVerificationStatus === 'ERROR' ? 'ERROR' : 'INCONCLUSIVE';
     return end({ ...meta, status: decision === 'ERROR' ? 'FAILED' : 'COMPLETED', decision, reason: record.reason });

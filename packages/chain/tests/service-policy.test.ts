@@ -22,7 +22,7 @@ vi.mock('../src/shared', async original => ({
 }));
 vi.mock('@zama-fhe/relayer-sdk/node', () => ({ createInstance: mock.createInstance, SepoliaConfig: {} }));
 
-import { serviceAccounts, submitComparison } from '../src/server';
+import { legacyCredentialContracts, serviceAccounts, submitComparison } from '../src/server';
 
 const relayer = new Wallet('0x' + '11'.repeat(32));
 const attestor = new Wallet('0x' + '22'.repeat(32));
@@ -51,6 +51,19 @@ beforeEach(() => {
   mock.encrypt.mockResolvedValue({ handles: [1, 2, 3, 4].map(n => new Uint8Array(32).fill(n)), inputProof: new Uint8Array([1, 2]) });
 });
 afterEach(() => vi.unstubAllEnvs());
+
+describe('trusted legacy contract list (6.4.7)', () => {
+  it('parses address:cutoff entries and rejects malformed configuration', () => {
+    vi.stubEnv('LEGACY_CREDENTIAL_CONTRACTS', ` ${contract}:11840000 `);
+    expect(legacyCredentialContracts()).toEqual([{ address: '0x' + '12'.repeat(20), cutoffBlock: 11840000 }]);
+    vi.stubEnv('LEGACY_CREDENTIAL_CONTRACTS', '');
+    expect(legacyCredentialContracts()).toEqual([]);
+    for (const value of ['0x1234:10', `${contract}`, `${contract}:0`, `${contract}:abc`]) {
+      vi.stubEnv('LEGACY_CREDENTIAL_CONTRACTS', value);
+      expect(() => legacyCredentialContracts()).toThrow(expect.objectContaining({ code: 'CHAIN_CONFIGURATION_INVALID' }));
+    }
+  });
+});
 
 describe('service key policy before a comparison transaction', () => {
   it('rejects duplicate service keys locally, before any RPC or contract call', async () => {
