@@ -9,22 +9,30 @@ const campusWallet = new Wallet(`0x${'11'.repeat(32)}`);
 const otherWallet = new Wallet(`0x${'22'.repeat(32)}`);
 const campusName = 'Dompet Kampus Uji';
 
-for (const width of [1280, 800, 390]) {
-  test(`private diploma controls and browser download at ${width}px (mock document API)`, async ({ page, context }) => {
+// Each viewport runs both date conditions of the issuer PDF: a date frozen with the issuance draft, and a
+// legacy credential whose issuer declares the date once when creating the PDF.
+for (const width of [1280, 800, 390]) for (const dateSource of ['declared', 'frozen'] as const) {
+  test(`private diploma controls and browser download at ${width}px, ${dateSource} date (mock document API)`, async ({ page, context }) => {
     await page.setViewportSize({ width, height: 844 });
     const id = `0x${'ab'.repeat(32)}`;
     const issuerId = `0x${'cd'.repeat(32)}` as `0x${string}`;
     const pdf = await generateDiploma({ credentialId: id, origin: 'http://localhost:3000', graduationDate: '2026-08-15', createdAt: '2026-09-25T00:00:00Z', profile: { schemaVersion: 1, disclosurePolicyVersion: 1, issuerId, issuerDisplayName: 'Universitas Contoh Indonesia', fullName: 'ANDI PRATAMA', diplomaNumber: 'IF-2026-001', studyProgram: 'INFORMATIKA' } });
     await page.route('**/api/portal/config*', route => route.fulfill({ json: { mode: 'testnet', chainId: 11155111, contractAddress: `0x${'56'.repeat(20)}`, portal: { wallet: campusWallet.address, issuer: { exists: true, active: true, signerActive: true, issuerId, name: 'Universitas Contoh Indonesia' }, admin: width === 1280, credentials: [{ credentialId: id, issuedAt: '2026-09-25T00:00:00Z', confirmed: true, revoked: false }], offset: 0, total: 1 } } }));
-    let created = false; let polls = 0;
+    // Mirrors documents.ts: GET reports NOT_CREATED with the frozen draft date (if any); POST generates and
+    // archives the PDF from issuance data synchronously and answers with the stored READY state. There is no
+    // OCR or document-check phase in issuer PDF generation.
+    const ready = { status: 'READY', graduationDate: '2026-08-15', dateFrozen: true, templateVersion: 'diploma-pdf', downloadUrl: `/api/credentials/${id}/document/download` };
+    const notCreated = dateSource === 'frozen' ? { status: 'NOT_CREATED', graduationDate: '2026-08-15', dateFrozen: true } : { status: 'NOT_CREATED', dateFrozen: false };
+    let created = false;
     await page.route(`**/api/credentials/${id}/document`, async route => {
       if (route.request().method() === 'POST') {
         expect(route.request().postDataJSON()).toEqual({ graduationDate: '2026-08-15' });
         expect(route.request().headers()['x-csrf-token']).toBeTruthy();
+        expect(route.request().headers()['idempotency-key']).toMatch(/^[a-zA-Z0-9_-]{16,128}$/);
         created = true;
-        return route.fulfill({ status: 202, json: { status: 'VERIFYING' } });
+        return route.fulfill({ status: 202, json: ready });
       }
-      return route.fulfill({ json: { status: !created ? 'NOT_CREATED' : ++polls < 2 ? 'VERIFYING' : 'READY' } });
+      return route.fulfill({ json: created ? ready : notCreated });
     });
     await page.route(`**/api/credentials/${id}/document/download`, route => route.fulfill({ body: pdf, contentType: 'application/pdf' }));
     await openSignIn(page); await finishSignIn(page, context);
@@ -67,10 +75,16 @@ for (const width of [1280, 800, 390]) {
       await recordsTab.click();
     }
     await page.getByRole('button', { name: 'Buat PDF ijazah', exact: true }).click();
-    await page.getByLabel('Tanggal lulus', { exact: true }).fill('2026-08-15');
+    const dateField = page.getByLabel('Tanggal lulus sesuai data penerbitan', { exact: true });
+    if (dateSource === 'frozen') await expect(dateField).toHaveCount(0); // the date frozen at issuance is reused, not re-entered
+    else await dateField.fill('2026-08-15');
+    await expect(page.getByText('PDF dibuat dari data penerbitan dan disimpan sebagai arsip privat.', { exact: false })).toBeVisible();
+    expect(created).toBe(false);
     await page.getByRole('button', { name: 'Buat PDF ijazah', exact: true }).click();
-    await expect(page.getByText('Memeriksa dokumen', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Unduh PDF', exact: true })).toBeVisible({ timeout: 20000 });
+    expect(created).toBe(true);
+    // Issuer PDF generation does not run OCR/FHE; the removed document-check phase must not reappear.
+    await expect(page.getByText('Memeriksa dokumen', { exact: true })).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.screenshot({ path: test.info().outputPath(`diploma-${width}.png`), fullPage: true });
     const downloaded = page.waitForEvent('download');
