@@ -129,11 +129,16 @@ const sessionWallet = async () => (await (await context.request.get('/api/portal
 async function signIn(expected: string) {
   await page.goto('/penerbit');
   const connect = page.getByRole('button', { name: 'Hubungkan wallet', exact: true });
-  if (await connect.isVisible().catch(() => false)) {
+  const reconnect = page.getByRole('button', { name: 'Masuk dengan wallet', exact: true });
+  // The portal button reads "Menyiapkan wallet…" until the wallet state is restored; branch only after that.
+  await expect(connect.or(reconnect)).toBeVisible({ timeout: 60_000 });
+  if (await connect.isVisible()) {
     await connect.click();
     await page.getByRole('dialog').getByRole('button', { name: new RegExp(WALLET_NAME) }).click();
-  } else await page.getByRole('button', { name: 'Masuk dengan wallet', exact: true }).click();
-  await page.getByRole('button', { name: 'Kirim pesan', exact: true }).click();
+  } else await reconnect.click();
+  const send = page.getByRole('button', { name: 'Kirim pesan', exact: true });
+  await expect(send).toBeEnabled({ timeout: 60_000 });
+  await send.click();
   await expect.poll(sessionWallet, { timeout: 60_000 }).toBe(expected);
 }
 const hashIn = (text: string | null) => text?.match(/0x[0-9a-fA-F]{64}/)?.[0] ?? null;
@@ -197,7 +202,8 @@ test('administrator registers the synthetic institution and signer through the p
   // Repeating the activation is a no-op that the contract rejects; the portal must not claim a change.
   const before = sent.length;
   await signerForm.getByRole('button', { name: 'Simpan kewenangan wallet', exact: true }).click();
-  await expect(page.getByRole('alert')).toContainText('Wallet sudah aktif sebagai penandatangan', { timeout: 120_000 });
+  // Next.js also renders an (empty) route announcer with role="alert".
+  await expect(page.getByRole('alert').filter({ hasText: 'Wallet sudah aktif sebagai penandatangan' })).toBeVisible({ timeout: 120_000 });
   expect(sent.length).toBe(before);
   await shot('03-registry-noop-rejected');
   record('registry', { setIssuerTx, setSignerTx, noopSetSignerRejectedWithoutTransaction: true });
