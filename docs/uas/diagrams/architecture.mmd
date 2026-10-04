@@ -1,0 +1,50 @@
+%% Arsitektur Verifikasi Ijazah (versi final UAS, kontrak v2). Subgraph = batas kepercayaan.
+flowchart LR
+  subgraph USERS["Pengguna (tidak tepercaya bagi backend)"]
+    P["Pemeriksa<br/>browser/HP, tanpa wallet"]
+    K["Pejabat kampus<br/>wallet EOA (RainbowKit / EIP-6963)"]
+    A["Administrator platform<br/>wallet DEFAULT_ADMIN"]
+  end
+
+  subgraph WEB["Aplikasi Next.js 16 (Netlify / lokal) — backend tepercaya"]
+    UI["Halaman: /c/{id} (QR), /verifikasi,<br/>/riwayat, /penerbit, /panduan"]
+    API["API route: sesi + CSRF + Origin,<br/>drafts, proof, verifications, dokumen PDF"]
+    RL["Rate limit + anggaran global relayer<br/>(reservasi atomik di state)"]
+    WF["Eksekusi latar: Workflow (lokal/Vercel)<br/>atau Netlify Background Function"]
+    OCR["packages/ocr: MuPDF + zxing + tesseract.js<br/>(in-process, WASM)"]
+    CHS["packages/chain/server: ethers + relayer-sdk/node<br/>kunci ATTESTOR, RELAYER, RESULT_READER (3 alamat berbeda)"]
+  end
+
+  subgraph STORE["Penyimpanan off-chain privat"]
+    DB[("PostgreSQL (Supabase di hosting):<br/>verification_state (JSONB), credential_drafts,<br/>signed_credentials, credential_documents, relayer lease")]
+    BL[("Blob privat / disk lokal:<br/>unggahan, hasil OCR, tx bertanda tangan (outbox),<br/>arsip PDF ijazah")]
+  end
+
+  subgraph CHAIN["Ethereum Sepolia (testnet publik, validator berizin)"]
+    SC["VerifikasiIjazah v2<br/>0x65b1…94e0"]
+    LG["VerifikasiIjazah v1 (lama, hanya baca)<br/>0x39de…4903"]
+    Z["Kontrak sistem Zama FHEVM:<br/>ACL, executor, input verifier"]
+  end
+
+  KMS["Zama relayer + KMS<br/>(enkripsi input, user decryption)"]
+  RPC["Penyedia RPC Sepolia"]
+
+  P -->|"GET /c/id (tanpa login/wallet/tx)"| UI
+  P -->|"unggah PDF/JPG/PNG"| UI
+  K -->|"personal_sign (login), EIP-712 CredentialAuthorization,<br/>tx issueCredential / revoke"| SC
+  A -->|"tx setIssuer / setSigner / grantRole"| SC
+  K --> UI
+  A --> UI
+  UI --> API --> RL
+  API --> DB
+  API --> BL
+  API --> WF
+  WF --> OCR
+  WF --> CHS
+  CHS -->|"tx verify (relayer) + attestation (attestor)"| RPC
+  API -->|"baca rekaman (konfirmasi ≥ 2)"| RPC
+  RPC --> SC
+  RPC --> LG
+  SC --> Z
+  CHS -->|"encrypt digest, userDecrypt hasil"| KMS
+  UI -.->|"encrypt atribut penerbitan di browser"| KMS

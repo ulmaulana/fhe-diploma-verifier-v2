@@ -1,0 +1,46 @@
+%% Alur transaksi utama (protokol v2). Tanggal lulus tidak pernah keluar sebagai plaintext ke chain/QR.
+sequenceDiagram
+  autonumber
+  actor Admin as Admin (wallet)
+  actor Kampus as Signer kampus (wallet EOA)
+  participant Web as Web + API (backend tepercaya)
+  participant Zama as Zama relayer/KMS
+  participant SC as VerifikasiIjazah v2 (Sepolia)
+  actor Pemeriksa
+
+  Note over Admin,SC: Registry (sekali per institusi/signer)
+  Admin->>SC: setIssuer(issuerId, nama, aktif) -> IssuerUpdated
+  Admin->>SC: setSigner(issuerId, wallet, true) -> SignerUpdated (ditolak bila wallet memegang peran: RoleConflict)
+
+  Note over Kampus,SC: Penerbitan dengan e-sign data
+  Kampus->>Web: login (personal_sign challenge)
+  Kampus->>Zama: enkripsi 4 digest atribut (browser) -> handles + inputProof
+  Kampus->>Web: simpan draf (profil publik, handles, tanggal privat)
+  Kampus->>Kampus: tanda tangan EIP-712 CredentialAuthorization<br/>(credentialId = keccak(chain, kontrak, issuer, signer, nonce), issuerNameHash, publicDataHash, ...)
+  Kampus->>Web: simpan bukti bertanda tangan (sebelum broadcast)
+  Kampus->>SC: issueCredential(auth, sig, handles, proof)
+  SC->>SC: cek signer aktif, signature, ID, nama, nonce, deadline, versi; FHE.fromExternal; allowThis
+  SC-->>Kampus: CredentialIssued (setelah 2 konfirmasi)
+  Web->>Web: PDF ijazah dibuat dari data penerbitan (QR -> /c/{credentialId})
+
+  Note over Pemeriksa,SC: Jalur QR (RECORD_ONLY, tanpa transaksi)
+  Pemeriksa->>Web: GET /c/{credentialId}
+  Web->>SC: getCredential, issuers, signerAuthorizations, log CredentialIssued (blok terkonfirmasi)
+  Web->>Web: validasi EIP-712 + hash profil + binding chain
+  Web-->>Pemeriksa: VERIFIED_RECORD + profil publik (documentDecision = null)
+
+  Note over Pemeriksa,SC: Jalur unggahan (CHECKED_ATTRIBUTES)
+  Pemeriksa->>Web: unggah PDF/foto
+  Web->>Web: OCR (MuPDF, zxing, tesseract) + QR + normalisasi + digest
+  Web->>Web: cek rekaman, kuota global (reservasi atomik), peran kunci layanan, saldo relayer
+  Web->>Zama: enkripsi digest hasil OCR (relayer)
+  Web->>SC: verify(attestation EIP-712 attestor, handles, proof) oleh relayer -> ComparisonRequested
+  SC->>SC: FHE.eq per atribut, FHE.and, allow(resultReader)
+  Web->>Zama: userDecrypt hasil (result reader)
+  Web->>SC: baca ulang status rekaman (pencabutan selama proses -> bukan MATCH)
+  Web-->>Pemeriksa: MATCH / MISMATCH / INCONCLUSIVE / REVOKED + laporan PDF
+
+  Note over Kampus,SC: Pencabutan
+  Kampus->>SC: revoke(credentialId) -> CredentialRevoked
+  Web->>SC: QR membaca revokedAt/revokedBlock + log CredentialRevoked di blok itu
+  Web-->>Pemeriksa: REVOKED + hash tx pencabutan (atau "belum dapat dibaca", status tetap REVOKED)

@@ -1,0 +1,13 @@
+# S-12 / E.2 — benchmark kunci baris tunggal verification_state (withDatabaseState)
+# Waktu: 2026-10-04 16:40:43 WIB | commit e680d5e | Node v24.21.0
+# Lingkungan: Docker postgres:16-alpine lokal (127.0.0.1:54329), skema acak sekali pakai, BUKAN Supabase. Laptop Windows 11.
+# Metode: state diisi 500 sesi + 200 job; 200 operasi baca-ubah-tulis per tingkat konkurensi (1/5/20/50), pool max = min(konkurensi,10).
+# Catatan: dijalankan bersamaan dengan uji E2E Sepolia (fase menunggu transaksi), sehingga angka absolut dapat sedikit terpengaruh.
+# Skrip: S-12-bench-state.ts.txt (salinan skrip lokal yang dijalankan dengan tsx 4 dari root repo).
+
+{"environment":"local Docker postgres:16-alpine (127.0.0.1), not Supabase","stateRowBytes":8188,"sessions":500,"jobs":200,"operationsPerLevel":200}
+{"concurrency":1,"poolMax":1,"completed":200,"errors":0,"seconds":"2.54","throughputOpsPerSecond":"78.7","p50ms":"12.0","p95ms":"16.9","maxMs":"25.6"}
+{"concurrency":5,"poolMax":5,"completed":200,"errors":0,"seconds":"1.97","throughputOpsPerSecond":"101.5","p50ms":"45.4","p95ms":"64.8","maxMs":"147.1"}
+{"concurrency":20,"poolMax":10,"completed":200,"errors":0,"seconds":"1.92","throughputOpsPerSecond":"104.0","p50ms":"186.3","p95ms":"201.6","maxMs":"243.9"}
+{"concurrency":50,"poolMax":10,"completed":200,"errors":0,"seconds":"1.84","throughputOpsPerSecond":"108.7","p50ms":"450.9","p95ms":"465.2","maxMs":"477.3"}
+{"counterAfterAllLevels":800,"expected":800,"lostUpdates":0}
