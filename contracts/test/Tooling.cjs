@@ -51,7 +51,7 @@ describe('UAS tooling: deployment, registration and role rotation — local mock
     assert.equal(stored.build.viaIR, true); assert.equal(stored.build.evmVersion, 'cancun');
     assert.equal(stored.build.optimizer.runs, 200);
     assert.match(stored.build.sourceSha256, /^[0-9a-f]{64}$/);
-    assert.equal(stored.dependencies['@openzeppelin/contracts'], '5.6.1');
+    assert.deepEqual(stored.dependencies, { hardhat: '2.28.6', '@openzeppelin/contracts': '5.6.1', '@fhevm/solidity': '0.11.1', '@fhevm/hardhat-plugin': '0.4.2', '@zama-fhe/relayer-sdk': '0.4.1', ethers: '6.16.0', solc: '0.8.28' });
     assert.equal(JSON.parse(readFileSync(join(path, '..', 'latest.json'), 'utf8')).address, stored.contract.address);
     assert.doesNotMatch(JSON.stringify(stored), /private|mnemonic|PRIVATE_KEY/i);
   });

@@ -19,8 +19,9 @@ function roleAddresses(values) {
   return { admin: roles[0], attestor: roles[1], relayer: roles[2], reader: roles[3], plannedSigners: signers };
 }
 
+/** Read the installed manifest directly: some packages (ethers, @fhevm/hardhat-plugin) do not export ./package.json. */
 function packageVersion(name) {
-  try { return JSON.parse(readFileSync(require.resolve(`${name}/package.json`, { paths: [CONTRACTS_DIR] }), 'utf8')).version; }
+  try { return JSON.parse(readFileSync(join(CONTRACTS_DIR, 'node_modules', ...name.split('/'), 'package.json'), 'utf8')).version ?? null; }
   catch { return null; }
 }
 
