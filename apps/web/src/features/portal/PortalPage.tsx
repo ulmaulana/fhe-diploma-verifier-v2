@@ -7,12 +7,14 @@ import { explorerTxUrl } from '@/features/shared/explorer';
 import type { CredentialSummary, IssuerMetadata } from '@verifikasi/chain';
 import type { PreparedCredential, SignedPreparedCredential } from '@verifikasi/chain/browser';
 import { ArrowRightIcon, CheckIcon, DownloadIcon, ExternalLinkIcon, LockIcon, ShieldCheckIcon, SpinnerIcon, WalletIcon } from '@/features/shared/icons';
-import { api, getSession, shortId, formatTime } from '@/features/shared/api';
+import { api, getSession, formatTime } from '@/features/shared/api';
 import { WorkspaceHeading } from '@/features/layout/WorkspaceHeading';
 import { WorkspaceArtwork } from '@/features/layout/WorkspaceArtwork';
 import styles from './PortalPage.module.css';
 import { CredentialDocument, type DocumentState } from './CredentialDocument';
+import { CredentialRecords, CREDENTIALS_PER_PAGE } from './CredentialRecords';
 import { PortalSkeleton } from './PortalSkeleton';
+import { RevokeCredentialDialog } from './RevokeCredentialDialog';
 import { PortalWalletButton, usePortalWallet } from './WalletProvider';
 
 interface Portal {wallet:string;issuer:IssuerMetadata;admin:boolean;credentials:CredentialSummary[];total:number;offset:number;documents?:Record<string,DocumentState>}
@@ -44,17 +46,32 @@ export function PortalPage({initialTab='institution'}:{initialTab?:typeof portal
   const [issued,setIssued]=useState<RecordVerificationResult|null>(null); const [qr,setQr]=useState('');
   const [revokeId,setRevokeId]=useState(''); const [confirmRevoke,setConfirmRevoke]=useState(false);
   const [loading,setLoading]=useState(true);
+  const [pageLoading,setPageLoading]=useState(false); const [pageError,setPageError]=useState('');
+  const recordsHeading=useRef<HTMLHeadingElement|null>(null);
   // Receipt of the last confirmed registry or revocation transaction; never set for a failed or cancelled one.
   const [lastTx,setLastTx]=useState<{label:string;transactionHash:string;blockNumber:number}|null>(null);
   const busyRef=useRef(false); const epoch=useRef(0);
+  const pagingRef=useRef(false); const configRequest=useRef(0);
 
-  async function refresh(offset=0,generation=epoch.current){await getSession();const c=await api<Configuration>(`/api/portal/config?offset=${offset}`);assertCurrent(generation);setConfiguration(c);}
+  async function refresh(offset=0,generation=epoch.current){
+    const request=++configRequest.current;
+    try{await getSession();const c=await api<Configuration>(`/api/portal/config?offset=${offset}`);assertCurrent(generation);if(request!==configRequest.current)return false;setConfiguration(c);return true;}
+    catch(error){if(request!==configRequest.current)return false;throw error;}
+  }
+  async function changePage(offset:number){
+    if(pagingRef.current||busyRef.current||!portal||offset===portal.offset||offset<0||offset>=portal.total||offset%CREDENTIALS_PER_PAGE!==0)return;
+    const generation=epoch.current;pagingRef.current=true;setPageLoading(true);setPageError('');
+    try{if(await refresh(offset,generation)){recordsHeading.current?.focus({preventScroll:true});recordsHeading.current?.scrollIntoView({block:'start',behavior:'instant'});}}
+    catch(error){if(generation===epoch.current)setPageError(error instanceof Error?error.message:'Halaman ijazah belum dapat dimuat.');}
+    finally{if(generation===epoch.current){pagingRef.current=false;setPageLoading(false);}}
+  }
   function clearDraft(){setFrozenDate('');setPrepared(null);setSigned(null);setStep(0);setReviewed(false);setProofSaved(false);setTxHash('');setIssued(null);setQr('');}
   useEffect(()=>{
     // Fetch once for the restored wallet; a fetch before restoration only repeats the slow chain reads.
     if(restoring)return;
     const generation=++epoch.current;
     clearDraft();setAttributes(emptyAttributes);setRevokeId('');setConfirmRevoke(false);setError('');
+    pagingRef.current=false;setPageLoading(false);setPageError('');
     setConfiguration(current=>current?{...current,portal:null}:current);
     setMessage('');setLoading(true);
     let active=true;
@@ -104,7 +121,8 @@ export function PortalPage({initialTab='institution'}:{initialTab?:typeof portal
     assertCurrent(generation);setTxHash(result.transactionHash);await complete(signed,result.transactionHash,generation);
   });}
   async function checkIssuance(){if(!signed)return;await action(async generation=>{setMessage('Memeriksa konfirmasi dan menyimpan bukti penerbitan.');await complete(signed,txHash||undefined,generation);});}
-  async function revoke(){await action(async generation=>{const {revokeCredential}=await import('@verifikasi/chain/browser');const receipt=await revokeCredential(await getProvider(),chainConfig(),revokeId);assertCurrent(generation);setLastTx({label:'Transaksi pencabutan',...receipt});setMessage('Kredensial telah dicabut. Pencabutan tidak dapat dibatalkan.');setConfirmRevoke(false);setRevokeId('');await refresh(0,generation);});}
+  function requestRevocation(credentialId=revokeId){setRevokeId(credentialId);setError('');setConfirmRevoke(true);}
+  async function revoke(){await action(async generation=>{const {revokeCredential}=await import('@verifikasi/chain/browser');const receipt=await revokeCredential(await getProvider(),chainConfig(),revokeId);assertCurrent(generation);setLastTx({label:'Transaksi pencabutan',...receipt});setMessage('Kredensial telah dicabut. Pencabutan tidak dapat dibatalkan.');setConfirmRevoke(false);setRevokeId('');await refresh(portal?.offset??0,generation);});}
   async function updateIssuer(event:React.FormEvent<HTMLFormElement>){event.preventDefault();const form=new FormData(event.currentTarget);await action(async generation=>{const {setIssuer}=await import('@verifikasi/chain/browser');const receipt=await setIssuer(await getProvider(),chainConfig(),String(form.get('issuerId')),String(form.get('name')),form.get('active')==='on');assertCurrent(generation);setLastTx({label:'Transaksi registry institusi',...receipt});setMessage('Institusi penerbit diperbarui pada blockchain.');await refresh(0,generation);});}
   async function updateSigner(event:React.FormEvent<HTMLFormElement>){event.preventDefault();const form=new FormData(event.currentTarget);await action(async generation=>{const {setSigner}=await import('@verifikasi/chain/browser');const receipt=await setSigner(await getProvider(),chainConfig(),String(form.get('issuerId')),String(form.get('address')),form.get('active')==='on');assertCurrent(generation);setLastTx({label:'Transaksi kewenangan penandatangan',...receipt});setMessage('Kewenangan wallet penandatangan diperbarui. Bukti penerbitan terdahulu tetap diperiksa menurut kewenangan saat penerbitan.');await refresh(0,generation);});}
   const authorized=!!portal?.issuer.active&&!!portal?.issuer.signerActive;
@@ -173,9 +191,14 @@ export function PortalPage({initialTab='institution'}:{initialTab?:typeof portal
       </div>
       <div className={styles.tabPanel} id="portal-panel-records" role="tabpanel" aria-labelledby="portal-tab-records" tabIndex={0} hidden={activeTab!=='records'}>
         {(wallet||restoring)&&<p className={styles.portalDescription}>{portalTabs[2].description}</p>}
-        {(wallet||restoring)&&<section className={`portal-form greek-panel ${styles.workPanel}`}><h2>Data Ijazah Mahasiswa</h2>{pending?<PortalSkeleton variant="records"/>:<>{portal?.credentials.length?<div className="history-list">{portal!.credentials.map(c=><div className={`history-row ${styles.credentialRow}`} key={c.credentialId}><div className="history-item-main"><h3>{shortId(c.credentialId)}</h3><p>{formatTime(c.issuedAt)}</p></div><span className={`history-status ${c.revoked?'danger':c.confirmed?'success':'warning'}`}>{c.revoked?'Dicabut':c.confirmed?'Tercatat':'Menunggu konfirmasi'}</span><a className="button secondary small-button" href={`/c/${c.credentialId}`}>Lihat rekaman</a>{!c.revoked&&<button className="button secondary small-button" disabled={busy} onClick={()=>{setRevokeId(c.credentialId);setConfirmRevoke(true);}}>Cabut</button>}{authorized&&!c.revoked&&<CredentialDocument key={`${wallet}-${revision}-${c.credentialId}`} credentialId={c.credentialId} initial={portal!.documents?.[c.credentialId.toLowerCase()]} compact/>}</div>)}</div>:portal&&<p className="muted small">Belum ada ijazah mahasiswa yang diterbitkan oleh institusi ini.</p>}{portal&&portal.offset+20<portal.total&&<button className="button secondary" disabled={busy} onClick={()=>refresh(portal!.offset+20).catch(e=>setError(e.message))}>Halaman berikutnya</button>}
-          <div className="portal-actions"><label className="form-field">ID kredensial yang akan dicabut<input value={revokeId} onChange={e=>{setRevokeId(e.target.value);setConfirmRevoke(false);}} placeholder="0x…"/></label><button className="button secondary" disabled={busy||!revokeId||configuration?.mode!=='testnet'} onClick={()=>setConfirmRevoke(true)}>Cabut kredensial</button></div>{confirmRevoke&&<div className="delete-confirm"><p>Pencabutan permanen dan tidak dapat dibatalkan. Rekaman {shortId(revokeId)} akan berstatus dicabut.</p><button className="button danger-button" onClick={revoke} disabled={busy}>Konfirmasi pencabutan</button><button className="button secondary" onClick={()=>setConfirmRevoke(false)}>Batal</button></div>}
-        </>}</section>}
+        {(wallet||restoring)&&<section className={`portal-form greek-panel ${styles.workPanel}`} aria-labelledby="records-title">
+          <h2 id="records-title" ref={recordsHeading} tabIndex={-1} className={styles.recordsHeading}>Data Ijazah Mahasiswa</h2>
+          {pending?<PortalSkeleton variant="records"/>:<>
+            {portal&&<CredentialRecords credentials={portal.credentials} documents={portal.documents} offset={portal.offset} total={portal.total} authorized={authorized} busy={busy} loading={pageLoading} walletKey={`${wallet}-${revision}`} onPageChange={offset=>{void changePage(offset);}} onRevoke={requestRevocation}/>}
+            {pageError&&<p className="error-message" role="alert">{pageError}</p>}
+            <div className="portal-actions"><label className="form-field">ID kredensial yang akan dicabut<input value={revokeId} onChange={e=>{setRevokeId(e.target.value);setConfirmRevoke(false);}} placeholder="0x…"/></label><button className="button secondary" disabled={busy||pageLoading||!revokeId||configuration?.mode!=='testnet'} onClick={()=>requestRevocation()}>Cabut kredensial</button></div>
+          </>}
+        </section>}
       </div>
       <div className={styles.tabPanel} id="portal-panel-institution" role="tabpanel" aria-labelledby="portal-tab-institution" tabIndex={0} hidden={activeTab!=='institution'}>
         {(wallet||restoring)&&<p className={styles.portalDescription}>{portalTabs[0].description}</p>}
@@ -185,5 +208,6 @@ export function PortalPage({initialTab='institution'}:{initialTab?:typeof portal
           <form className={`portal-form greek-panel ${styles.workPanel}`} onSubmit={updateSigner}><h2>Wallet penandatangan</h2><p className="muted small">Aktifkan wallet pejabat untuk institusi yang telah terdaftar. Nonaktifkan wallet lama saat melakukan rotasi.</p><div className="form-grid" style={{marginTop:20}}><label className="form-field">ID institusi (bytes32)<input name="issuerId" required pattern="0x[a-fA-F0-9]{64}"/></label><label className="form-field">Alamat wallet pejabat<input name="address" required pattern="0x[a-fA-F0-9]{40}"/></label><label><input type="checkbox" name="active" defaultChecked/> Wallet berwenang menandatangani</label></div><button className="button primary" disabled={busy}>Simpan kewenangan wallet</button></form></>}
       </div>
     </section>
+    {confirmRevoke&&<RevokeCredentialDialog credentialId={revokeId} busy={busy} error={error} onCancel={()=>setConfirmRevoke(false)} onConfirm={revoke}/>}
   </>;
 }

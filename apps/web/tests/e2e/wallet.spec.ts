@@ -80,12 +80,15 @@ for (const width of [1280, 800, 390]) for (const dateSource of ['declared', 'fro
     else await dateField.fill('2026-08-15');
     await expect(page.getByText('PDF dibuat dari data penerbitan dan disimpan sebagai arsip privat.', { exact: false })).toBeVisible();
     expect(created).toBe(false);
+    await page.getByRole('heading', { name: 'Data Ijazah Mahasiswa', exact: true }).click();
+    await page.screenshot({ path: test.info().outputPath(`diploma-form-${width}-${dateSource}.png`), fullPage: true, animations: 'disabled' });
     await page.getByRole('button', { name: 'Buat PDF ijazah', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Unduh PDF', exact: true })).toBeVisible({ timeout: 20000 });
     expect(created).toBe(true);
     // Issuer PDF generation does not run OCR/FHE; the removed document-check phase must not reappear.
     await expect(page.getByText('Memeriksa dokumen', { exact: true })).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await page.getByRole('heading', { name: 'Data Ijazah Mahasiswa', exact: true }).click();
     await page.screenshot({ path: test.info().outputPath(`diploma-${width}.png`), fullPage: true });
     const downloaded = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Unduh PDF', exact: true }).click();
@@ -93,8 +96,9 @@ for (const width of [1280, 800, 390]) for (const dateSource of ['declared', 'fro
     expect(download.suggestedFilename()).toBe('ijazah-ababababab.pdf');
     expect(await readFile((await download.path())!)).toEqual(pdf);
     await page.reload();
+    await expect(page.getByRole('button', { name: /^Kelola wallet 0x/ })).toBeVisible({ timeout: 20000 });
     await recordsTab.click();
-    await expect(page.getByRole('button', { name: 'Unduh PDF', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Unduh PDF', exact: true })).toBeVisible({ timeout: 20000 });
     await page.evaluate(address => (window as unknown as FixtureWindow).__walletFixture.setAccount(address), otherWallet.address);
     await expect(page.getByRole('button', { name: 'Unduh PDF', exact: true })).toHaveCount(0);
   });
@@ -103,6 +107,8 @@ interface WalletFixture {
   setAccount: (address: string) => void;
   setChain: (chainId: string) => void;
   rejectSignature: boolean;
+  holdTransaction: boolean;
+  releaseTransaction: () => void;
   requests: { wallet: string; method: string }[];
 }
 interface FixtureWindow {
@@ -170,6 +176,14 @@ async function installWallets(page: Page) {
               return fixtureWindow.__signFixtureMessage(address, String(params[0]));
             }
             case 'eth_getBalance': return '0x0';
+            case 'eth_blockNumber': return '0x1';
+            case 'eth_estimateGas': return '0x186a0';
+            case 'eth_sendTransaction':
+              if (fixtureWindow.__walletFixture.holdTransaction) await new Promise<void>(resolve => {
+                fixtureWindow.__walletFixture.releaseTransaction = resolve;
+              });
+              // Transaction requests always stop at this fake wallet; nothing is broadcast.
+              throw Object.assign(new Error('User rejected the request'), { code: 4001 });
             default: throw Object.assign(new Error(`Unsupported fixture method: ${method}`), { code: 4200 });
           }
         },
@@ -181,7 +195,7 @@ async function installWallets(page: Page) {
       };
     });
     fixtureWindow.__walletFixture = {
-      requests, rejectSignature: false,
+      requests, rejectSignature: false, holdTransaction: false, releaseTransaction: () => {},
       setAccount: providers[0]!.setAccount,
       setChain: providers[0]!.setChain,
     };
@@ -219,18 +233,304 @@ async function openSignIn(page: Page, screenshotPath?: string) {
     await page.screenshot({ path: screenshotPath, fullPage: true, animations: 'disabled' });
   }
   await dialog.getByRole('button', { name: new RegExp(campusName) }).click();
-  await expect(page.getByRole('button', { name: 'Kirim pesan', exact: true })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Kirim pesan', exact: true })).toBeEnabled({ timeout: 20000 });
 }
 
 async function finishSignIn(page: Page, context: BrowserContext, address = campusWallet.address) {
   await page.getByRole('button', { name: 'Kirim pesan', exact: true }).click();
-  await expect(page.getByRole('button', { name: /^Kelola wallet 0x/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Kelola wallet 0x/ })).toBeVisible({ timeout: 20000 });
   await expect.poll(() => serverWallet(context)).toBe(address);
 }
 
 test.beforeEach(async ({ page, mockWallets }) => {
   await blockExternalRequests(page);
   if (mockWallets) await installWallets(page);
+});
+
+async function openRevocationRecords(page: Page, context: BrowserContext) {
+  const credentials = Array.from({ length: 12 }, (_, index) => ({
+    credentialId: `0x${(index + 1).toString(16).padStart(64, '0')}`,
+    issuedAt: '2026-09-25T00:00:00Z', confirmed: true, revoked: false,
+  }));
+  await page.route('**/api/portal/config*', route => route.fulfill({ json: {
+    mode: 'testnet', chainId: 11155111, contractAddress: `0x${'56'.repeat(20)}`,
+    portal: {
+      wallet: campusWallet.address,
+      issuer: { exists: true, active: true, signerActive: true, issuerId: `0x${'cd'.repeat(32)}`, name: 'Universitas Contoh Indonesia' },
+      admin: false, credentials, offset: 0, total: credentials.length,
+      documents: Object.fromEntries(credentials.map(({ credentialId }) => [credentialId, { status: 'NOT_CREATED', dateFrozen: false }])),
+    },
+  } }));
+  await openSignIn(page);
+  await finishSignIn(page, context);
+  await page.getByRole('tab', { name: 'Data Ijazah Mahasiswa', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Cabut', exact: true })).toHaveCount(credentials.length);
+  return credentials;
+}
+
+async function openPaginatedRecords(page: Page, context: BrowserContext) {
+  const credentials = Array.from({ length: 41 }, (_, index) => ({
+    credentialId: `0x${(index + 1).toString(16).padStart(64, '0')}`,
+    issuedAt: '2026-09-25T00:00:00Z', confirmed: index !== 4, revoked: index === 3,
+  }));
+  const documents = Object.fromEntries(credentials.map(({ credentialId }, index) => [credentialId,
+    index === 1 ? { status: 'NOT_CREATED', dateFrozen: false }
+      : index === 2 ? { status: 'FAILED', dateFrozen: false, reason: 'Dokumen belum tersedia.', errorCode: 'ARCHIVE_NOT_AVAILABLE' }
+        : { status: 'READY', graduationDate: '2026-08-15', dateFrozen: true, downloadUrl: `/api/credentials/${credentialId}/document/download` },
+  ]));
+  const offsets: number[] = [];
+  const documentRequests: string[] = [];
+  let nextRequest: 'normal' | 'fail' | 'hold' = 'normal';
+  let releasePending: (() => void) | undefined;
+  await page.route('**/api/portal/config*', async route => {
+    const offset = Number(new URL(route.request().url()).searchParams.get('offset') || 0);
+    offsets.push(offset);
+    const behavior = offset === 20 ? nextRequest : 'normal';
+    if (offset === 20) nextRequest = 'normal';
+    if (behavior === 'fail') return route.fulfill({ status: 503, json: { error: 'Halaman ijazah belum dapat dimuat.' } });
+    if (behavior === 'hold') await new Promise<void>(resolve => { releasePending = resolve; });
+    const rows = credentials.slice(offset, offset + 20);
+    await route.fulfill({ json: {
+      mode: 'testnet', chainId: 11155111, contractAddress: `0x${'56'.repeat(20)}`,
+      portal: {
+        wallet: campusWallet.address,
+        issuer: { exists: true, active: true, signerActive: true, issuerId: `0x${'cd'.repeat(32)}`, name: 'Universitas Contoh Indonesia' },
+        admin: false, credentials: rows, offset, total: credentials.length,
+        documents: Object.fromEntries(rows.filter(({ credentialId }) => credentialId !== credentials[5]!.credentialId).map(({ credentialId }) => [credentialId, documents[credentialId]])),
+      },
+    } });
+  });
+  await page.route(/\/api\/credentials\/0x[0-9a-f]+\/document(?:\?.*)?$/, route => {
+    documentRequests.push(route.request().method());
+    const id = new URL(route.request().url()).pathname.split('/')[3]!;
+    if (id === credentials[5]!.credentialId) return route.fulfill({ status: 404, json: { error: 'Dokumen tidak ditemukan untuk institusi ini.' } });
+    return route.fulfill({ json: documents[id] ?? { status: 'NOT_CREATED', dateFrozen: false } });
+  });
+  await openSignIn(page);
+  await finishSignIn(page, context);
+  await page.getByRole('tab', { name: 'Data Ijazah Mahasiswa', exact: true }).click();
+  return {
+    credentials, offsets, documentRequests,
+    failNextPage: () => { nextRequest = 'fail'; },
+    holdNextPage: () => { nextRequest = 'hold'; },
+    releasePage: () => { releasePending?.(); releasePending = undefined; },
+  };
+}
+
+for (const width of [1280, 390]) test(`student diploma records have continuous numbers and 20 rows per page at ${width}px`, async ({ page, context }) => {
+  await page.setViewportSize({ width, height: 844 });
+  const fixture = await openPaginatedRecords(page, context);
+  const records = page.getByRole('region', { name: 'Daftar ijazah mahasiswa', exact: true });
+  const rows = records.locator('tbody > tr');
+  const pagination = page.getByRole('navigation', { name: 'Halaman data ijazah', exact: true });
+  const previous = pagination.getByRole('button', { name: 'Sebelumnya', exact: true });
+  const next = pagination.getByRole('button', { name: 'Berikutnya', exact: true });
+  const pageButton = (number: number) => pagination.getByRole('button', { name: `Halaman ${number}`, exact: true });
+  const expectPage = async (offset: number, count: number) => {
+    await expect(rows).toHaveCount(count);
+    await expect(records.getByText(`Menampilkan ${offset + 1}–${offset + count} dari 41 ijazah`, { exact: false })).toBeVisible();
+    await expect(pageButton(offset / 20 + 1)).toHaveAttribute('aria-current', 'page');
+    await expect.poll(() => rows.evaluateAll(elements => elements.map(element => element.querySelector('td,th')?.textContent?.trim()))).toEqual(Array.from({ length: count }, (_, index) => String(offset + index + 1)));
+    for (const index of [0, count - 1]) await expect(rows.nth(index).getByRole('link', { name: 'Lihat rekaman', exact: true })).toHaveAttribute('href', `/c/${fixture.credentials[offset + index]!.credentialId}`);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  };
+
+  await expectPage(0, 20);
+  await expect(previous).toBeDisabled();
+  await expect(next).toBeEnabled();
+  await expect(rows.nth(3).getByText('Dicabut', { exact: true })).toBeVisible();
+  await expect(rows.nth(3).getByRole('button', { name: 'Cabut', exact: true })).toHaveCount(0);
+  await expect(rows.nth(0).getByRole('button', { name: 'Unduh PDF', exact: true })).toBeVisible();
+  await expect(rows.nth(1).getByRole('button', { name: 'Buat PDF ijazah', exact: true })).toBeVisible();
+  const missingPdf = rows.nth(5);
+  await expect(missingPdf.getByText('PDF tidak tersedia', { exact: true })).toBeVisible();
+  await expect(missingPdf.getByRole('alert')).toHaveCount(0);
+  await missingPdf.getByRole('button', { name: 'Detail PDF', exact: true }).click();
+  await expect(missingPdf.getByRole('alert')).toHaveText('Dokumen tidak ditemukan untuk institusi ini.');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.getByRole('heading', { name: 'Data Ijazah Mahasiswa', exact: true }).click();
+  await page.screenshot({ path: test.info().outputPath(`diploma-records-pdf-error-${width}.png`), fullPage: true, animations: 'disabled' });
+  await missingPdf.getByRole('button', { name: 'Tutup detail PDF', exact: true }).click();
+  await page.getByRole('heading', { name: 'Data Ijazah Mahasiswa', exact: true }).click();
+  await page.screenshot({ path: test.info().outputPath(`diploma-records-page-1-${width}.png`), fullPage: true, animations: 'disabled' });
+  await next.click();
+  await expectPage(20, 20);
+  await expect(previous).toBeEnabled();
+  await next.click();
+  await expectPage(40, 1);
+  await expect(next).toBeDisabled();
+  await page.getByRole('heading', { name: 'Data Ijazah Mahasiswa', exact: true }).click();
+  await page.screenshot({ path: test.info().outputPath(`diploma-records-page-3-${width}.png`), fullPage: true, animations: 'disabled' });
+  await previous.click();
+  await expectPage(20, 20);
+  await pageButton(1).click();
+  await expectPage(0, 20);
+  await pageButton(3).click();
+  await expectPage(40, 1);
+  expect(fixture.offsets.filter(offset => offset !== 0)).toEqual([20, 40, 20, 40]);
+  expect(fixture.documentRequests.filter(method => method !== 'GET')).toEqual([]);
+  expect(await page.evaluate(() => (window as unknown as FixtureWindow).__walletFixture.requests.filter(request => ['eth_estimateGas', 'eth_sendTransaction'].includes(request.method)))).toEqual([]);
+});
+
+test('student diploma pagination keeps the current page after a failed request and prevents duplicate requests while loading', async ({ page, context }) => {
+  const fixture = await openPaginatedRecords(page, context);
+  const records = page.getByRole('region', { name: 'Daftar ijazah mahasiswa', exact: true });
+  const rows = records.locator('tbody > tr');
+  const pagination = page.getByRole('navigation', { name: 'Halaman data ijazah', exact: true });
+  const next = pagination.getByRole('button', { name: 'Berikutnya', exact: true });
+  const pageOne = pagination.getByRole('button', { name: 'Halaman 1', exact: true });
+  const pageThree = pagination.getByRole('button', { name: 'Halaman 3', exact: true });
+  await expect(rows).toHaveCount(20);
+  fixture.failNextPage();
+  await next.click();
+  await expect(page.getByRole('alert').filter({ hasText: 'Halaman ijazah belum dapat dimuat.' })).toBeVisible();
+  await expect(rows).toHaveCount(20);
+  await expect(pageOne).toHaveAttribute('aria-current', 'page');
+  await expect(records.getByText('Menampilkan 1–20 dari 41 ijazah', { exact: false })).toBeVisible();
+  await expect(next).toBeEnabled();
+
+  fixture.holdNextPage();
+  try {
+    await next.click();
+    await expect.poll(() => fixture.offsets.filter(offset => offset === 20).length).toBe(2);
+    await expect(next).toBeDisabled();
+    await expect(pageThree).toBeDisabled();
+    await expect(rows).toHaveCount(20);
+    await expect(pageOne).toHaveAttribute('aria-current', 'page');
+    // Even a forced click on a disabled control must not trigger a duplicate request.
+    await next.click({ force: true });
+    fixture.releasePage();
+    await expect(records.getByText('Menampilkan 21–40 dari 41 ijazah', { exact: false })).toBeVisible();
+    await expect(rows).toHaveCount(20);
+    await expect(rows.first().locator('td,th').first()).toHaveText('21');
+    await expect(next).toBeEnabled();
+    expect(fixture.offsets.filter(offset => offset === 20)).toHaveLength(2);
+    await expect(page.getByRole('alert').filter({ hasText: 'Halaman ijazah belum dapat dimuat.' })).toHaveCount(0);
+  } finally { fixture.releasePage(); }
+});
+
+test('student diploma pagination cannot restore records from a previous wallet when its response arrives late', async ({ page, context }) => {
+  const fixture = await openPaginatedRecords(page, context);
+  const records = page.getByRole('region', { name: 'Daftar ijazah mahasiswa', exact: true });
+  const next = page.getByRole('navigation', { name: 'Halaman data ijazah', exact: true }).getByRole('button', { name: 'Berikutnya', exact: true });
+  fixture.holdNextPage();
+  try {
+    await next.click();
+    await expect.poll(() => fixture.offsets.filter(offset => offset === 20).length).toBe(1);
+    await page.evaluate(address => (window as unknown as FixtureWindow).__walletFixture.setAccount(address), otherWallet.address);
+    await expect(page.getByRole('heading', { name: 'Masuk dengan wallet institusi', exact: true })).toBeVisible();
+    await expect(records).toHaveCount(0);
+    const lateResponse = page.waitForResponse(response => new URL(response.url()).pathname === '/api/portal/config' && new URL(response.url()).searchParams.get('offset') === '20');
+    fixture.releasePage();
+    await (await lateResponse).finished();
+    await expect.poll(() => serverWallet(context), { timeout: 20000 }).toBeNull();
+    await expect(records).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Unduh PDF', exact: true })).toHaveCount(0);
+  } finally { fixture.releasePage(); }
+});
+
+for (const width of [1280, 390]) test(`revocation confirmation is a centered accessible popup without scrolling at ${width}px`, async ({ page, context }) => {
+  await page.setViewportSize({ width, height: 844 });
+  const credentials = await openRevocationRecords(page, context);
+  const rowButton = page.getByRole('button', { name: 'Cabut', exact: true }).first();
+  const dialog = page.getByRole('dialog', { name: 'Cabut kredensial?', exact: true });
+  const cancel = dialog.getByRole('button', { name: 'Batal', exact: true });
+  const confirm = dialog.getByRole('button', { name: 'Konfirmasi pencabutan', exact: true });
+
+  await rowButton.scrollIntoViewIfNeeded();
+  const rowScroll = await page.evaluate(() => window.scrollY);
+  await rowButton.click();
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText(credentials[0]!.credentialId, { exact: true })).toBeVisible();
+  await expect(cancel).toBeFocused();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(rowScroll);
+  const bounds = await dialog.boundingBox();
+  expect(bounds).not.toBeNull();
+  expect(bounds!.x).toBeGreaterThanOrEqual(0);
+  expect(bounds!.y).toBeGreaterThanOrEqual(0);
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
+  expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(844);
+  expect(Math.abs(bounds!.x + bounds!.width / 2 - width / 2)).toBeLessThan(3);
+  expect(Math.abs(bounds!.y + bounds!.height / 2 - 844 / 2)).toBeLessThan(3);
+  await page.screenshot({ path: test.info().outputPath(`revocation-popup-${width}.png`), animations: 'disabled' });
+  await cancel.press('Tab');
+  await expect(confirm).toBeFocused();
+  await confirm.press('Tab');
+  await expect(cancel).toBeFocused();
+  await cancel.press('Shift+Tab');
+  await expect(confirm).toBeFocused();
+  await cancel.click();
+  await expect(dialog).toBeHidden();
+  await expect(rowButton).toBeFocused();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(rowScroll);
+
+  // Both entry points must open the same modal, even when the manual form is far below the first row.
+  const manualId = `0x${'fe'.repeat(32)}`;
+  await page.getByLabel('ID kredensial yang akan dicabut', { exact: true }).fill(manualId);
+  const manualButton = page.getByRole('button', { name: 'Cabut kredensial', exact: true });
+  await manualButton.scrollIntoViewIfNeeded();
+  const manualScroll = await page.evaluate(() => window.scrollY);
+  expect(manualScroll).toBeGreaterThan(rowScroll);
+  await manualButton.click();
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText(manualId, { exact: true })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(manualScroll);
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  await expect(manualButton).toBeFocused();
+  await manualButton.click();
+  await expect(dialog).toBeVisible();
+  await page.mouse.click(8, 8); // Outside the dialog, on its backdrop.
+  await expect(dialog).toBeHidden();
+  await expect(manualButton).toBeFocused();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(manualScroll);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(await page.evaluate(() => (window as unknown as FixtureWindow).__walletFixture.requests.filter(request => ['eth_estimateGas', 'eth_sendTransaction'].includes(request.method)))).toEqual([]);
+});
+
+test('revocation popup stays open during wallet confirmation and shows a rejected transaction inside the popup', async ({ page, context }) => {
+  await openRevocationRecords(page, context);
+  const rowButton = page.getByRole('button', { name: 'Cabut', exact: true }).first();
+  await rowButton.click();
+  const dialog = page.getByRole('dialog', { name: 'Cabut kredensial?', exact: true });
+  const confirm = dialog.getByRole('button', { name: 'Konfirmasi pencabutan', exact: true });
+  const cancel = dialog.getByRole('button', { name: 'Batal', exact: true });
+  await page.evaluate(() => { (window as unknown as FixtureWindow).__walletFixture.holdTransaction = true; });
+  await confirm.click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as FixtureWindow).__walletFixture.requests.filter(request => request.method === 'eth_sendTransaction').length)).toBe(1);
+  await expect(confirm).toBeDisabled();
+  await expect(cancel).toBeDisabled();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeVisible();
+  await page.mouse.click(8, 8);
+  await expect(dialog).toBeVisible();
+  await page.evaluate(() => (window as unknown as FixtureWindow).__walletFixture.releaseTransaction());
+  await expect(dialog.getByRole('alert')).toHaveText('Permintaan dibatalkan di wallet. Tidak ada transaksi yang dikirim.');
+  await expect(confirm).toBeEnabled();
+  await expect(cancel).toBeEnabled();
+  await expect(page.getByText('Kredensial telah dicabut.', { exact: false })).toHaveCount(0);
+  await cancel.click();
+  await expect(dialog).toBeHidden();
+  await expect(rowButton).toBeFocused();
+});
+
+test('revocation popup only dismisses outside its bounds when the viewport needs an internal scrollbar', async ({ page, context }) => {
+  await page.setViewportSize({ width: 1280, height: 320 });
+  await openRevocationRecords(page, context);
+  const rowButton = page.getByRole('button', { name: 'Cabut', exact: true }).first();
+  await rowButton.click();
+  const dialog = page.getByRole('dialog', { name: 'Cabut kredensial?', exact: true });
+  await expect(dialog).toBeVisible();
+  expect(await dialog.evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true);
+  const bounds = (await dialog.boundingBox())!;
+  // A click inside the right border/scrollbar is not a backdrop click, even if its target is the dialog.
+  await page.mouse.click(bounds.x + bounds.width - 1, bounds.y + bounds.height / 2);
+  await expect(dialog).toBeVisible();
+  await page.screenshot({ path: test.info().outputPath('revocation-popup-short-viewport.png'), animations: 'disabled' });
+  await page.mouse.click(8, 8);
+  await expect(dialog).toBeHidden();
+  await expect(rowButton).toBeFocused();
+  expect(await page.evaluate(() => (window as unknown as FixtureWindow).__walletFixture.requests.filter(request => request.method === 'eth_sendTransaction'))).toEqual([]);
 });
 
 test('RainbowKit authenticates the selected EIP-6963 wallet and disconnect clears the server session', async ({ page, context }) => {
