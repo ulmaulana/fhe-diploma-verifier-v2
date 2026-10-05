@@ -6,14 +6,14 @@ export function isNetlify() {
   return process.env.NETLIFY === 'true' || Boolean(process.env.SITE_ID && process.env.URL);
 }
 
-/** Explicit aliases avoid the AWS credentials/region reserved by hosted runtimes. */
+/** Only NEON_STORAGE_* is read: hosted runtimes such as Netlify reserve the AWS_* names. */
 export function neonStorageConfig() {
   return {
     bucket: process.env.S3_BUCKET,
-    endpoint: process.env.NEON_STORAGE_ENDPOINT || process.env.AWS_ENDPOINT_URL_S3,
-    region: process.env.NEON_STORAGE_REGION || process.env.AWS_REGION,
-    accessKeyId: process.env.NEON_STORAGE_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.NEON_STORAGE_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY,
+    endpoint: process.env.NEON_STORAGE_ENDPOINT,
+    region: process.env.NEON_STORAGE_REGION,
+    accessKeyId: process.env.NEON_STORAGE_ACCESS_KEY_ID,
+    secretAccessKey: process.env.NEON_STORAGE_SECRET_ACCESS_KEY,
   };
 }
 

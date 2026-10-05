@@ -106,7 +106,7 @@ Konfigurasi hosting Netlify memakai proyek Neon `still-leaf-95159203`, branch `p
 
 - `DATABASE_URL`: koneksi Neon **pooled** untuk runtime, termasuk Netlify Functions.
 - `DATABASE_MIGRATION_URL`: koneksi Neon **direct/unpooled** dari database dan branch yang sama untuk migrasi Drizzle.
-- `STORAGE_PROVIDER=neon`, `S3_BUCKET=verifikasi-private`, dan variabel `NEON_STORAGE_*`: penyimpanan dokumen di bucket privat Neon pada branch yang sama; di lokal tersedia fallback ke `AWS_*` dari CLI.
+- `STORAGE_PROVIDER=neon`, `S3_BUCKET=verifikasi-private`, dan variabel `NEON_STORAGE_*`: penyimpanan dokumen di bucket privat Neon pada branch yang sama; aplikasi hanya membaca `NEON_STORAGE_*` (salin dari `AWS_*` hasil Neon CLI).
 
 Terapkan migrasi sebelum menjalankan aplikasi dengan database yang dituju. Untuk reproduksi pengujian UAS, kedua variabel koneksi harus mengarah ke `verifikasi_local` pada localhost:
 

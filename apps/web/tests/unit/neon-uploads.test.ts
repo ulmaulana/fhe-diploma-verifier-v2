@@ -83,11 +83,11 @@ async function part(intent: UploadIntent, index: string, bytes: Buffer, headers:
 beforeEach(async () => {
   directory = await mkdtemp(join(tmpdir(), 'neon-uploads-test-'));
   for (const name of ['VERCEL', 'NETLIFY', 'SITE_ID', 'URL', 'DATABASE_URL',
-    'NEON_STORAGE_ENDPOINT', 'NEON_STORAGE_REGION', 'NEON_STORAGE_ACCESS_KEY_ID', 'NEON_STORAGE_SECRET_ACCESS_KEY']) vi.stubEnv(name, '');
+    'AWS_ENDPOINT_URL_S3', 'AWS_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY']) vi.stubEnv(name, '');
   vi.stubEnv('APP_MODE', 'demo'); vi.stubEnv('APP_ORIGIN', origin); vi.stubEnv('PRIVATE_DATA_DIR', directory);
   vi.stubEnv('STORAGE_PROVIDER', 'neon'); vi.stubEnv('S3_BUCKET', 'verifikasi-private');
-  vi.stubEnv('AWS_ACCESS_KEY_ID', 'test-access-key'); vi.stubEnv('AWS_SECRET_ACCESS_KEY', 'test-secret-key');
-  vi.stubEnv('AWS_ENDPOINT_URL_S3', 'https://storage.test.invalid'); vi.stubEnv('AWS_REGION', 'us-east-2');
+  vi.stubEnv('NEON_STORAGE_ACCESS_KEY_ID', 'test-access-key'); vi.stubEnv('NEON_STORAGE_SECRET_ACCESS_KEY', 'test-secret-key');
+  vi.stubEnv('NEON_STORAGE_ENDPOINT', 'https://storage.test.invalid'); vi.stubEnv('NEON_STORAGE_REGION', 'us-east-2');
   // Settings from a previous provider must not divert new private files.
   vi.stubEnv('BLOB_READ_WRITE_TOKEN', 'old-unused-token');
   storage.objects.clear(); storage.calls.length = 0; storage.configurations.length = 0;
@@ -179,8 +179,17 @@ it('uses Neon aliases instead of platform AWS credentials and region', async () 
   });
 });
 
-it('rejects missing Neon and AWS secret credentials before writing or reserving an upload', async () => {
-  vi.stubEnv('AWS_SECRET_ACCESS_KEY', ''); vi.stubEnv('NEON_STORAGE_SECRET_ACCESS_KEY', '');
+it('does not fall back to AWS_* when Neon aliases are missing', async () => {
+  for (const [alias, standard, value] of [['NEON_STORAGE_ENDPOINT', 'AWS_ENDPOINT_URL_S3', 'https://storage.test.invalid'],
+    ['NEON_STORAGE_REGION', 'AWS_REGION', 'us-east-2'], ['NEON_STORAGE_ACCESS_KEY_ID', 'AWS_ACCESS_KEY_ID', 'test-access-key'],
+    ['NEON_STORAGE_SECRET_ACCESS_KEY', 'AWS_SECRET_ACCESS_KEY', 'test-secret-key']]) { vi.stubEnv(alias, ''); vi.stubEnv(standard, value); }
+  await expect(putPrivate(`0x${'78'.repeat(32)}`, 'upload.bin', fixture)).rejects.toThrow('Neon Object Storage is not configured');
+  await expect(reserve()).rejects.toMatchObject({ status: 503, code: 'CONFIGURATION_REQUIRED' });
+  expect(storage.configurations).toEqual([]);
+});
+
+it('rejects a missing Neon secret credential before writing or reserving an upload', async () => {
+  vi.stubEnv('NEON_STORAGE_SECRET_ACCESS_KEY', '');
   await expect(putPrivate(`0x${'56'.repeat(32)}`, 'upload.bin', fixture)).rejects.toThrow('Neon Object Storage is not configured');
   await expect(reserve()).rejects.toMatchObject({ status: 503, code: 'CONFIGURATION_REQUIRED' });
   expect(storage.calls).toEqual([]);
