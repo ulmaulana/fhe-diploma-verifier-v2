@@ -14,14 +14,13 @@ const services = [
 ];
 
 export function HomeHero() {
-  return <>
+  // The hero takes whatever height the service panel leaves, so all three cards are visible on first load.
+  return <div className={styles.fold}>
     <section className={styles.hero} aria-labelledby="home-title">
       {/* v4: the cut-out statues stand on the bare marble canvas, without the temple scene. */}
       <Image src={statues} alt="" priority sizes="(max-width: 680px) 110vw, 70vw" className={styles.statues}/>
       <div className={styles.content}>
-        <p className={styles.eyebrow}>Validasi ijazah<br/>lebih pasti</p>
         <h1 id="home-title" className={styles.title}><span>Verifikasi</span> <span className={styles.titleSoft}>Ijazah</span></h1>
-        <p className={styles.lead}>Gunakan teknologi terkini untuk memeriksa ijazah dengan rekaman resmi penerbit.</p>
         <Link href="/verifikasi" className={styles.cta}>Mulai Verifikasi<ArrowRightIcon size={22}/></Link>
       </div>
     </section>
@@ -42,5 +41,5 @@ export function HomeHero() {
         </Link>
       </li>)}</ul>
     </section>
-  </>;
+  </div>;
 }

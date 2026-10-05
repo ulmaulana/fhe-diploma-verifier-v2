@@ -1,78 +1,75 @@
+/* First screen: hero and service panel share one viewport height, so the three cards are never cut off. */
+.fold{display:flex;flex-direction:column;min-height:100svh;padding-bottom:clamp(14px,2.2vh,28px)}
 /* v4 palette: bare marble canvas, ink headline, slate second line. */
-.hero{position:relative;isolation:isolate;overflow:hidden;min-height:clamp(560px,calc(100svh - 240px),800px);border-top-left-radius:56px;background:radial-gradient(60% 55% at 74% 38%,#f9f9fa 0%,#f2f3f4 100%)}
-.statues{position:absolute;z-index:-1;right:clamp(8px,1.4%,40px);bottom:-12%;width:min(70%,calc((100svh - 240px) * 1.4),1080px);height:auto;filter:drop-shadow(0 26px 34px #5a463014) drop-shadow(0 6px 10px #5a46300f);pointer-events:none;user-select:none}
-.content{display:flex;flex-direction:column;align-items:flex-start;max-width:min(520px,40%);padding:clamp(112px,15vh,148px) 0 clamp(90px,13vh,120px) clamp(40px,6.6%,104px)}
-.eyebrow{color:#0b0d12;font-size:11.5px;font-weight:600;letter-spacing:.42em;line-height:1.75;text-transform:uppercase}
-.title{display:flex;flex-direction:column;margin-top:30px;color:#0b0d12;font-size:clamp(60px,6.5vw,116px);font-weight:700;letter-spacing:-.045em;line-height:.9}
+.hero{position:relative;isolation:isolate;display:flex;align-items:center;flex:1 0 auto;min-height:300px;overflow:hidden;border-top-left-radius:56px;background:radial-gradient(60% 55% at 74% 38%,#f9f9fa 0%,#f2f3f4 100%)}
+/* Sized from the hero height the panel leaves: 100svh minus the card row and panel chrome. */
+.statues{position:absolute;z-index:-1;right:clamp(8px,1.4%,40px);bottom:-12%;width:min(70%,calc((100svh - min(11vw,215px) - 70px) * 1.34),1500px);height:auto;filter:drop-shadow(0 26px 34px #5a463014) drop-shadow(0 6px 10px #5a46300f);pointer-events:none;user-select:none}
+.content{display:flex;flex-direction:column;align-items:flex-start;max-width:min(520px,40%);padding:92px 0 64px clamp(40px,6.6%,104px)}
+.title{display:flex;flex-direction:column;color:#0b0d12;font-size:clamp(48px,min(6.5vw,11.5vh),116px);font-weight:700;letter-spacing:-.045em;line-height:.9}
 .titleSoft{padding:0 .04em .08em 0;background:linear-gradient(180deg,#70757e 0%,#5f646d 60%,#565b64 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.lead{max-width:380px;margin-top:14px;color:#0b0d12;font-size:18px;font-weight:500;line-height:1.38}
-.cta{display:inline-flex;align-items:center;gap:20px;height:56px;margin-top:28px;padding:0 26px 0 32px;border-radius:99px;background:#141b29;color:#fff;font-size:16px;font-weight:500;box-shadow:0 14px 30px #0d14222e;transition:background .18s,transform .18s}
+.cta{display:inline-flex;align-items:center;gap:20px;height:56px;margin-top:32px;padding:0 26px 0 32px;border-radius:99px;background:#141b29;color:#fff;font-size:16px;font-weight:500;box-shadow:0 14px 30px #0d14222e;transition:background .18s,transform .18s}
 .cta:hover{background:#273246}
 .cta:active{transform:translateY(1px)}
 .cta :global(.icon){--icon-accent:currentColor}
 
-.services{position:relative;z-index:2;margin:-45px 34px 0 32px;padding:14px 21px 18px;border:1px solid #ffffffe6;border-radius:26px;background:#f8f8f9d1;box-shadow:0 24px 60px #1c26380d;backdrop-filter:blur(22px) saturate(1.1);-webkit-backdrop-filter:blur(22px) saturate(1.1)}
-.servicesHeader{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:9px}
-.chip{display:inline-flex;align-items:center;gap:9px;height:26px;padding:0 15px 0 6px;border-radius:99px;background:#85888e;color:#fff;font-size:12px;font-weight:500;letter-spacing:0}
-.chipToggle{position:relative;width:21px;height:14px;border-radius:99px;background:#ffffffe6}
-.chipToggle::after{content:'';position:absolute;top:4px;left:5px;width:6px;height:6px;border:1.5px solid #85888e;border-radius:50%}
-.seeAll{display:inline-flex;align-items:center;gap:6px;min-height:24px;color:#0b0d12;font-size:12.5px;transition:gap .18s}
+/* Sizes are fluid so the panel keeps the v4 proportions (cards ~184px tall at 1672px) and grows on wide screens. */
+.services{position:relative;z-index:2;margin:-45px 34px 0 32px;padding:clamp(14px,1.2vw,24px) clamp(18px,2.2vw,40px) clamp(18px,1.7vw,32px);border:1px solid #ffffffe6;border-radius:clamp(24px,2vw,36px);background:#f8f8f9d1;box-shadow:0 24px 60px #1c26380d;backdrop-filter:blur(22px) saturate(1.1);-webkit-backdrop-filter:blur(22px) saturate(1.1)}
+.servicesHeader{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:clamp(10px,1vw,18px)}
+.chip{display:inline-flex;align-items:center;gap:10px;height:clamp(28px,1.95vw,36px);padding:0 18px 0 7px;border-radius:99px;background:#85888e;color:#fff;font-size:clamp(12.5px,.84vw,15px);font-weight:500;letter-spacing:0}
+.chipToggle{position:relative;width:clamp(22px,1.6vw,28px);height:clamp(15px,1.1vw,19px);border-radius:99px;background:#ffffffe6}
+.chipToggle::after{content:'';position:absolute;top:50%;left:24%;width:7px;height:7px;border:1.5px solid #85888e;border-radius:50%;transform:translateY(-50%)}
+.seeAll{display:inline-flex;align-items:center;gap:6px;min-height:24px;color:#0b0d12;font-size:clamp(12.5px,.84vw,15px);transition:gap .18s}
 .seeAll:hover{gap:9px}
-.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin:0;padding:0;list-style:none}
-.card{position:relative;display:block;height:100%;min-height:129px;overflow:hidden;border-radius:16px;background:#fff;box-shadow:0 1px 2px #1018280a,0 12px 28px #1018280f;transition:transform .2s,box-shadow .2s}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,1.3vw,24px);margin:0;padding:0;list-style:none}
+.card{position:relative;display:block;height:100%;min-height:clamp(150px,11vw,215px);overflow:hidden;border-radius:clamp(16px,1.3vw,22px);background:#fff;box-shadow:0 1px 2px #1018280a,0 12px 28px #1018280f;transition:transform .2s,box-shadow .2s}
 .card:hover{transform:translateY(-2px);box-shadow:0 1px 2px #1018280a,0 18px 36px #10182817}
-.cardBody{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;width:60%;height:100%;padding:11px 0 11px 17px}
-.cardIcon{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#f1f2f4;color:#0b0d12}
-.cardIcon :global(.icon){--icon-accent:currentColor;--icon-soft:transparent;--icon-paper:transparent}
-.card h3{margin-top:5px;color:#0b0d12;font-size:15px;font-weight:600;letter-spacing:-.3px;line-height:1.25}
-.cardText{display:block;margin:2px 0 6px;color:#24396f;font-size:12px;line-height:1.35}
-.cardArrow{display:grid;place-items:center;width:27px;height:27px;margin-top:auto;border-radius:50%;background:#f1f2f4;color:#0b0d12;transition:background .18s,color .18s}
-.cardArrow :global(.icon){--icon-accent:currentColor}
+.cardBody{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;width:60%;height:100%;padding:clamp(13px,1vw,20px) 0 clamp(13px,1vw,20px) clamp(18px,1.6vw,30px)}
+.cardIcon{display:grid;place-items:center;width:clamp(32px,2.4vw,44px);height:clamp(32px,2.4vw,44px);border-radius:50%;background:#f1f2f4;color:#0b0d12}
+.cardIcon :global(.icon){width:52%;height:52%;--icon-accent:currentColor;--icon-soft:transparent;--icon-paper:transparent}
+.card h3{margin-top:clamp(7px,.6vw,12px);color:#0b0d12;font-size:clamp(15px,1.15vw,21px);font-weight:600;letter-spacing:-.02em;line-height:1.25}
+.cardText{display:block;margin:3px 0 clamp(7px,.6vw,12px);color:#24396f;font-size:clamp(12.5px,.82vw,15px);line-height:1.4}
+.cardArrow{display:grid;place-items:center;width:clamp(28px,2.2vw,40px);height:clamp(28px,2.2vw,40px);margin-top:auto;border-radius:50%;background:#f1f2f4;color:#0b0d12;transition:background .18s,color .18s}
+.cardArrow :global(.icon){width:46%;height:46%;--icon-accent:currentColor}
 .card:hover .cardArrow{background:#141b29;color:#fff}
 /* Marble plate behind the transparent bust, cut on the same diagonal as the v4 cards. */
 .cardArt{position:absolute;top:0;right:0;width:40%;height:100%;overflow:hidden;background:linear-gradient(115deg,#fbfbfb 10%,#efeff0 55%,#e6e6e7 100%);clip-path:polygon(32% 0,100% 0,100% 100%,0 100%)}
-.cardArt img{position:absolute;top:5%;right:0;width:auto;height:118%;max-width:none;filter:drop-shadow(-6px 8px 10px #5a46301a);transition:transform .3s}
+.cardArt img{position:absolute;top:5%;right:0;width:auto;height:112%;max-width:none;filter:drop-shadow(-6px 8px 10px #5a46301a);transition:transform .3s}
 .card:hover .cardArt img{transform:translateY(-3px)}
 
 @media(max-width:1190px){
-  .content{max-width:min(470px,46%);padding-top:132px}
-  .statues{bottom:-8%;width:min(60%,calc((100svh - 240px) * 1.25))}
-  .lead{max-width:330px}
-  .services{margin:-45px 24px 0 24px;padding:12px 14px 15px}
-  .cards{gap:11px}
-  .cardBody{width:66%}
-  .cardArt{width:34%}
-  .cardBody{padding-left:14px}
-  .card h3{font-size:14px}
-  .cardText{font-size:12px}
+  .content{max-width:min(470px,46%)}
+  .statues{bottom:-8%;width:min(60%,calc((100svh - min(11vw,215px) - 70px) * 1.25))}
+  .services{margin:-45px 24px 0 24px}
+  .cardBody{width:68%;padding-left:16px}
+  .cardArt{width:32%}
 }
 @media(max-width:950px){
-  .hero{min-height:840px;border-top-left-radius:40px}
+  /* Stacked cards cannot share the first screen with the hero, so the fold rule stops here. */
+  .fold{min-height:0}
+  .hero{display:block;min-height:720px;border-top-left-radius:40px}
   .content{max-width:none;padding:120px 32px 0}
   .statues{right:50%;bottom:-56px;transform:translateX(50%);width:min(92%,600px)}
   .services{margin:-56px 18px 0;border-radius:21px}
   .cards{grid-template-columns:minmax(0,1fr)}
-  .card{min-height:118px}
+  .card{min-height:150px}
   .cardBody{width:70%}
   .cardArt{width:30%}
 }
 @media(max-width:680px){
-  .hero{min-height:680px;border-radius:0}
+  .hero{min-height:580px;border-radius:0}
   .content{padding:102px 20px 0}
-  .eyebrow{font-size:10px;letter-spacing:.36em}
-  .title{margin-top:20px;font-size:clamp(50px,15vw,64px)}
-  .lead{margin-top:16px;font-size:16px;max-width:320px}
+  .title{font-size:clamp(50px,15vw,64px)}
   .cta{height:50px;margin-top:24px;padding:0 22px 0 26px;font-size:15px}
   .statues{width:min(112%,560px);bottom:-20px}
   .services{margin:-59px 12px 0;padding:11px 10px 13px;border-radius:18px}
   .servicesHeader{align-items:center;margin-bottom:8px}
-  .chip{height:24px;font-size:11.5px;padding-right:13px}
-  .seeAll{font-size:12px}
-  .card{min-height:109px;border-radius:14px}
-  .cardBody{padding:10px 0 10px 12px}
-  .cardIcon{width:28px;height:28px}
-  .card h3{margin-top:5px;font-size:14px}
-  .cardText{font-size:11.5px}
-  .cardArrow{width:25px;height:25px}
+  .chip{height:28px;font-size:12.5px;padding-right:14px}
+  .seeAll{font-size:13px}
+  .card{min-height:134px;border-radius:16px}
+  .cardBody{padding:13px 0 13px 15px}
+  .cardIcon{width:34px;height:34px}
+  .card h3{margin-top:8px;font-size:16px}
+  .cardText{font-size:13px}
+  .cardArrow{width:30px;height:30px}
 }
 @media(prefers-reduced-motion:reduce){.cta,.card,.cardArrow,.seeAll,.cardArt img{transition:none}}
