@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { ApiError, config, requireRealConfiguration } from './config';
 import { clientSource, limit } from './http';
 import { audit, withState } from './store';
-import { blobEnabled, deletePrivate, deletePrivateBlob } from './storage';
+import { blobEnabled, chunkedUploadsEnabled, deletePrivate, deletePrivateBlob } from './storage';
 import { TERMINAL, type Session, type State, type UploadIntent } from './types';
 
 const MIME_EXTENSION: Record<string, string> = { 'application/pdf': 'pdf', 'image/png': 'png', 'image/jpeg': 'jpg' };
@@ -15,7 +15,7 @@ export function ownedIntent(state: State, id: string, owner: string) {
 }
 export async function createUploadIntent(request: Request, current: Session, input: unknown) {
   requireRealConfiguration();
-  if (!blobEnabled()) throw new ApiError(503, 'STORAGE_REQUIRED', 'Penyimpanan unggahan belum dikonfigurasi.');
+  if (!blobEnabled() && !chunkedUploadsEnabled()) throw new ApiError(503, 'STORAGE_REQUIRED', 'Penyimpanan unggahan belum dikonfigurasi.');
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new ApiError(400, 'INVALID_UPLOAD', 'Informasi berkas tidak valid.');
   const data = input as Record<string, unknown>;
   const idempotencyKey = request.headers.get('idempotency-key');

@@ -1,12 +1,27 @@
 import { describe, it, expect } from 'vitest';
 import { PDFDocument } from 'pdf-lib';
 import { extractDocument } from '@verifikasi/ocr';
-import { assessOcr, normalizeAttributes } from '@verifikasi/domain';
+import { assessOcr, hashAttribute, normalizeAttributes } from '@verifikasi/domain';
 import { generateDiploma } from '../../src/server/diploma-pdf';
 
 const id = `0x${'12'.repeat(32)}`;
 const profile = { schemaVersion: 1, disclosurePolicyVersion: 1, issuerId: `0x${'34'.repeat(32)}` as `0x${string}`, issuerDisplayName: 'Universitas Contoh Indonesia', fullName: 'ANDI PRATAMA', diplomaNumber: 'IF-2026-001', studyProgram: 'TEKNIK INFORMATIKA' };
 describe('generated diploma, real OCR and QR engines', () => {
+  it.each(['MAULANA Y S', 'MAULANAY S', 'ANDI A B', 'ANDIAB', 'BUDI S', 'BUDIS'])('preserves spaces before single-letter name initials: %s', async fullName => {
+    const credentialId = '0x7feb0fe1d226be983971398dd058be40aa2e7541da9a1e92c209576ed44d4859';
+    const diplomaNumber = '123984747812';
+    const studyProgram = 'INFORMATIKA';
+    const date = '2027-01-06';
+    const pdf = await generateDiploma({ credentialId, profile: { ...profile, issuerDisplayName: 'Universitas Sintetis UAS (Uji)', fullName, diplomaNumber, studyProgram }, graduationDate: date, origin: 'http://localhost:3030', createdAt: '2026-10-06T00:00:00Z' });
+    const extraction = await extractDocument(pdf, 'application/pdf');
+    expect(extraction.errorCode).toBeUndefined();
+    const assessment = assessOcr(extraction.fields, { templateSupported: Boolean(extraction.templateId), qrPage: extraction.qrPage ?? undefined, dateFormat: extraction.dateFormat });
+    expect(assessment.issues).toEqual([]);
+    expect(assessment.eligible).toBe(true);
+    expect(extraction.fields.full_name?.text, JSON.stringify({ text: extraction.text, field: extraction.fields.full_name })).toBe(fullName);
+    expect(assessment.canonical).toEqual(normalizeAttributes({ full_name: fullName, diploma_number: diplomaNumber, study_program: studyProgram, graduation_date: date }));
+    expect(hashAttribute(credentialId, 'full_name', assessment.canonical!.full_name)).toBe(hashAttribute(credentialId, 'full_name', fullName));
+  }, 120_000);
   it.each([
     ['Maulana Y', 'IF', '2027-03-09'],
     ['Maulana Y', 'IF', '2026-08-15'],

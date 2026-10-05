@@ -6,6 +6,17 @@ export function isNetlify() {
   return process.env.NETLIFY === 'true' || Boolean(process.env.SITE_ID && process.env.URL);
 }
 
+/** Explicit aliases avoid the AWS credentials/region reserved by hosted runtimes. */
+export function neonStorageConfig() {
+  return {
+    bucket: process.env.S3_BUCKET,
+    endpoint: process.env.NEON_STORAGE_ENDPOINT || process.env.AWS_ENDPOINT_URL_S3,
+    region: process.env.NEON_STORAGE_REGION || process.env.AWS_REGION,
+    accessKeyId: process.env.NEON_STORAGE_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.NEON_STORAGE_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY,
+  };
+}
+
 export function config() {
   const mode = process.env.APP_MODE === 'testnet' ? 'testnet' as const : 'demo' as const;
   return {
@@ -19,10 +30,15 @@ export class ApiError extends Error {
   constructor(public status: number, public code: string, message: string) { super(message); }
 }
 export function requireRealConfiguration() {
+  const neonStorage = process.env.STORAGE_PROVIDER === 'neon';
+  if (neonStorage && Object.values(neonStorageConfig()).some(value => !value?.trim())) {
+    throw new ApiError(503, 'CONFIGURATION_REQUIRED', 'Penyimpanan dokumen belum dikonfigurasi. Unggahan belum diterima.');
+  }
   if (isNetlify() && !process.env.DATABASE_URL) throw new ApiError(503, 'CONFIGURATION_REQUIRED', 'Penyimpanan sesi hosting belum dikonfigurasi. Unggahan belum diterima.');
-  // Local demo keeps file state and storage; a Vercel deployment must use Postgres and private Blob.
+  // Hosted sessions require Postgres; private file storage can be Neon or Vercel Blob.
   if (process.env.VERCEL === '1') {
-    const missing = ['DATABASE_URL', 'BLOB_READ_WRITE_TOKEN', 'BLOB_STORE_HOSTNAME', 'APP_ORIGIN'].filter(key => !process.env[key]);
+    const required = neonStorage ? ['DATABASE_URL', 'APP_ORIGIN'] : ['DATABASE_URL', 'BLOB_READ_WRITE_TOKEN', 'BLOB_STORE_HOSTNAME', 'APP_ORIGIN'];
+    const missing = required.filter(key => !process.env[key]);
     if (missing.length) throw new ApiError(503, 'CONFIGURATION_REQUIRED', 'Layanan hosting belum dikonfigurasi. Unggahan belum diterima.');
   }
   if (config().mode !== 'testnet') return;

@@ -6,8 +6,10 @@ import { CREDENTIAL_SCHEMA_VERSION, DISCLOSURE_POLICY_VERSION, type SignedCreden
 import { explorerTxUrl } from '@/features/shared/explorer';
 import type { CredentialSummary, IssuerMetadata } from '@verifikasi/chain';
 import type { PreparedCredential, SignedPreparedCredential } from '@verifikasi/chain/browser';
-import { CheckIcon, DownloadIcon, ExternalLinkIcon, InstitutionIcon, LockIcon, ShieldCheckIcon, SpinnerIcon, WalletIcon } from '@/features/shared/icons';
+import { ArrowRightIcon, CheckIcon, DownloadIcon, ExternalLinkIcon, LockIcon, ShieldCheckIcon, SpinnerIcon, WalletIcon } from '@/features/shared/icons';
 import { api, getSession, shortId, formatTime } from '@/features/shared/api';
+import { WorkspaceHeading } from '@/features/layout/WorkspaceHeading';
+import { WorkspaceArtwork } from '@/features/layout/WorkspaceArtwork';
 import styles from './PortalPage.module.css';
 import { CredentialDocument, type DocumentState } from './CredentialDocument';
 import { PortalSkeleton } from './PortalSkeleton';
@@ -19,9 +21,9 @@ interface ProofResponse {verification:RecordVerificationResult;qrUrl?:string|nul
 const steps = ['Isi data','Tinjau data publik','Sahkan kredensial','Kirim penerbitan','Unduh ijazah'];
 const emptyAttributes: DiplomaAttributes = {full_name:'',diploma_number:'',study_program:'',graduation_date:''};
 const portalTabs = [
-  { id: 'institution', label: 'Portal Kredensial Institusi' },
-  { id: 'issuance', label: 'Portal Penerbitan Ijazah Mahasiswa' },
-  { id: 'records', label: 'Data Ijazah Mahasiswa' },
+  { id: 'institution', label: 'Portal Kredensial Institusi', description: 'Atur data institusi, status keaktifan, dan kewenangan wallet penandatangan.' },
+  { id: 'issuance', label: 'Portal Penerbitan Ijazah Mahasiswa', description: 'Isi data mahasiswa, sahkan penerbitan, lalu unduh PDF ijazah.' },
+  { id: 'records', label: 'Data Ijazah Mahasiswa', description: 'Lihat rekaman ijazah mahasiswa yang telah diterbitkan, kelola PDF, dan cabut kredensial bila diperlukan.' },
 ] as const;
 function publicProof(signed:SignedPreparedCredential):SignedCredential{return {authorization:signed.authorization,profile:signed.profile,domain:signed.domain,signature:signed.signature};}
 
@@ -109,7 +111,7 @@ export function PortalPage({initialTab='institution'}:{initialTab?:typeof portal
   const pending=restoring||(!!wallet&&loading);
 
   return <>
-    <div className="page-heading"><div><h1>Portal Penerbit</h1><p>Kelola kredensial institusi dan terbitkan ijazah mahasiswa.</p></div><InstitutionIcon className="heading-icon" size={62}/></div>
+    <WorkspaceHeading title="Portal" accent="Penerbit" description="Kelola kredensial institusi dan terbitkan ijazah mahasiswa." art="portal"/>
     <div className={styles.portalTabs} role="tablist" aria-label="Pilih portal">
       {portalTabs.map((tab,index)=><button
         key={tab.id}
@@ -133,13 +135,23 @@ export function PortalPage({initialTab='institution'}:{initialTab?:typeof portal
       >{tab.label}</button>)}
     </div>
     {(error||walletError)&&<div className="error-message" role="alert">{error||walletError}</div>}{message&&<div className={`portal-message ${styles.status}`} role="status">{busy&&<SpinnerIcon size={15} className="spin"/>}<span>{message}</span></div>}{lastTx&&<p className={styles.proof} role='status'>{lastTx.label}: {explorerTxUrl(configuration?.chainId,lastTx.transactionHash)?<a href={explorerTxUrl(configuration?.chainId,lastTx.transactionHash)!} target='_blank' rel='noopener noreferrer'>{lastTx.transactionHash} <ExternalLinkIcon size={12}/></a>:lastTx.transactionHash} · Blok {lastTx.blockNumber}</p>}
-    <section className="portal-intro">
+    <section className={`portal-intro ${styles.intro}`}>
       {configuration?.mode==='demo'&&<div className="record-notice"><LockIcon size={18}/><p>Mode demo lokal. Pengesahan dan penerbitan memerlukan konfigurasi testnet. Tidak ada kredensial contoh yang dinyatakan aktif.</p></div>}
-      {!wallet&&!restoring&&<div className="portal-connect"><WalletIcon size={37}/><h2>Masuk dengan wallet institusi</h2><p>Hubungkan wallet yang telah didaftarkan administrator. Pesan masuk berbeda dari pengesahan kredensial. Kunci privat tetap berada di wallet Anda.</p><PortalWalletButton disabled={busy}/></div>}
+      {!wallet&&!restoring&&<div className={`greek-panel ${styles.connectPanel}`}>
+        <div className={styles.connectContent}>
+          <span className={styles.walletEmblem} aria-hidden="true"><WalletIcon size={37}/></span>
+          <h2>Masuk dengan wallet institusi</h2>
+          <p className={styles.connectDescription}>Hubungkan wallet yang telah didaftarkan administrator. Pesan masuk berbeda dari pengesahan kredensial.</p>
+          <div className={styles.connectAction}><WalletIcon size={20}/><PortalWalletButton disabled={busy}/><ArrowRightIcon size={19}/></div>
+          <p className={styles.walletPrivacy}><ShieldCheckIcon size={20}/><span>Kunci privat tetap berada di wallet Anda.</span></p>
+          <p className={styles.connectContext}>{portalTabs.find(tab=>tab.id===activeTab)!.description}</p>
+        </div>
+        <WorkspaceArtwork kind="portal-welcome" className={styles.welcomeArtwork}/>
+      </div>}
       {wallet&&configuration&&!pending&&!authorized&&<div className="record-notice"><LockIcon size={18}/><p>Wallet ini belum berwenang menerbitkan kredensial. Minta administrator mengaktifkan wallet penandatangan untuk institusi Anda.</p></div>}
       <div className={styles.tabPanel} id="portal-panel-issuance" role="tabpanel" aria-labelledby="portal-tab-issuance" tabIndex={0} hidden={activeTab!=='issuance'}>
-        <p className={styles.portalDescription}>Isi data mahasiswa, sahkan penerbitan, lalu unduh PDF ijazah.</p>
-        {pending?<PortalSkeleton variant="form"/>:wallet&&<section className="portal-form" aria-labelledby="issuance-title"><h2 id="issuance-title">Terbitkan ijazah mahasiswa</h2>
+        {(wallet||restoring)&&<p className={styles.portalDescription}>{portalTabs[1].description}</p>}
+        {pending?<div className={`greek-panel ${styles.workPanel}`}><PortalSkeleton variant="form"/></div>:wallet&&<section className={`portal-form greek-panel ${styles.workPanel}`} aria-labelledby="issuance-title"><h2 id="issuance-title">Terbitkan ijazah mahasiswa</h2>
           <ol className={styles.steps} aria-label="Tahap penerbitan">{steps.map((label,index)=><li key={label} aria-current={step===index?'step':undefined} className={index<step?styles.done:''}><span>{index<step?<CheckIcon size={13}/>:index+1}</span>{label}</li>)}</ol>
           {step===0&&<form onSubmit={prepare}><div className="form-grid">{([
             ['full_name','Nama lengkap','text'],['diploma_number','Nomor ijazah','text'],['study_program','Program studi','text'],['graduation_date','Tanggal lulus (privat)','date'],
@@ -160,17 +172,17 @@ export function PortalPage({initialTab='institution'}:{initialTab?:typeof portal
         </section>}
       </div>
       <div className={styles.tabPanel} id="portal-panel-records" role="tabpanel" aria-labelledby="portal-tab-records" tabIndex={0} hidden={activeTab!=='records'}>
-        <p className={styles.portalDescription}>Lihat rekaman ijazah mahasiswa yang telah diterbitkan, kelola PDF, dan cabut kredensial bila diperlukan.</p>
-        {(wallet||restoring)&&<section className="portal-form"><h2>Data Ijazah Mahasiswa</h2>{pending?<PortalSkeleton variant="records"/>:<>{portal?.credentials.length?<div className="history-list">{portal!.credentials.map(c=><div className={`history-row ${styles.credentialRow}`} key={c.credentialId}><div className="history-item-main"><h3>{shortId(c.credentialId)}</h3><p>{formatTime(c.issuedAt)}</p></div><span className={`history-status ${c.revoked?'danger':c.confirmed?'success':'warning'}`}>{c.revoked?'Dicabut':c.confirmed?'Tercatat':'Menunggu konfirmasi'}</span><a className="button secondary small-button" href={`/c/${c.credentialId}`}>Lihat rekaman</a>{!c.revoked&&<button className="button secondary small-button" disabled={busy} onClick={()=>{setRevokeId(c.credentialId);setConfirmRevoke(true);}}>Cabut</button>}{authorized&&!c.revoked&&<CredentialDocument key={`${wallet}-${revision}-${c.credentialId}`} credentialId={c.credentialId} initial={portal!.documents?.[c.credentialId.toLowerCase()]} compact/>}</div>)}</div>:portal&&<p className="muted small">Belum ada ijazah mahasiswa yang diterbitkan oleh institusi ini.</p>}{portal&&portal.offset+20<portal.total&&<button className="button secondary" disabled={busy} onClick={()=>refresh(portal!.offset+20).catch(e=>setError(e.message))}>Halaman berikutnya</button>}
+        {(wallet||restoring)&&<p className={styles.portalDescription}>{portalTabs[2].description}</p>}
+        {(wallet||restoring)&&<section className={`portal-form greek-panel ${styles.workPanel}`}><h2>Data Ijazah Mahasiswa</h2>{pending?<PortalSkeleton variant="records"/>:<>{portal?.credentials.length?<div className="history-list">{portal!.credentials.map(c=><div className={`history-row ${styles.credentialRow}`} key={c.credentialId}><div className="history-item-main"><h3>{shortId(c.credentialId)}</h3><p>{formatTime(c.issuedAt)}</p></div><span className={`history-status ${c.revoked?'danger':c.confirmed?'success':'warning'}`}>{c.revoked?'Dicabut':c.confirmed?'Tercatat':'Menunggu konfirmasi'}</span><a className="button secondary small-button" href={`/c/${c.credentialId}`}>Lihat rekaman</a>{!c.revoked&&<button className="button secondary small-button" disabled={busy} onClick={()=>{setRevokeId(c.credentialId);setConfirmRevoke(true);}}>Cabut</button>}{authorized&&!c.revoked&&<CredentialDocument key={`${wallet}-${revision}-${c.credentialId}`} credentialId={c.credentialId} initial={portal!.documents?.[c.credentialId.toLowerCase()]} compact/>}</div>)}</div>:portal&&<p className="muted small">Belum ada ijazah mahasiswa yang diterbitkan oleh institusi ini.</p>}{portal&&portal.offset+20<portal.total&&<button className="button secondary" disabled={busy} onClick={()=>refresh(portal!.offset+20).catch(e=>setError(e.message))}>Halaman berikutnya</button>}
           <div className="portal-actions"><label className="form-field">ID kredensial yang akan dicabut<input value={revokeId} onChange={e=>{setRevokeId(e.target.value);setConfirmRevoke(false);}} placeholder="0x…"/></label><button className="button secondary" disabled={busy||!revokeId||configuration?.mode!=='testnet'} onClick={()=>setConfirmRevoke(true)}>Cabut kredensial</button></div>{confirmRevoke&&<div className="delete-confirm"><p>Pencabutan permanen dan tidak dapat dibatalkan. Rekaman {shortId(revokeId)} akan berstatus dicabut.</p><button className="button danger-button" onClick={revoke} disabled={busy}>Konfirmasi pencabutan</button><button className="button secondary" onClick={()=>setConfirmRevoke(false)}>Batal</button></div>}
         </>}</section>}
       </div>
       <div className={styles.tabPanel} id="portal-panel-institution" role="tabpanel" aria-labelledby="portal-tab-institution" tabIndex={0} hidden={activeTab!=='institution'}>
-        <p className={styles.portalDescription}>Atur data institusi, status keaktifan, dan kewenangan wallet penandatangan.</p>
-        {pending&&<PortalSkeleton variant="form"/>}
+        {(wallet||restoring)&&<p className={styles.portalDescription}>{portalTabs[0].description}</p>}
+        {pending&&<div className={`greek-panel ${styles.workPanel}`}><PortalSkeleton variant="form"/></div>}
         {!pending&&wallet&&portal&&!portal.admin&&<div className="record-notice"><LockIcon size={18}/><p>Pengaturan institusi dan wallet penandatangan hanya tersedia untuk administrator.</p></div>}
-        {!pending&&wallet&&portal?.admin&&<><form className="portal-form" onSubmit={updateIssuer}><h2>Administrasi institusi</h2><p className="muted small">Gunakan ID institusi yang tetap saat mengganti wallet pejabat. Nama berasal dari onboarding yang telah diverifikasi.</p><div className="form-grid" style={{marginTop:20}}><label className="form-field">ID institusi (bytes32)<input name="issuerId" required pattern="0x[a-fA-F0-9]{64}"/></label><label className="form-field">Nama institusi terverifikasi<input name="name" required maxLength={200}/></label><label><input type="checkbox" name="active" defaultChecked/> Institusi aktif</label></div><button className="button primary" disabled={busy}>Simpan institusi</button></form>
-          <form className="portal-form" onSubmit={updateSigner}><h2>Wallet penandatangan</h2><p className="muted small">Aktifkan wallet pejabat untuk institusi yang telah terdaftar. Nonaktifkan wallet lama saat melakukan rotasi.</p><div className="form-grid" style={{marginTop:20}}><label className="form-field">ID institusi (bytes32)<input name="issuerId" required pattern="0x[a-fA-F0-9]{64}"/></label><label className="form-field">Alamat wallet pejabat<input name="address" required pattern="0x[a-fA-F0-9]{40}"/></label><label><input type="checkbox" name="active" defaultChecked/> Wallet berwenang menandatangani</label></div><button className="button primary" disabled={busy}>Simpan kewenangan wallet</button></form></>}
+        {!pending&&wallet&&portal?.admin&&<><form className={`portal-form greek-panel ${styles.workPanel}`} onSubmit={updateIssuer}><h2>Administrasi institusi</h2><p className="muted small">Gunakan ID institusi yang tetap saat mengganti wallet pejabat. Nama berasal dari onboarding yang telah diverifikasi.</p><div className="form-grid" style={{marginTop:20}}><label className="form-field">ID institusi (bytes32)<input name="issuerId" required pattern="0x[a-fA-F0-9]{64}"/></label><label className="form-field">Nama institusi terverifikasi<input name="name" required maxLength={200}/></label><label><input type="checkbox" name="active" defaultChecked/> Institusi aktif</label></div><button className="button primary" disabled={busy}>Simpan institusi</button></form>
+          <form className={`portal-form greek-panel ${styles.workPanel}`} onSubmit={updateSigner}><h2>Wallet penandatangan</h2><p className="muted small">Aktifkan wallet pejabat untuk institusi yang telah terdaftar. Nonaktifkan wallet lama saat melakukan rotasi.</p><div className="form-grid" style={{marginTop:20}}><label className="form-field">ID institusi (bytes32)<input name="issuerId" required pattern="0x[a-fA-F0-9]{64}"/></label><label className="form-field">Alamat wallet pejabat<input name="address" required pattern="0x[a-fA-F0-9]{40}"/></label><label><input type="checkbox" name="active" defaultChecked/> Wallet berwenang menandatangani</label></div><button className="button primary" disabled={busy}>Simpan kewenangan wallet</button></form></>}
       </div>
     </section>
   </>;

@@ -13,8 +13,8 @@ export function createDatabase(connectionString: string, max = 1) {
   // Do not log errors here: driver messages can contain connection details.
   pool.on('error', () => {});
   if (process.env.VERCEL) attachDatabasePool(pool);
-  // Do not call .prepare(name): named prepared statements and session state are
-  // incompatible with Supavisor transaction mode (port 6543).
+  // Keep queries unnamed and avoid session state so runtime does not depend on
+  // a transaction pooler's support for named prepared statements or sessions.
   return { db: drizzle(pool, { schema }), pool };
 }
 

@@ -1,13 +1,41 @@
-.portalTabs{display:flex;align-self:flex-start;gap:4px;width:fit-content;max-width:100%;padding:5px;margin:0 0 24px;border:1px solid var(--border);border-radius:999px;background:#f4f6f8}
-.portalTabs button{flex:0 1 auto;min-width:0;min-height:44px;padding:10px 20px;border:0;border-radius:999px;background:transparent;color:var(--muted);font-size:14px;font-weight:500;line-height:1.4;text-align:center;white-space:normal;transition:background .18s,color .18s}
-.portalTabs button:hover{background:#e8edf2;color:var(--ink)}
-.portalTabs button[aria-selected=true]{background:var(--ink);color:#fff}
-.portalTabs button:focus-visible{outline-offset:2px}
+.portalTabs{display:grid;grid-template-columns:1.05fr 1.4fr 1fr;align-self:flex-start;gap:5px;width:min(100%,860px);padding:5px;margin:0 0 22px;border:1px solid #d9dce1;border-radius:999px;background:#eaebee9c;box-shadow:inset 0 1px 0 #fff9}
+.portalTabs button{min-width:0;min-height:48px;padding:12px 15px;border:1px solid transparent;border-radius:999px;background:transparent;color:#657184;font-size:14px;font-weight:500;line-height:1.5;text-align:center;white-space:normal;transition:background .18s,color .18s}
+.portalTabs button:hover{background:#ffffff75;color:var(--ink)}
+.portalTabs button[aria-selected=true]{border-color:#b99d70;background:linear-gradient(135deg,#2c3034,#121822);box-shadow:inset 0 1px 0 #ffffff24,0 2px 5px #11182712;color:#fff}
+.portalTabs button:focus-visible{outline:2px solid #806642;outline-offset:3px}
 .tabPanel[hidden]{display:none}
-.tabPanel:focus-visible{outline:2px solid var(--cyan);outline-offset:4px}
+.tabPanel:focus-visible{outline:2px solid #806642;outline-offset:4px}
 .portalDescription{margin:0 0 20px;color:var(--muted);font-size:13px;line-height:1.7}
-@media(max-width:950px){.portalTabs button{white-space:normal}}
-@media(max-width:680px){.portalTabs{width:100%;border-radius:22px}.portalTabs button{flex:1;padding:10px 12px;border-radius:17px;font-size:12px;white-space:normal}}
+.intro{border-top:1px solid #d4d7dc;padding:22px 0 32px;min-width:0}
+.connectPanel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:32px;min-height:466px;padding:42px clamp(26px,3.4vw,48px);isolation:isolate}
+.connectContent{min-width:0;position:relative;z-index:1}
+.walletEmblem{display:grid;place-items:center;width:76px;height:76px;border:1px solid #e0ded9;border-radius:50%;background:linear-gradient(145deg,#f5f4f1,#e6e5e1);box-shadow:inset 0 1px 0 #fff,0 2px 4px #37362e0d;color:#141820;margin-bottom:20px}
+.walletEmblem svg{--icon-soft:transparent;--icon-paper:transparent;--icon-accent:currentColor}
+.connectContent h2{font-size:clamp(23px,2.15vw,32px);font-weight:600;line-height:1.25;letter-spacing:-.8px;margin:0 0 14px;color:#0b0d12}
+.connectDescription{max-width:530px;font-size:16px;line-height:1.7;color:#657184;margin:0 0 23px}
+.connectAction{position:relative;width:fit-content;max-width:100%;margin-bottom:16px;color:#fff}
+.connectAction>svg{position:absolute;top:50%;transform:translateY(-50%);pointer-events:none;z-index:1;--icon-soft:transparent;--icon-paper:transparent;--icon-accent:currentColor}
+.connectAction>svg:first-child{left:25px}
+.connectAction>svg:last-child{right:23px}
+.connectAction>:global(button.button.primary){min-height:50px;padding:12px 66px;border:1px solid #b99d70;font-size:15px;font-weight:500;white-space:normal;line-height:1.5;background:linear-gradient(135deg,#2c3034,#121822);color:#fff;box-shadow:inset 0 1px 0 #ffffff24,0 3px 7px #11182712}
+.connectAction>:global(button):hover:not(:disabled){background:#273142}
+.connectAction>:global(p){color:var(--muted);font-size:12px;margin-top:10px}
+.walletPrivacy{display:flex;align-items:flex-start;gap:10px;font-size:12px;line-height:1.6;color:#657184;margin:0}
+.walletPrivacy svg{flex-shrink:0;color:#1d2632;--icon-soft:transparent;--icon-accent:currentColor}
+.connectContext{margin:28px 0 0;padding-top:21px;border-top:1px solid #d7d4cd;font-size:12px;line-height:1.8;color:#657184}
+.welcomeArtwork{width:100%;min-width:0;max-width:540px;justify-self:center}
+.workPanel{padding:30px clamp(20px,2.7vw,36px) 34px;margin:0 0 24px;min-width:0}
+.workPanel h2{font-size:24px;font-weight:600;letter-spacing:-.5px}
+.workPanel :global(.portal-form){padding:0;border:0}
+.intro :global(.form-field) input{border-color:#d9d7d2;background:#ffffffb8;box-shadow:inset 0 1px 2px #2d302705}
+.intro :global(.form-field) input:focus-visible{outline:2px solid #9b815b;outline-offset:2px}
+.intro :global(.record-notice){border-color:#dfd9ca;background:#f7f5ef;color:#6f7987}
+.intro :global(.portal-actions){border-top:1px solid #e0ddd4;padding-top:23px}
+.intro :global(.portal-result){border-top-color:#e0ddd4}
+@media(max-width:1050px){.portalTabs{width:100%}.portalTabs button{font-size:12px;padding:10px 12px}.connectPanel{gap:20px;padding:32px;min-height:420px}.connectDescription{font-size:14px}.walletEmblem{width:65px;height:65px}.connectContent h2{font-size:24px}.connectAction>:global(button){padding:11px 55px;font-size:13px}.connectAction>svg:first-child{left:20px}.connectAction>svg:last-child{right:18px}}
+@media(max-width:850px){.connectPanel{grid-template-columns:minmax(0,1fr);gap:18px;padding:32px}.welcomeArtwork{max-width:330px;grid-row:2}.connectContent h2{font-size:28px}.connectDescription{font-size:15px}.connectContext{margin-top:24px}}
+@media(max-width:680px){.portalTabs{border-radius:22px}.portalTabs button{padding:10px 8px;border-radius:17px;font-size:11px}.intro{padding:18px 0 22px}.connectPanel{padding:28px 23px;gap:20px}.connectContent h2{font-size:24px}.connectDescription{font-size:13px}.walletEmblem{width:60px;height:60px;margin-bottom:17px}.walletEmblem svg{width:29px;height:29px}.welcomeArtwork{max-width:280px}.workPanel{padding:24px 20px}.workPanel h2{font-size:21px}.walletPrivacy,.connectContext{font-size:11px}}
+@media(max-width:420px){.portalTabs{grid-template-columns:minmax(0,1fr);border-radius:24px;padding:5px;gap:3px}.portalTabs button{min-height:40px;padding:9px 12px;border-radius:20px;font-size:12px}.connectPanel{padding:27px 20px}.connectContent h2{font-size:22px}}
 @media(prefers-reduced-motion:reduce){.portalTabs button{transition:none}}
 .steps{display:flex;flex-wrap:wrap;list-style:none;padding:0;margin:0 0 28px;gap:11px 22px}
 .steps li{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
@@ -37,13 +65,13 @@
 .document { display: grid; gap: 12px; margin: 18px 0; text-align: left; min-width: 0; }
 .document form { display: grid; gap: 12px; }
 .documentSteps { display: flex; flex-wrap: wrap; gap: 10px 20px; padding: 0; list-style-position: inside; color: var(--muted, #667085); font-size: 12px; }
-.documentSteps [aria-current="step"] { color: #075e73; font-weight: 600; }
+.documentSteps [aria-current="step"] { color: #51442e; font-weight: 600; }
 .credentialRow { flex-wrap: wrap; }
 :global(.history-row).credentialRow > :global(.button) { margin-top: 0; }
-.credentialRow > .document { flex-basis: 100%; border-top: 1px solid #e4e9ef; padding-top: 12px; margin-bottom: 0; }
+.credentialRow > .document { flex-basis: 100%; border-top: 1px solid #e0ddd4; padding-top: 12px; margin-bottom: 0; }
 @media (max-width: 640px) { .documentSteps { display: grid; } .document .button { width: 100%; } }
 
-.bone { display: block; border-radius: 6px; background: linear-gradient(90deg, #eef2f6 25%, #f7f9fb 45%, #eef2f6 65%); background-size: 300% 100%; animation: shimmer 1.4s ease-in-out infinite; }
+.bone { display: block; border-radius: 6px; background: linear-gradient(90deg, #e9e7e2 25%, #f8f7f4 45%, #e9e7e2 65%); background-size: 300% 100%; animation: shimmer 1.4s ease-in-out infinite; }
 @keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
 .boneTitle { width: 170px; max-width: 100%; height: 16px; }
 .boneMeta { width: 104px; height: 11px; margin-top: 9px; }

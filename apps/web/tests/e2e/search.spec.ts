@@ -44,13 +44,13 @@ test('guide search ranks related words and offers category and no-result recover
   await page.goto('/panduan');
   const search = page.getByRole('textbox', { name: 'Cari topik panduan' });
   await search.fill('hasil ga cocok');
-  await expect(page.locator('.guide-article').first()).toHaveAttribute('id', 'berbeda');
+  await expect(page.getByRole('region', { name: 'Topik panduan' }).locator('details').first()).toHaveAttribute('id', 'berbeda');
   await page.getByRole('navigation', { name: 'Kategori panduan' }).getByRole('button', { name: 'Penerbit', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Topik belum ditemukan' })).toBeVisible();
   await page.getByRole('button', { name: 'Cari di semua kategori', exact: true }).click();
-  await expect(page.locator('.guide-article').first()).toHaveAttribute('id', 'berbeda');
+  await expect(page.getByRole('region', { name: 'Topik panduan' }).locator('details').first()).toHaveAttribute('id', 'berbeda');
   await search.fill('resep nasi goreng');
   await expect(page.getByRole('heading', { name: 'Topik belum ditemukan' })).toBeVisible();
   await page.getByRole('button', { name: 'Bagaimana kampus menerbitkan rekaman?', exact: true }).click();
-  await expect(page.locator('.guide-article').first()).toHaveAttribute('id', 'penerbit');
+  await expect(page.getByRole('region', { name: 'Topik panduan' }).locator('details').first()).toHaveAttribute('id', 'penerbit');
 });

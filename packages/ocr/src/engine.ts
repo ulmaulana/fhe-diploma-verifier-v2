@@ -70,15 +70,27 @@ function maskedGrayscalePng(mupdf: Mupdf, page: RenderedPage, mask: QrBounds[]):
 }
 
 /** Word rows (level 5) of Tesseract TSV output, the same table pytesseract.image_to_data returns. */
-export function parseTsv(tsv: string): OcrWord[] {
+export function parseTsv(tsv: string, blocks?: import('tesseract.js').Block[] | null): OcrWord[] {
+  const characterBoxes = new Map<string, NonNullable<OcrWord['symbols']>>();
+  const key = (text: string, left: number, top: number, width: number, height: number) => JSON.stringify([text, left, top, width, height]);
+  for (const block of blocks ?? []) for (const paragraph of block.paragraphs) for (const line of paragraph.lines) for (const word of line.words) {
+    const box = word.bbox;
+    characterBoxes.set(key(word.text, box.x0, box.y0, box.x1 - box.x0, box.y1 - box.y0), word.symbols.map(symbol => ({
+      text: symbol.text, left: symbol.bbox.x0, top: symbol.bbox.y0,
+      width: symbol.bbox.x1 - symbol.bbox.x0, height: symbol.bbox.y1 - symbol.bbox.y0,
+    })));
+  }
   const words: OcrWord[] = [];
   for (const row of tsv.split('\n')) {
     const columns = row.split('\t');
     if (columns.length < 12 || columns[0] !== '5') continue;
     const [, , block, paragraph, line, , left, top, width, height, confidence] = columns.map(Number);
+    const text = columns.slice(11).join('\t');
+    const symbols = characterBoxes.get(key(text, left!, top!, width!, height!));
     words.push({
-      text: columns.slice(11).join('\t'), confidence: confidence!, block: block!, paragraph: paragraph!, line: line!,
+      text, confidence: confidence!, block: block!, paragraph: paragraph!, line: line!,
       left: left!, top: top!, width: width!, height: height!,
+      ...(symbols ? { symbols } : {}),
     });
   }
   return words;
@@ -119,8 +131,8 @@ export async function createTesseractEngine(mupdf: Mupdf): Promise<OcrEngine> {
         timer = setTimeout(() => reject(new DocumentError('OCR_TIMEOUT')), timeoutMs);
       });
       try {
-        const result = await Promise.race([active.recognize(image, {}, { tsv: true, text: false, blocks: false }), timeout]);
-        return parseTsv(result.data.tsv ?? '');
+        const result = await Promise.race([active.recognize(image, {}, { tsv: true, text: false, blocks: true }), timeout]);
+        return parseTsv(result.data.tsv ?? '', result.data.blocks);
       } catch (error) {
         if (error instanceof DocumentError) await close();
         throw error;

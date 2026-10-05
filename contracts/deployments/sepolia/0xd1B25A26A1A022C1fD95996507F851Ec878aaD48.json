@@ -1,0 +1,147 @@
+{
+  "schema": "verifikasi-deployment-record/v1",
+  "network": "sepolia",
+  "chainId": 11155111,
+  "contract": {
+    "name": "VerifikasiIjazah",
+    "address": "0xd1B25A26A1A022C1fD95996507F851Ec878aaD48",
+    "eip712": {
+      "name": "VerifikasiIjazah",
+      "version": "2"
+    }
+  },
+  "deployment": {
+    "transactionHash": "0x9c00101edee0d52d43cbac64578e7e2bb11a4bd7159498c1da40a64dbcca081b",
+    "blockNumber": 11846910,
+    "blockHash": "0x52a4b5e0676d74802b5bfac5ac7b0c43b8e871403572449b4a29546bc7bf1a1f",
+    "blockTimestampUtc": "2026-10-05T05:42:48.000Z",
+    "deployer": "0xCa01c8C68840cd1C9fdF06F124723a5339224096",
+    "gasUsed": "3037166",
+    "effectiveGasPriceWei": "1178574719",
+    "confirmations": 2
+  },
+  "constructorArgs": [
+    "0xCa01c8C68840cd1C9fdF06F124723a5339224096",
+    "0x6512e69e2aDb0bba5cF96548546809b9B6f702b5",
+    "0xea36d9628c7CaCa078FbD0a9164A5cF0FAc52933",
+    "0x84Bd1D6C317554Ff3539Ec62Da6B2F8f882c8B5e"
+  ],
+  "roles": {
+    "DEFAULT_ADMIN_ROLE": [
+      "0xCa01c8C68840cd1C9fdF06F124723a5339224096"
+    ],
+    "ATTESTOR_ROLE": [
+      "0x6512e69e2aDb0bba5cF96548546809b9B6f702b5"
+    ],
+    "RELAYER_ROLE": [
+      "0xea36d9628c7CaCa078FbD0a9164A5cF0FAc52933"
+    ],
+    "RESULT_READER_ROLE": [
+      "0x84Bd1D6C317554Ff3539Ec62Da6B2F8f882c8B5e"
+    ]
+  },
+  "adminCount": "1",
+  "plannedSigners": [
+    "0x399a8A182631de9389B3fB3488537c9461d3a43e"
+  ],
+  "build": {
+    "solc": {
+      "version": "0.8.28",
+      "longVersion": "0.8.28+commit.7893614a.Emscripten.clang"
+    },
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "viaIR": true,
+    "evmVersion": "cancun",
+    "buildInfoId": "afc90bcc7173337d3f713be516ebcca9",
+    "sourceSha256": "92feda4b333ac10862688d3cc58cad246e3661dacfa9ad7ed045588aacc3c6f9",
+    "creationBytecodeKeccak256": "0xe08a3afc9a0564be4bebaabaa8d5b1ab2103f795b580e1558358f6f1d3b8d2db",
+    "deployedBytecodeKeccak256": "0x0c147696298d686b9518220df1118ec76f8843bb24b4514aff8a4b3a78fd3bdf"
+  },
+  "dependencies": {
+    "hardhat": "2.28.6",
+    "@openzeppelin/contracts": "5.6.1",
+    "@fhevm/solidity": "0.11.1",
+    "@fhevm/hardhat-plugin": "0.4.2",
+    "@zama-fhe/relayer-sdk": "0.4.1",
+    "ethers": "6.16.0",
+    "solc": "0.8.28"
+  },
+  "source": {
+    "gitCommit": "f02e90372d0620dde9aa57970993fe6550f3a1ae",
+    "gitDirtyTrackedFiles": 18
+  },
+  "registrations": [
+    {
+      "action": "setIssuer",
+      "issuerId": "0xb3dc73974d2e3c689b0a1b1c7bdaec18410120b858593b68a62710e7fba4a3b4",
+      "name": "Universitas Sintetis UAS (Uji)",
+      "active": true,
+      "status": "executed",
+      "transactionHash": "0x69cc3fb98ceb510935744fee607a1d8d194dfc19d39addc34c75371bdc2d5649",
+      "blockNumber": 11847034,
+      "gasUsed": "73555",
+      "event": {
+        "name": "IssuerUpdated",
+        "args": [
+          "0xb3dc73974d2e3c689b0a1b1c7bdaec18410120b858593b68a62710e7fba4a3b4",
+          "Universitas Sintetis UAS (Uji)",
+          true
+        ]
+      },
+      "recordedAtUtc": "2026-10-05T06:20:42.767Z",
+      "method": "Application UI with automated EIP-6963 provider; existing authorized accounts",
+      "evidence": "docs/uas/evidence/pemenuhan-komponen/2026-10-05/qa/sepolia-run/receipts-events.json"
+    },
+    {
+      "action": "setSigner",
+      "issuerId": "0xb3dc73974d2e3c689b0a1b1c7bdaec18410120b858593b68a62710e7fba4a3b4",
+      "signer": "0x399a8A182631de9389B3fB3488537c9461d3a43e",
+      "active": true,
+      "status": "executed",
+      "transactionHash": "0x8381b489873b5aa04a47c3a8ec5fc72c00cad44590a2cdf884d431415049bac9",
+      "blockNumber": 11847037,
+      "gasUsed": "130593",
+      "event": {
+        "name": "SignerUpdated",
+        "args": [
+          "0xb3dc73974d2e3c689b0a1b1c7bdaec18410120b858593b68a62710e7fba4a3b4",
+          "0x399a8A182631de9389B3fB3488537c9461d3a43e",
+          "1",
+          true
+        ]
+      },
+      "recordedAtUtc": "2026-10-05T06:20:42.768Z",
+      "method": "Application UI with automated EIP-6963 provider; existing authorized accounts",
+      "evidence": "docs/uas/evidence/pemenuhan-komponen/2026-10-05/qa/sepolia-run/receipts-events.json"
+    }
+  ],
+  "sourceVerification": {
+    "attempts": [
+      {
+        "provider": "sourcify-v2",
+        "verificationId": "6d73084b-bb6b-4eed-9aad-4df24588442e",
+        "compilerVersion": "0.8.28+commit.7893614a",
+        "status": "verified",
+        "match": "exact_match",
+        "creationMatch": "exact_match",
+        "runtimeMatch": "exact_match",
+        "error": null,
+        "repository": "https://repo.sourcify.dev/11155111/0xd1B25A26A1A022C1fD95996507F851Ec878aaD48",
+        "checkedAtUtc": "2026-10-05T05:44:10.099Z"
+      }
+    ]
+  },
+  "recordedAtUtc": "2026-10-05T05:43:04.461Z",
+  "validationEvidence": {
+    "collectedAtUtc": "2026-10-05T06:19:26.632Z",
+    "method": "Independent read-only receipt/event/state and authorized FHE decryption",
+    "evidenceDirectory": "docs/uas/evidence/pemenuhan-komponen/2026-10-05/qa/sepolia-run",
+    "successfulBusinessTransactions": 9,
+    "comparisonCount": 3,
+    "followupDecryptionSamples": 3,
+    "rejectedRequestCount": 3
+  }
+}

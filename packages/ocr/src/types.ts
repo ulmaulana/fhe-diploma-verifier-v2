@@ -30,6 +30,16 @@ export interface OcrWord {
   top: number;
   width: number;
   height: number;
+  /** Visible character boxes from the same recognition pass, when available. */
+  symbols?: OcrSymbol[];
+}
+
+export interface OcrSymbol {
+  text: string;
+  left: number;
+  top: number;
+  width: number;
+  height: number;
 }
 
 export interface RenderedPage {

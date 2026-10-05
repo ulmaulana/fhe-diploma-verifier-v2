@@ -4,10 +4,10 @@ import { defineConfig } from 'drizzle-kit';
 
 const envFile = resolve(__dirname, '../../.env');
 if (existsSync(envFile)) process.loadEnvFile(envFile);
-// Use Supabase direct/session mode for migrations; runtime uses transaction mode.
+// Prefer a direct/unpooled connection for migrations; runtime can use a pooled URL.
 const url = process.env.DATABASE_MIGRATION_URL?.trim() || process.env.DATABASE_URL?.trim();
 if (process.argv.includes('migrate') && !url) {
-  throw new Error('URL database belum diisi. Edit .env di root proyek: isi DATABASE_MIGRATION_URL dengan URL Supabase Session pooler (5432), dan DATABASE_URL dengan URL Transaction pooler (6543). pnpm init:local mempertahankan .env yang sudah ada; perintah itu tidak mengisi kredensial Supabase.');
+  throw new Error('URL database belum diisi. Edit .env di root proyek: isi DATABASE_MIGRATION_URL dengan URL PostgreSQL direct/unpooled untuk migrasi, dan DATABASE_URL dengan URL pooled untuk runtime hosting. Gunakan koneksi dari penyedia database Anda. pnpm init:local mempertahankan .env yang sudah ada; perintah itu tidak mengisi kredensial database.');
 }
 
 export default defineConfig({

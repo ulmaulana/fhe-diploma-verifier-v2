@@ -45,7 +45,7 @@ beforeEach(async () => {
   // Old Vercel settings must never take precedence over Netlify.
   vi.stubEnv('BLOB_READ_WRITE_TOKEN', 'old-unused-token');
   const response = await bootstrap(new Request(`${origin}/api/session`)); const data = await response.json();
-  expect(data.uploadMode).toBe('netlify');
+  expect(data.uploadMode).toBe('chunked');
   cookie = response.headers.get('set-cookie')!;
   owner = await mutation(new Request(origin, { headers: { cookie, origin, 'x-csrf-token': data.csrfToken } }));
 });

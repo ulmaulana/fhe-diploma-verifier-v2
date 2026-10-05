@@ -5,13 +5,14 @@ import { UPLOAD_CHUNK_BYTES } from '../shared/upload-limits';
 export async function uploadDocument(file: File, idempotencyKey: string, credentialId?: string) {
   const current = await getSession();
   const headers = { 'Idempotency-Key': idempotencyKey };
-  if (current.uploadMode !== 'blob' && current.uploadMode !== 'netlify') {
+  const chunked = current.uploadMode === 'chunked' || current.uploadMode === 'netlify';
+  if (current.uploadMode !== 'blob' && !chunked) {
     const form = new FormData(); form.append('file', file);
     if (credentialId) form.append('credentialId', credentialId);
     return api<VerificationJob>('/api/verifications', { method: 'POST', headers, body: form });
   }
   // This digest only binds client retries. The server computes the trusted
-  // digest again after fetching and validating the actual private Blob bytes.
+  // digest again after fetching and validating the actual private object bytes.
   const digest = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
   const clientDigest = `0x${Array.from(new Uint8Array(digest), value => value.toString(16).padStart(2, '0')).join('')}`;
   const intent = await api<{ id: string; pathname: string; finalized: boolean }>('/api/uploads/intents', {
@@ -21,7 +22,7 @@ export async function uploadDocument(file: File, idempotencyKey: string, credent
   let uploadError: unknown;
   if (!intent.finalized) {
     try {
-      if (current.uploadMode === 'netlify') {
+      if (chunked) {
         for (let offset = 0; offset < file.size; offset += UPLOAD_CHUNK_BYTES) {
           await api(`/api/uploads/${intent.id}/parts/${offset / UPLOAD_CHUNK_BYTES}`, {
             method: 'PUT', headers: { ...headers, 'Content-Type': 'application/octet-stream' },

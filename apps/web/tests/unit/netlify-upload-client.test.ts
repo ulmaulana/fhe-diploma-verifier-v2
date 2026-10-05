@@ -6,10 +6,11 @@ import { api, getSession } from '../../src/features/shared/api';
 vi.mock('../../src/features/shared/api', () => ({ api: vi.fn(), getSession: vi.fn() }));
 beforeEach(() => {
   vi.resetAllMocks();
-  vi.mocked(getSession).mockResolvedValue({ csrfToken: 'session', mode: 'demo', configured: true, expiresAt: '', uploadMode: 'netlify' });
+  vi.mocked(getSession).mockResolvedValue({ csrfToken: 'session', mode: 'demo', configured: true, expiresAt: '', uploadMode: 'chunked' });
 });
 
-it('sends bounded binary chunks before finalization using the same idempotency key', async () => {
+it.each(['chunked', 'netlify'] as const)('sends bounded binary chunks before finalization using the same idempotency key (%s)', async uploadMode => {
+  vi.mocked(getSession).mockResolvedValue({ csrfToken: 'session', mode: 'demo', configured: true, expiresAt: '', uploadMode });
   const size = UPLOAD_CHUNK_BYTES * 2 + 123;
   const file = new File([new Uint8Array(size)], 'test.pdf', { type: 'application/pdf' });
   vi.mocked(api).mockResolvedValueOnce({ id: 'intent-id', pathname: 'unused', finalized: false })

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { AlertIcon, CloseIcon, FileIcon, FileUpIcon, InfoIcon, LockIcon, ShieldCheckIcon, SpinnerIcon, UploadIcon, UserSessionIcon } from '@/features/shared/icons';
 import { api, getSession, shortId, type Session } from '@/features/shared/api';
-import { CertificateArt } from '@/features/shared/CertificateArt';
+import { WorkspaceHeading } from '@/features/layout/WorkspaceHeading';
 import { ResultPanel } from './ResultPanel';
 import { isRunning, type VerificationJob } from './types';
 import { uploadDocument } from './upload';
@@ -27,7 +27,7 @@ export function VerificationWorkspace({credentialId}:{credentialId?:string}) {
   async function submit(){if(!file||lock.current)return;lock.current=true;setBusy(true);setError('');try{requestKey.current||=crypto.randomUUID();setJob(await uploadDocument(file,requestKey.current,credentialId));}catch(e){setError(e instanceof Error?e.message:'Dokumen gagal diunggah.');}finally{lock.current=false;setBusy(false);}}
   async function remove(){setError('');try{if(job)await api(`/api/verifications/${job.id}`,{method:'DELETE'});setFile(null);setJob(null);requestKey.current='';if(input.current)input.current.value='';}catch(e){setError(e instanceof Error?e.message:'Dokumen belum dapat dihapus.');}}
   async function showDemo(){if(lock.current)return;lock.current=true;setBusy(true);setError('');try{const result=await api<VerificationJob>('/api/demo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({scenario:demo})});setFile(null);setJob(result);}catch(e){setError(e instanceof Error?e.message:'Contoh tidak tersedia.');}finally{setBusy(false);lock.current=false;}}
-  return <><div className="page-heading verification-heading"><div><h1>Verifikasi Ijazah</h1><p>Cocokkan dokumen Anda dengan rekaman resmi penerbit.</p></div><CertificateArt/></div>
+  return <><WorkspaceHeading title="Verifikasi" accent="Ijazah" description="Cocokkan dokumen Anda dengan rekaman resmi penerbit." art="verification"/>
     <nav className="tabs" aria-label="Verifikasi"><Link href="/verifikasi" className="active" aria-current="page">Unggah Dokumen</Link><Link href="/riwayat">Riwayat Verifikasi</Link></nav>
     {credentialId&&<div className="record-notice"><InfoIcon size={19}/><div><strong>Pemeriksaan tambahan untuk rekaman {shortId(credentialId)}</strong><p>{record?`${recordStatuses[record.recordVerificationStatus].label}. `:''}Unggah dokumen yang memuat QR ini untuk mencocokkan atributnya. <Link href={`/c/${encodeURIComponent(credentialId)}`} style={{textDecoration:'underline'}}>Kembali ke rekaman</Link></p></div></div>}
     {error&&<div className="error-message" role="alert"><AlertIcon size={18}/><span>{error}</span><button className="icon-button" aria-label="Tutup pesan" onClick={()=>setError('')}><CloseIcon size={17}/></button></div>}

@@ -2,8 +2,7 @@ import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { ApiError, config, isNetlify } from './config';
 import { withState } from './store';
-import { blobEnabled } from './storage';
-import { netlifyBlobsEnabled } from './netlify-storage';
+import { chunkedUploadsEnabled, vercelBlobEnabled } from './storage';
 import type { Session, State } from './types';
 
 const COOKIE = 'verifikasi_session';
@@ -42,7 +41,7 @@ export async function bootstrap(request: Request) {
     });
   }
   const cfg = config();
-  const response = json({ csrfToken: current.csrf, expiresAt: current.expiresAt, mode: cfg.mode, configured: cfg.mode === 'demo' || Boolean(cfg.databaseUrl && process.env.RPC_URL && process.env.CREDENTIAL_CONTRACT_ADDRESS), uploadMode: netlifyBlobsEnabled() ? 'netlify' : blobEnabled() || process.env.VERCEL ? 'blob' : 'multipart', wallet: current.wallet || null });
+  const response = json({ csrfToken: current.csrf, expiresAt: current.expiresAt, mode: cfg.mode, configured: cfg.mode === 'demo' || Boolean(cfg.databaseUrl && process.env.RPC_URL && process.env.CREDENTIAL_CONTRACT_ADDRESS), uploadMode: chunkedUploadsEnabled() ? 'chunked' : vercelBlobEnabled() || process.env.VERCEL ? 'blob' : 'multipart', wallet: current.wallet || null });
   if (token) (response as NextResponse).cookies.set(COOKIE, token, { httpOnly: true, sameSite: 'strict', secure: cfg.origin.startsWith('https://'), path: '/', maxAge: 86400 });
   return response;
 }

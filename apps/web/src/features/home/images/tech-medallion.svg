@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="300" viewBox="0 0 420 300" fill="none">
+  <defs>
+    <radialGradient id="ivory" cx=".47" cy=".42" r=".65">
+      <stop stop-color="#fdfbf7"/>
+      <stop offset="1" stop-color="#f4f0e8"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="55" y1="10" x2="364" y2="299" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#c0a67c"/>
+      <stop offset=".45" stop-color="#deceb6"/>
+      <stop offset="1" stop-color="#aa8a59"/>
+    </linearGradient>
+    <path id="meander" d="M-11-132H10V-141H-8V-135H5V-138H-3" stroke="#d2bfa0" stroke-width="1.05" stroke-linecap="square" stroke-linejoin="miter"/>
+    <g id="branch" fill="url(#gold)" stroke="#b89e76" stroke-width=".7" stroke-linejoin="round">
+      <path d="M47 28C36 25 33 13 33 5C44 10 49 18 47 28Z"/>
+      <path d="M49 36C49 26 54 17 62 12C63 24 59 33 49 36Z"/>
+      <path d="M53 48C42 45 36 34 36 25C49 29 55 37 53 48Z"/>
+      <path d="M55 61C55 49 60 40 68 34C70 48 65 58 55 61Z"/>
+      <path d="M55 73C42 68 38 58 37 48C50 53 57 62 55 73Z"/>
+      <path d="M54 88C55 75 62 65 71 60C71 74 67 84 54 88Z"/>
+      <path d="M51 98C39 93 34 82 33 72C45 77 52 86 51 98Z"/>
+      <path d="M48 113C52 102 60 94 70 90C66 104 60 112 48 113Z"/>
+      <path d="M42 122C31 115 29 104 30 93C40 100 46 109 42 122Z"/>
+      <path d="M34 137C42 126 51 122 64 122C57 133 47 138 34 137Z"/>
+      <path d="M25 146C16 137 16 125 19 115C28 124 31 135 25 146Z"/>
+      <path d="M18 157C28 148 40 147 51 151C42 158 30 161 18 157Z"/>
+      <path d="M7 173C48 137 65 87 51 42C47 28 41 15 35 7" fill="none" stroke="#b89e76" stroke-width="1.8" stroke-linecap="round"/>
+      <g fill="none" stroke="#f2e9d8" stroke-width=".8" opacity=".75">
+        <path d="M46 26L36 10M51 33L59 17M51 44L39 30M57 55L65 39M53 67L40 54M57 82L67 67M49 93L36 78M51 109L64 95M40 116L32 100M39 133L56 126M24 139L21 123M25 154L42 153"/>
+      </g>
+    </g>
+  </defs>
+  <circle cx="210" cy="163" r="151" fill="url(#ivory)" fill-opacity=".84" stroke="#e7dece" stroke-width="3"/>
+  <circle cx="210" cy="163" r="149" stroke="#bea17a" stroke-width="1.2"/>
+  <circle cx="210" cy="163" r="145.5" stroke="#decbb0" stroke-width=".8"/>
+  <circle cx="210" cy="163" r="142.5" stroke="#d9c7aa" stroke-width=".75"/>
+  <use href="#meander" transform="translate(210 163) rotate(0)"/>
+  <use href="#meander" transform="translate(210 163) rotate(10)"/>
+  <use href="#meander" transform="translate(210 163) rotate(20)"/>
+  <use href="#meander" transform="translate(210 163) rotate(30)"/>
+  <use href="#meander" transform="translate(210 163) rotate(40)"/>
+  <use href="#meander" transform="translate(210 163) rotate(50)"/>
+  <use href="#meander" transform="translate(210 163) rotate(60)"/>
+  <use href="#meander" transform="translate(210 163) rotate(70)"/>
+  <use href="#meander" transform="translate(210 163) rotate(80)"/>
+  <use href="#meander" transform="translate(210 163) rotate(90)"/>
+  <use href="#meander" transform="translate(210 163) rotate(100)"/>
+  <use href="#meander" transform="translate(210 163) rotate(110)"/>
+  <use href="#meander" transform="translate(210 163) rotate(120)"/>
+  <use href="#meander" transform="translate(210 163) rotate(130)"/>
+  <use href="#meander" transform="translate(210 163) rotate(140)"/>
+  <use href="#meander" transform="translate(210 163) rotate(150)"/>
+  <use href="#meander" transform="translate(210 163) rotate(160)"/>
+  <use href="#meander" transform="translate(210 163) rotate(170)"/>
+  <use href="#meander" transform="translate(210 163) rotate(180)"/>
+  <use href="#meander" transform="translate(210 163) rotate(190)"/>
+  <use href="#meander" transform="translate(210 163) rotate(200)"/>
+  <use href="#meander" transform="translate(210 163) rotate(210)"/>
+  <use href="#meander" transform="translate(210 163) rotate(220)"/>
+  <use href="#meander" transform="translate(210 163) rotate(230)"/>
+  <use href="#meander" transform="translate(210 163) rotate(240)"/>
+  <use href="#meander" transform="translate(210 163) rotate(250)"/>
+  <use href="#meander" transform="translate(210 163) rotate(260)"/>
+  <use href="#meander" transform="translate(210 163) rotate(270)"/>
+  <use href="#meander" transform="translate(210 163) rotate(280)"/>
+  <use href="#meander" transform="translate(210 163) rotate(290)"/>
+  <use href="#meander" transform="translate(210 163) rotate(300)"/>
+  <use href="#meander" transform="translate(210 163) rotate(310)"/>
+  <use href="#meander" transform="translate(210 163) rotate(320)"/>
+  <use href="#meander" transform="translate(210 163) rotate(330)"/>
+  <use href="#meander" transform="translate(210 163) rotate(340)"/>
+  <use href="#meander" transform="translate(210 163) rotate(350)"/>
+  <circle cx="210" cy="163" r="129.5" stroke="#dccab0" stroke-width=".85"/>
+  <circle cx="210" cy="163" r="126" stroke="#fffdf8" stroke-width="1.2"/>
+  <use href="#branch" transform="translate(305 116) scale(.8 1)"/>
+  <use href="#branch" transform="translate(115 116) scale(-.8 1)"/>
+</svg>

@@ -6,7 +6,7 @@ export const TESSERACT_JS_VERSION = '7.0.0';
 export const TESSDATA = '@tesseract.js-data/ind@1.0.0/4.0.0+@tesseract.js-data/eng@1.0.0/4.0.0';
 
 export const OCR_CONFIG = {
-  version: 'tesseract-js-ind-eng-v6',
+  version: 'tesseract-js-ind-eng-v7',
   dpi: 200,
   psm: 6,
   languages: 'ind+eng',
@@ -16,6 +16,14 @@ export const OCR_CONFIG = {
   confidence_policy: OCR_CONFIDENCE_POLICY,
   qr_mask: 'detected-bounds-10px',
   region_recheck: { template: 'D1', below: OCR_CONFIDENCE_THRESHOLD, padding: 10, agreement: 'exact-text', confidence: 'minimum-word' },
+  name_spacing: {
+    template: 'D1', characters: 'uppercase-latin', source: 'same-pass-symbol-boxes',
+    minimum_symbols: 4, minimum_positive_gaps: 2,
+    height_tolerance: 0.15, baseline_tolerance: 0.15,
+    strong_gap_height_ratio: 0.45, minimum_gap_height_ratio: 0.35,
+    calibrated_gap_ratio: 0.8, typical_gap_ratio: 2,
+    typical_gap: 'median-lower-half-positive-internal-gaps', calibration: 'same-value-line',
+  },
   engine: `tesseract.js@${TESSERACT_JS_VERSION}`,
   tessdata: TESSDATA,
 } as const;

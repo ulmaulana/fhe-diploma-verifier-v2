@@ -32,5 +32,9 @@
     "typescript-eslint": "^8.70.1",
     "vitest": "3.2.7",
     "yauzl": "^3.4.0"
+  },
+  "dependencies": {
+    "@neon/config": "^1.8.3",
+    "@neon/env": "^1.5.0"
   }
 }

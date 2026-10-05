@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="300" viewBox="0 0 1120 300" fill="none">
+  <defs>
+    <linearGradient id="stone" x1="0" y1="0" x2="0" y2="300" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fbf9f4"/>
+      <stop offset=".2" stop-color="#e5ddce"/>
+      <stop offset=".45" stop-color="#fffdf9"/>
+      <stop offset="1" stop-color="#ded4c4"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1120" y2="300" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#b2935e"/>
+      <stop offset=".23" stop-color="#d4c2a0"/>
+      <stop offset=".6" stop-color="#af8f58"/>
+      <stop offset="1" stop-color="#cfbc97"/>
+    </linearGradient>
+    <filter id="shadow" x="-3%" y="-12%" width="106%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#5d5140" flood-opacity=".15"/>
+    </filter>
+    <path id="rim" d="M44 10H1076L1080 21C1082 25 1088 29 1094 30L1110 37V263L1094 270C1088 271 1082 275 1080 279L1076 290H44L40 279C38 275 32 271 26 270L10 263V37L26 30C32 29 38 25 40 21Z"/>
+    <g id="corner" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M44 15V22C44 29 37 35 30 35V43H17" stroke="#b2935e" stroke-width="1.1"/>
+      <path d="M47 20H41C41 29 34 39 23 40V48H15" stroke="#d5c5a8" stroke-width=".9"/>
+      <path d="M40 26C36 23 30 27 31 32C32 36 38 36 38 32C38 29 34 29 34 31" stroke="#b2935e" stroke-width=".8"/>
+      <path d="M24 40C20 37 16 39 17 43C18 46 23 46 23 43" stroke="#b2935e" stroke-width=".8"/>
+      <path d="M37 42L32 46L27 48M43 29L40 35L37 37" stroke="#d1bd96" stroke-width=".7"/>
+    </g>
+  </defs>
+  <use href="#rim" stroke="url(#stone)" stroke-width="11" filter="url(#shadow)"/>
+  <use href="#rim" stroke="#fffdfa" stroke-width="1"/>
+  <path d="M46 16H1074L1077 26C1081 33 1089 37 1104 41V259C1089 263 1081 267 1077 274L1074 284H46L43 274C39 267 31 263 16 259V41C31 37 39 33 43 26Z" stroke="url(#gold)" stroke-width="1.45"/>
+  <path d="M51 22H1069L1073 31C1079 38 1087 42 1098 45V255C1087 258 1079 262 1073 269L1069 278H51L47 269C41 262 33 258 22 255V45C33 42 41 38 47 31Z" stroke="#d6c8b0" stroke-width=".85"/>
+  <path d="M53 25H1067M53 275H1067M25 53V247M1095 53V247" stroke="#fffdf8" stroke-width="1.2"/>
+  <use href="#corner"/>
+  <use href="#corner" transform="translate(1120 0) scale(-1 1)"/>
+  <use href="#corner" transform="translate(0 300) scale(1 -1)"/>
+  <use href="#corner" transform="translate(1120 300) scale(-1 -1)"/>
+</svg>

@@ -1,0 +1,121 @@
+.section {
+  --step-line: #d7c7ac;
+  position: relative;
+  /* Match the gold frieze directly below, including its fluid desktop inset. */
+  margin-inline: clamp(44px, 3.67%, 84px);
+  margin-bottom: clamp(36px, 3vw, 64px);
+  padding: 32px 0 34px;
+  border-block: 1px solid var(--step-line);
+  font-family: 'Times New Roman', Georgia, serif;
+}
+
+.section::before, .section::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  height: 7px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='8' viewBox='0 0 22 8'%3E%3Cpath d='M0 7H20V1H3V5H15V3H7' fill='none' stroke='%23b2935e' stroke-width='.8'/%3E%3C/svg%3E") center / 22px 8px repeat-x;
+  opacity: .5;
+  pointer-events: none;
+}
+
+.section::before { top: 3px; }
+.section::after { bottom: 3px; }
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  min-width: 0;
+  min-height: 208px;
+  padding: 0 clamp(24px, 2.3vw, 48px);
+}
+
+.step:first-child { padding-left: 0; }
+.step + .step { border-left: 1px solid var(--step-line); }
+
+.stepHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.emblem {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 112px;
+  height: 90px;
+  background: url('./images/tech-medallion.svg') center / 100% 100% no-repeat;
+}
+
+.illustration {
+  --icon-accent: #9b7840;
+  --icon-soft: #eee8db;
+  --icon-paper: #fbf8f1;
+  --icon-skin: #f4efe6;
+  color: #34332e;
+  transform: translateY(3px);
+}
+
+.number {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #c9b28b;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fffdf8, #eee8dc);
+  box-shadow: inset 0 0 0 3px #ffffff80;
+  color: #8c6c35;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.step h3 {
+  margin-bottom: 10px;
+  color: #20252a;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(21px, 1.4vw, 28px);
+  font-weight: 500;
+  letter-spacing: -.035em;
+  line-height: 1.3;
+}
+
+.step p {
+  max-width: 34ch;
+  color: #555557;
+  font-size: clamp(17px, 1.05vw, 21px);
+  line-height: 1.65;
+}
+
+@media (max-width: 950px) {
+  .section { margin-inline: 18px; }
+  .steps { grid-template-columns: minmax(0, 1fr); }
+  .step { min-height: 0; padding: 0; }
+  .step + .step { margin-top: 24px; padding-top: 24px; border-left: 0; border-top: 1px solid var(--step-line); }
+  .stepHeader { margin-bottom: 14px; }
+  .step h3 { font-size: 22px; }
+  .step p { max-width: 38ch; font-size: 17px; }
+  .emblem { width: 96px; height: 78px; }
+  .illustration { width: 52px; height: 45.5px; }
+}
+
+@media (max-width: 680px) {
+  .section { margin-inline: 0; padding: 28px 0; margin-bottom: 36px; }
+  .step h3 { font-size: 21px; margin-bottom: 8px; }
+  .step p { max-width: 38ch; font-size: 16px; }
+}
+
+/* The sidebar can leave a narrow content area even on desktop. */
+@container (max-width: 650px) {
+  .section { margin-inline: 0; }
+}

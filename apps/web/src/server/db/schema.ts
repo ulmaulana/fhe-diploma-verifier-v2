@@ -10,7 +10,7 @@ export const verificationState = pgTable('verification_state', {
   body: jsonb('body').$type<State>().notNull(),
 }, table => [check('verification_state_id_check', sql`${table.id} = 1`)]).enableRLS();
 
-/** Durable leases work with Supabase transaction pooling; no session locks. */
+/** Durable leases work with PostgreSQL transaction pooling; no session locks. */
 export const relayerLeases = pgTable('verification_relayer_leases', {
   name: text('name').primaryKey(),
   owner: uuid('owner').notNull(),

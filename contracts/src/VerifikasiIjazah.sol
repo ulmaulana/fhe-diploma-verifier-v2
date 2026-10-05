@@ -297,6 +297,7 @@ contract VerifikasiIjazah is ZamaEthereumConfig, AccessControl, EIP712 {
         if (role != DEFAULT_ADMIN_ROLE && role != ATTESTOR_ROLE && role != RELAYER_ROLE && role != RESULT_READER_ROLE) {
             revert InvalidRole(role);
         }
+        if (account == address(0)) revert InvalidAddress();
         if (!hasRole(role, account)) {
             (bool held, bytes32 other) = _heldRole(account);
             if (held) revert RoleConflict(other, account);

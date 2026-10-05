@@ -2,14 +2,23 @@ import { mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectsCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { put, get, del, list } from '@vercel/blob';
-import { config } from './config';
+import { config, neonStorageConfig } from './config';
 import { createHash } from 'node:crypto';
 import { deleteNetlifyPrefix, netlifyBlobsEnabled, readNetlifyObject, writeNetlifyObject } from './netlify-storage';
 
 /** Production never silently writes documents to a Function's ephemeral disk. */
-export function vercelBlobEnabled() { return !netlifyBlobsEnabled() && Boolean(process.env.BLOB_READ_WRITE_TOKEN); }
+export function neonStorageEnabled() { return process.env.STORAGE_PROVIDER === 'neon'; }
+export function chunkedUploadsEnabled() { return neonStorageEnabled() || netlifyBlobsEnabled(); }
+export function vercelBlobEnabled() { return !neonStorageEnabled() && !netlifyBlobsEnabled() && Boolean(process.env.BLOB_READ_WRITE_TOKEN); }
 export function blobEnabled() { return netlifyBlobsEnabled() || vercelBlobEnabled(); }
 function ensureStorage() {
+  if (neonStorageEnabled()) {
+    const cfg = neonStorageConfig();
+    if (Object.values(cfg).some(value => !value?.trim())) throw new Error('Neon Object Storage is not configured');
+    const endpoint = new URL(cfg.endpoint!);
+    if (endpoint.protocol !== 'https:' || endpoint.username || endpoint.password || endpoint.search || endpoint.hash) throw new Error('Invalid Neon Object Storage endpoint');
+    return;
+  }
   if (process.env.VERCEL && !blobEnabled()) throw new Error('A private Vercel Blob store and BLOB_READ_WRITE_TOKEN are required');
 }
 function blobOptions() { return { token: process.env.BLOB_READ_WRITE_TOKEN }; }
@@ -40,12 +49,87 @@ export async function deletePrivateBlob(pathname: string) {
   if (!/^uploads\/0x[0-9a-f]{64}\/document\.(pdf|png|jpg)$/.test(pathname)) throw new Error('Invalid staging object key');
   if (netlifyBlobsEnabled()) { await deleteNetlifyPrefix(pathname.slice(0, pathname.lastIndexOf('/') + 1)); return; }
   ensureStorage();
+  if (neonStorageEnabled()) { await deleteS3Prefix(pathname.slice(0, pathname.lastIndexOf('/') + 1)); return; }
   if (!blobEnabled()) throw new Error('Private Blob storage is not configured');
   await del(pathname, blobOptions());
 }
 
 let client: S3Client | undefined;
-function s3() { return client ??= new S3Client({ region: process.env.S3_REGION || 'us-east-1', endpoint: process.env.S3_ENDPOINT || undefined, forcePathStyle: Boolean(process.env.S3_ENDPOINT) }); }
+let clientConfiguration: string | undefined;
+function s3() {
+  const neon = neonStorageEnabled();
+  const cfg = neonStorageConfig();
+  const region = neon ? cfg.region : process.env.S3_REGION || 'us-east-1';
+  const endpoint = neon ? cfg.endpoint : process.env.S3_ENDPOINT || undefined;
+  const accessKeyId = neon ? cfg.accessKeyId : process.env.AWS_ACCESS_KEY_ID;
+  const secretAccessKey = neon ? cfg.secretAccessKey : process.env.AWS_SECRET_ACCESS_KEY;
+  const signature = JSON.stringify([neon, region, endpoint, accessKeyId, secretAccessKey]);
+  if (!client || clientConfiguration !== signature) {
+    client?.destroy();
+    client = new S3Client({ region, endpoint, forcePathStyle: neon || Boolean(endpoint),
+      ...(neon ? { credentials: { accessKeyId: accessKeyId!, secretAccessKey: secretAccessKey! },
+        requestChecksumCalculation: 'WHEN_REQUIRED', responseChecksumValidation: 'WHEN_REQUIRED' } : {}) });
+    clientConfiguration = signature;
+  }
+  return client;
+}
+function encryption() { return neonStorageEnabled() ? {} : { ServerSideEncryption: 'AES256' as const }; }
+async function readS3Object(objectKey: string, maximumBytes = config().maxBytes): Promise<Buffer> {
+  const response = await s3().send(new GetObjectCommand({ Bucket: process.env.S3_BUCKET, Key: objectKey }));
+  if (!response.Body) throw new Error('Private object missing');
+  if (response.ContentLength !== undefined && (response.ContentLength < 1 || response.ContentLength > maximumBytes)) {
+    await response.Body.transformToWebStream().cancel();
+    throw new Error('Private object has invalid size');
+  }
+  const reader = response.Body.transformToWebStream().getReader();
+  const chunks: Uint8Array[] = []; let size = 0;
+  for (;;) {
+    const part = await reader.read(); if (part.done) break;
+    size += part.value.length;
+    if (size > maximumBytes) { await reader.cancel(); throw new Error('Private object exceeds size limit'); }
+    chunks.push(part.value);
+  }
+  if (!size || (response.ContentLength !== undefined && size !== response.ContentLength)) throw new Error('Private object has invalid size');
+  return Buffer.concat(chunks);
+}
+async function deleteS3Prefix(prefix: string) {
+  let continuationToken: string | undefined;
+  do {
+    const objects = await s3().send(new ListObjectsV2Command({ Bucket: process.env.S3_BUCKET, Prefix: prefix, ContinuationToken: continuationToken }));
+    const keys = (objects.Contents || []).map(item => {
+      if (!item.Key?.startsWith(prefix)) throw new Error('Invalid private object key');
+      return { Key: item.Key };
+    });
+    if (keys.length) {
+      const result = await s3().send(new DeleteObjectsCommand({ Bucket: process.env.S3_BUCKET, Delete: { Objects: keys } }));
+      if (result.Errors?.length) throw new Error('Private object deletion failed');
+    }
+    continuationToken = objects.IsTruncated ? objects.NextContinuationToken : undefined;
+    if (objects.IsTruncated && !continuationToken) throw new Error('Invalid storage pagination');
+  } while (continuationToken);
+}
+function stagingKey(objectKey: string) {
+  if (!/^uploads\/0x[0-9a-f]{64}\/parts\/(0|[1-9]\d*)$/.test(objectKey)) throw new Error('Invalid staging object key');
+  return objectKey;
+}
+export async function writeStagingObject(objectKey: string, bytes: Uint8Array) {
+  ensureStorage(); stagingKey(objectKey);
+  if (netlifyBlobsEnabled()) { await writeNetlifyObject(objectKey, bytes, true); return; }
+  if (!neonStorageEnabled()) throw new Error('Chunked upload storage is not configured');
+  try {
+    await s3().send(new PutObjectCommand({ Bucket: process.env.S3_BUCKET, Key: objectKey, Body: bytes,
+      ContentType: 'application/octet-stream', IfNoneMatch: '*' }));
+  } catch (error) {
+    const existing = await readS3Object(objectKey, bytes.byteLength).catch(() => null);
+    if (!existing?.equals(Buffer.from(bytes))) throw error;
+  }
+}
+export async function readStagingObject(objectKey: string, maximumBytes = config().maxBytes) {
+  ensureStorage(); stagingKey(objectKey);
+  if (netlifyBlobsEnabled()) return readNetlifyObject(objectKey, maximumBytes);
+  if (!neonStorageEnabled()) throw new Error('Chunked upload storage is not configured');
+  return readS3Object(objectKey, maximumBytes);
+}
 function key(id: string, name: string) {
   if (!/^(0x[0-9a-f]{64}|[0-9a-f-]{36})$/.test(id) || !/^[a-z-]+\.(bin|json|pdf)$/.test(name)) throw new Error('Invalid private object key');
   return `jobs/${id}/${name}`;
@@ -59,7 +143,7 @@ export async function putPrivate(id: string, name: string, bytes: Uint8Array) {
     assertPrivateBlobUrl(result.url, objectKey);
     return;
   }
-  if (process.env.S3_BUCKET) { await s3().send(new PutObjectCommand({ Bucket: process.env.S3_BUCKET, Key: objectKey, Body: bytes, ServerSideEncryption: 'AES256' })); return; }
+  if (process.env.S3_BUCKET) { await s3().send(new PutObjectCommand({ Bucket: process.env.S3_BUCKET, Key: objectKey, Body: bytes, ...encryption() })); return; }
   const target = path.join(config().dataDir, objectKey);
   await mkdir(path.dirname(target), { recursive: true, mode: 0o700 });
   await writeFile(target, bytes, { mode: 0o600 });
@@ -70,9 +154,7 @@ export async function getPrivate(id: string, name: string): Promise<Buffer> {
   if (netlifyBlobsEnabled()) return readNetlifyObject(objectKey);
   if (blobEnabled()) return (await readPrivateBlob(objectKey)).bytes;
   if (process.env.S3_BUCKET) {
-    const response = await s3().send(new GetObjectCommand({ Bucket: process.env.S3_BUCKET, Key: objectKey }));
-    if (!response.Body) throw new Error('Private object missing');
-    return Buffer.from(await response.Body.transformToByteArray());
+    return readS3Object(objectKey);
   }
   return readFile(path.join(config().dataDir, objectKey));
 }
@@ -90,8 +172,7 @@ export async function deletePrivate(id: string) {
     return;
   }
   if (process.env.S3_BUCKET) {
-    const objects = await s3().send(new ListObjectsV2Command({ Bucket: process.env.S3_BUCKET, Prefix: `jobs/${id}/` }));
-    if (objects.Contents?.length) await s3().send(new DeleteObjectsCommand({ Bucket: process.env.S3_BUCKET, Delete: { Objects: objects.Contents.map(item => ({ Key: item.Key! })) } }));
+    await deleteS3Prefix(`jobs/${id}/`);
     return;
   }
   const root = path.resolve(config().dataDir, 'jobs');
@@ -120,7 +201,7 @@ export async function putArchive(id: string, digest: string, bytes: Buffer) {
       if (!existing || !existing.equals(bytes)) throw error;
     }
   } else if (process.env.S3_BUCKET) {
-    try { await s3().send(new PutObjectCommand({ Bucket: process.env.S3_BUCKET, Key: objectKey, Body: bytes, ContentType: 'application/pdf', ServerSideEncryption: 'AES256', IfNoneMatch: '*' })); }
+    try { await s3().send(new PutObjectCommand({ Bucket: process.env.S3_BUCKET, Key: objectKey, Body: bytes, ContentType: 'application/pdf', ...encryption(), IfNoneMatch: '*' })); }
     catch (error) { const existing = await getArchive(id, digest).catch(() => null); if (!existing || !existing.equals(bytes)) throw error; }
   } else {
     const target = path.join(config().dataDir, objectKey);
@@ -136,9 +217,7 @@ export async function getArchive(id: string, digest: string): Promise<Buffer> {
   if (netlifyBlobsEnabled()) bytes = await readNetlifyObject(objectKey);
   else if (blobEnabled()) bytes = (await readPrivateBlob(objectKey)).bytes;
   else if (process.env.S3_BUCKET) {
-    const result = await s3().send(new GetObjectCommand({ Bucket: process.env.S3_BUCKET, Key: objectKey }));
-    if (!result.Body) throw new Error('Archive missing');
-    bytes = Buffer.from(await result.Body.transformToByteArray());
+    bytes = await readS3Object(objectKey);
   } else bytes = await readFile(path.join(config().dataDir, objectKey));
   if (`0x${createHash('sha256').update(bytes).digest('hex')}` !== digest) throw new Error('ARCHIVE_DIGEST_MISMATCH');
   return bytes;

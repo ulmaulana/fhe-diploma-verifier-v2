@@ -41,3 +41,7 @@ coverage.json
 # Intermediate recordings and the regenerated handoff archive stay local.
 docs/uas/evidence/sepolia/**/video-raw/
 /BAHAN_LAPORAN_UAS_BLOCKCHAIN.zip
+.neon
+
+# Project documentation stays local.
+/docs/

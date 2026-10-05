@@ -17,7 +17,7 @@ describe('OCR configuration identity', () => {
   it('hashes the canonical configuration', () => {
     expect(OCR_CONFIG_HASH).toMatch(/^0x[0-9a-f]{64}$/);
     expect(canonicalJson({ b: [1, 'x'], a: { d: true, c: null } })).toBe('{"a": {"c": null, "d": true}, "b": [1, "x"]}');
-    expect(OCR_CONFIG.version).toBe('tesseract-js-ind-eng-v6');
+    expect(OCR_CONFIG.version).toBe('tesseract-js-ind-eng-v7');
     expect(OCR_CONFIG_HASH).toBe(`0x${createHash('sha256').update(canonicalJson(OCR_CONFIG)).digest('hex')}`);
   });
 
@@ -28,6 +28,7 @@ describe('OCR configuration identity', () => {
     for (const changed of [
       { ...OCR_CONFIG, confidence_threshold: 0.9 },
       { ...OCR_CONFIG, confidence_policy: 'any-required-field-below-threshold' },
+      { ...OCR_CONFIG, name_spacing: { ...OCR_CONFIG.name_spacing, calibrated_gap_ratio: 0.5 } },
     ]) {
       expect(`0x${createHash('sha256').update(canonicalJson(changed)).digest('hex')}`).not.toBe(OCR_CONFIG_HASH);
     }

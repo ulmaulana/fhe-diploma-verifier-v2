@@ -2,6 +2,7 @@ import { getStore } from '@netlify/blobs';
 import { config, isNetlify } from './config';
 
 export function netlifyBlobsEnabled() {
+  if (process.env.STORAGE_PROVIDER === 'neon') return false;
   return isNetlify() || process.env.STORAGE_PROVIDER === 'netlify';
 }
 

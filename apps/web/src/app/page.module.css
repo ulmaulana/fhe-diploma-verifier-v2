@@ -1,4 +1,4 @@
-.below{width:100%;max-width:1220px;margin:0 auto;padding:28px 40px 0}
+.below{container-type:inline-size;width:100%;margin:0;padding:28px clamp(24px,2.6vw,64px) 0}
 /* Quiet marble note under the technology tablet; two classes outrank the global .inline-note. */
 .below .note{align-items:center;margin:0 0 40px;padding:16px 22px;border:1px solid #fff;border-radius:18px;background:#ffffffa6;color:#4a5160}
 .below .note>svg{color:#0b0d12;--icon-accent:currentColor;--icon-soft:transparent;--icon-paper:transparent}

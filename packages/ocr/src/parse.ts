@@ -1,5 +1,6 @@
 import type { FieldKey, OcrField } from '@verifikasi/domain';
 import type { OcrWord, TemplateId } from './types';
+import { nameText } from './name-spacing';
 
 const LABELS: Record<TemplateId, Record<FieldKey, string>> = {
   D1: { full_name: 'Nama lengkap', diploma_number: 'Nomor ijazah', study_program: 'Program studi', graduation_date: 'Tanggal lulus' },
@@ -53,7 +54,7 @@ export function parseFields(words: OcrWord[], page: number): ParsedPage {
     let collected: OcrWord[] = [];
     const flush = () => {
       if (!active || !collected.length) return;
-      const text = collected.map(word => word.text).join(' ');
+      const text = active === 'full_name' ? nameText(collected) : collected.map(word => word.text).join(' ');
       const x = Math.min(...collected.map(word => word.left));
       const y = Math.min(...collected.map(word => word.top));
       const right = Math.max(...collected.map(word => word.left + word.width));

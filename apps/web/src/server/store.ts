@@ -60,7 +60,7 @@ export function audit(state: State, action: string, objectId: string) {
   state.audit = state.audit.slice(-1000);
 }
 
-/** Durable owner-token lease is compatible with Supabase transaction pooling. */
+/** Durable owner-token lease is compatible with PostgreSQL transaction pooling. */
 export async function withRelayerLock<T>(action: (lease: RelayerLease) => Promise<T>): Promise<T> {
   return withDatabaseRelayerLock(database(), action);
 }

@@ -3,8 +3,7 @@ import { ApiError, config } from './config';
 import { safeEqual, session } from './http';
 import { accessible, createJobFromBytes } from './jobs';
 import { withState } from './store';
-import { assertPrivateBlobUrl, vercelBlobEnabled, deletePrivateBlob, readPrivateBlob } from './storage';
-import { netlifyBlobsEnabled } from './netlify-storage';
+import { assertPrivateBlobUrl, chunkedUploadsEnabled, vercelBlobEnabled, deletePrivateBlob, readPrivateBlob } from './storage';
 import { readNetlifyUpload } from './netlify-uploads';
 import { ownedIntent } from './upload-intents';
 import type { Session } from './types';
@@ -56,7 +55,7 @@ export async function finalizeUpload(request: Request, current: Session, id: str
     await deletePrivateBlob(intent.pathname);
     return job;
   }
-  const stored = netlifyBlobsEnabled() ? await readNetlifyUpload(intent) : await readPrivateBlob(intent.pathname, config().maxBytes);
+  const stored = chunkedUploadsEnabled() ? await readNetlifyUpload(intent) : await readPrivateBlob(intent.pathname, config().maxBytes);
   if (stored.size !== intent.fileSize || stored.contentType !== intent.mimeType) throw new ApiError(409, 'UPLOAD_CHANGED', 'Berkas yang diterima berbeda dari berkas yang dipilih.');
   const job = await createJobFromBytes(request, current, { bytes: stored.bytes, name: intent.fileName, mimeType: intent.mimeType }, intent.expectedCredentialId, intent.id);
   await deletePrivateBlob(intent.pathname);

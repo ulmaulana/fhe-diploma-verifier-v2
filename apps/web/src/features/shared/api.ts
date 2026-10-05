@@ -1,4 +1,4 @@
-export interface Session { csrfToken: string; mode: 'demo' | 'testnet'; expiresAt: string; configured: boolean; uploadMode?: 'blob' | 'netlify' | 'multipart' }
+export interface Session { csrfToken: string; mode: 'demo' | 'testnet'; expiresAt: string; configured: boolean; uploadMode?: 'blob' | 'chunked' | 'netlify' | 'multipart' }
 let cachedSession: Promise<Session> | undefined;
 async function responseData(response: Response, fallback: string) {
   const data = await response.json().catch(() => null);

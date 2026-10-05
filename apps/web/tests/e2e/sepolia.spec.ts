@@ -216,6 +216,7 @@ test('wallet on Sepolia signs in; switching to another network invalidates the s
 
 test('administrator registers or reuses the synthetic institution and signer, and the portal rejects a no-op', async () => {
   test.setTimeout(10 * 60_000);
+  await page.getByRole('tab', { name: 'Portal Kredensial Institusi', exact: true }).click();
   const initial = await registryState();
   // Fail before a registry write if a supplied ID or wallet belongs to a different institution.
   if (initial.issuer.exists) expect(initial.issuer).toEqual({ name: issuerName, active: true, exists: true });

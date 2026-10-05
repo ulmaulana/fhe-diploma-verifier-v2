@@ -287,6 +287,40 @@ describe('VerifikasiIjazah — local FHEVM mock (not testnet evidence)', functio
     const ADMIN = ethers.ZeroHash;
     const role = name => ethers.id(name);
 
+    for (const name of ['DEFAULT_ADMIN_ROLE', 'ATTESTOR_ROLE', 'RELAYER_ROLE', 'RESULT_READER_ROLE']) {
+      it(`S-16: rejects a zero-address ${name} grant without changing roles, count or events`, async () => {
+        const roleId = name === 'DEFAULT_ADMIN_ROLE' ? ADMIN : role(name);
+        const beforeCount = await contract.adminCount();
+        const beforeEvents = await contract.queryFilter(contract.filters.RoleGranted());
+        await assert.rejects(async () => {
+          const tx = await contract.grantRole(roleId, ethers.ZeroAddress, { gasLimit: 200_000 });
+          await tx.wait();
+        }, /InvalidAddress/);
+        assert.equal(await contract.hasRole(roleId, ethers.ZeroAddress), false);
+        assert.equal(await contract.hasRole(ADMIN, admin.address), true);
+        assert.equal(await contract.adminCount(), beforeCount);
+        assert.equal((await contract.queryFilter(contract.filters.RoleGranted())).length, beforeEvents.length);
+      });
+    }
+
+    it('S-16: preserves a callable last administrator after rejecting a zero-admin grant', async () => {
+      await assert.rejects(async () => {
+        const tx = await contract.grantRole(ADMIN, ethers.ZeroAddress, { gasLimit: 200_000 });
+        await tx.wait();
+      }, /InvalidAddress/);
+      await assert.rejects(contract.revokeRole(ADMIN, admin.address), /LastAdminRemoval/);
+      await assert.rejects(contract.renounceRole(ADMIN, admin.address), /LastAdminRemoval/);
+      assert.equal(await contract.adminCount(), 1n);
+      assert.equal(await contract.hasRole(ADMIN, ethers.ZeroAddress), false);
+      assert.equal(await contract.hasRole(ADMIN, admin.address), true);
+      const recoveryIssuer = random();
+      await (await contract.setIssuer(recoveryIssuer, 'Institusi pemulihan sintetis', true)).wait();
+      const stored = await contract.issuers(recoveryIssuer);
+      assert.equal(stored.name, 'Institusi pemulihan sintetis');
+      assert.equal(stored.active, true);
+      assert.equal(stored.exists, true);
+    });
+
     it('rejects a deployment that places two roles on one address', async () => {
       for (const roles of [[admin, admin, relayer, reader], [admin, attestor, attestor, reader], [admin, attestor, relayer, relayer], [admin, attestor, relayer, admin]]) {
         await assert.rejects(ethers.deployContract('VerifikasiIjazah', roles.map(account => account.address)), /RoleConflict/);

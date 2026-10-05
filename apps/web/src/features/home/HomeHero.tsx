@@ -18,10 +18,14 @@ export function HomeHero() {
   return <div className={styles.fold}>
     <section className={styles.hero} aria-labelledby="home-title">
       {/* v4: the cut-out statues stand on the bare marble canvas, without the temple scene. */}
-      <Image src={statues} alt="" priority sizes="(max-width: 680px) 110vw, 70vw" className={styles.statues}/>
+      <Image src={statues} alt="" priority sizes="(max-width: 680px) 104vw, (max-width: 950px) 600px, 48vw" className={styles.statues}/>
       <div className={styles.content}>
-        <h1 id="home-title" className={styles.title}><span>Verifikasi</span> <span className={styles.titleSoft}>Ijazah</span></h1>
-        <Link href="/verifikasi" className={styles.cta}>Mulai Verifikasi<ArrowRightIcon size={22}/></Link>
+        <h1 id="home-title" className={styles.title}><span>Terbitkan Ijazah Digital.</span> <span className={styles.titleSoft}>Verifikasi Keasliannya.</span></h1>
+        <p className={styles.description}>Platform untuk penerbitan ijazah digital oleh institusi dan verifikasi ijazah yang diterbitkan melalui sistem ini. Periksa pengesahan data, status ijazah, dan kecocokan dokumen dalam satu tempat.</p>
+        <div className={styles.actions}>
+          <Link href="/verifikasi" className={styles.cta}>Verifikasi Ijazah<ArrowRightIcon size={20}/></Link>
+          <Link href="/penerbit" className={`${styles.cta} ${styles.issuerCta}`}><InstitutionIcon size={19}/>Portal Penerbit</Link>
+        </div>
       </div>
     </section>
     <section className={styles.services} aria-labelledby="services-title">

@@ -4,18 +4,21 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { ArrowRightIcon, EncryptionIcon, MatchAttributeIcon, ReadDocumentIcon, ShieldCheckIcon, VerifyRecordIcon } from '@/features/shared/icons';
 import bust from './images/tech-bust.webp';
+import ivoryColumn from './images/tech-column-ivory.png';
+import darkColumn from './images/tech-column-dark.png';
+import laurel from './images/tech-laurel.svg';
 import styles from './VerificationTechnology.module.css';
 
 const stages = [
   {
-    label: 'Baca dokumen', technology: 'OCR · Tesseract.js', icon: ReadDocumentIcon,
+    label: 'Baca dokumen', technology: 'OCR · Tesseract', icon: ReadDocumentIcon,
     title: 'Tulisan pada ijazah dibaca menjadi data.',
-    description: 'Sistem membaca PDF atau gambar yang diunggah, mendeteksi QR, dan mengambil empat atribut ijazah. Kualitas pembacaan diperiksa sebelum data digunakan untuk pencocokan.',
+    description: 'Sistem membaca PDF atau gambar yang diunggah, mengekstrak teks, dan mengambil empat atribut ijazah. Kualitas pembacaan diperiksa sebelum data digunakan untuk pencocokan.',
     detailTitle: 'Empat atribut yang dibaca',
     details: ['Nama lengkap', 'Nomor ijazah', 'Program studi', 'Tanggal lulus'],
   },
   {
-    label: 'Periksa rekaman', technology: 'QR · Ethereum Sepolia', icon: VerifyRecordIcon,
+    label: 'Periksa validitas', technology: 'QR · Ethereum Sepolia', icon: VerifyRecordIcon,
     title: 'QR menghubungkan dokumen dengan rekaman penerbit.',
     description: 'Sistem memeriksa rekaman pada blockchain dan bukti pengesahan data. Pencocokan dilanjutkan jika rekaman terverifikasi dan penerbit berwenang.',
     detailTitle: 'Yang diperiksa',
@@ -52,25 +55,33 @@ export function VerificationTechnology() {
   const Icon = stage.icon;
 
   return <section className={styles.technology} aria-labelledby="technology-title">
-    <header className={styles.heading}>
-      <h2 id="technology-title"><span>Teknologi di balik</span> <span className={styles.headingSoft}>verifikasi</span></h2>
-      <p>Dari dokumen yang diunggah hingga hasil pencocokan. Pilih tahap untuk melihat cara kerjanya.</p>
+    <header className={styles.intro}>
+      <div className={styles.heading}>
+        <Image src={laurel} alt="" className={styles.laurel}/>
+        <h2 id="technology-title"><span>Teknologi di balik</span> <span className={styles.headingSoft}>verifikasi</span></h2>
+        <p>Dari dokumen yang diunggah hingga hasil pencocokan. Pilih tahap untuk melihat cara kerjanya.</p>
+      </div>
+      <div className={styles.illustration} aria-hidden="true">
+        <Image src={bust} alt="" sizes="(max-width: 680px) 120px, (max-width: 950px) 200px, (min-width: 2400px) 440px, 22vw" className={styles.bust}/>
+      </div>
     </header>
-    {/* The gesturing statue faces the colonnade, as if explaining the stages below. */}
-    <Image src={bust} alt="" sizes="(max-width: 950px) 1px, 300px" className={styles.bust}/>
-    {/* Stoa: a meander frieze over five marble columns, one per stage. */}
     <div className={styles.frieze} aria-hidden="true"/>
     <ol className={styles.stages} aria-label="Tahapan teknologi verifikasi">
       {stages.map((item, index) => <li key={item.label}>
         <button type="button" aria-pressed={activeStage === index} aria-controls="technology-detail" onClick={() => setActiveStage(index)}>
-          <span className={styles.column} aria-hidden="true"><span className={styles.numeral}>{numerals[index]}</span></span>
+          <span className={styles.column} aria-hidden="true">
+            <Image src={ivoryColumn} alt="" sizes="(max-width: 680px) 64px, (max-width: 1190px) 132px, (min-width: 2600px) 250px, 10vw" className={styles.ivoryColumn}/>
+            <Image src={darkColumn} alt="" sizes="(max-width: 680px) 64px, (max-width: 1190px) 132px, (min-width: 2600px) 250px, 10vw" className={styles.darkColumn}/>
+            <span className={styles.numeral}>{numerals[index]}</span>
+          </span>
           <span className={styles.stageLabel}><span className="visually-hidden">Tahap {index + 1}: </span>{item.label}</span>
         </button>
       </li>)}
     </ol>
+    <div className={styles.foundation} aria-hidden="true"/>
     <div className={styles.tablet}>
       <div id="technology-detail" className={styles.detail} aria-live="polite" aria-atomic="true">
-        <div className={styles.explanation}>
+        <div className={styles.explanation} key={activeStage}>
           <div className={styles.technologyLabel}>
             <span className={styles.technologyIcon}><Icon size={22}/></span>
             <ul aria-label="Teknologi yang dipakai">{stage.technology.split(' · ').map(name => <li key={name}>{name}</li>)}</ul>
@@ -85,11 +96,16 @@ export function VerificationTechnology() {
       </div>
       <div className={styles.navigation}>
         <span className={styles.progress}>
+          <svg className={styles.temple} width="38" height="38" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+            <path d="M3 12 20 4l17 8H3Z" stroke="currentColor" strokeWidth="1.8"/>
+            <path d="M4 15h32M4 34h32M2 37h36" stroke="currentColor" strokeWidth="2"/>
+            <path d="M8 17v14m6-14v14m6-14v14m6-14v14m6-14v14" stroke="currentColor" strokeWidth="3"/>
+          </svg>
           <span>Tahap {activeStage + 1} dari {stages.length}</span>
           <span className={styles.progressBars} aria-hidden="true">{stages.map((item, index) => <span key={item.label} data-active={index <= activeStage}/>)}</span>
         </span>
-        <button type="button" onClick={() => setActiveStage((activeStage + 1) % stages.length)}>
-          {activeStage === stages.length - 1 ? 'Kembali ke tahap awal' : 'Tahap berikutnya'}<ArrowRightIcon size={17}/>
+        <button type="button" onClick={() => setActiveStage(current => (current + 1) % stages.length)}>
+          {activeStage === stages.length - 1 ? 'Kembali ke tahap awal' : 'Lihat berikutnya'}<ArrowRightIcon size={17}/>
         </button>
       </div>
     </div>
