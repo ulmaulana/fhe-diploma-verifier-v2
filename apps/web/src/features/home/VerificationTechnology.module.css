@@ -1,26 +1,83 @@
-.technology{padding:40px 0;border-bottom:1px solid var(--border)}
-.heading{max-width:690px}
-.heading h2{margin:10px 0 12px;font-size:28px;letter-spacing:-.6px}
-.heading p{color:var(--muted);font-size:14px;line-height:1.8}
-.stages{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;list-style:none;padding:0;margin:30px 0 0}
+/* Stoa layout on the home marble canvas: headline and statue, a meander frieze, five columns (one per stage), then a white tablet. */
+.technology{--stone:#e3ddd3;--vein:#b9ad9a;--slate:#5f646d;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"heading bust" "frieze frieze" "stages stages" "tablet tablet";padding:64px 0 44px}
+.heading{grid-area:heading;align-self:end;max-width:560px;padding-bottom:30px}
+.heading h2{display:flex;flex-direction:column;color:#0b0d12;font-size:clamp(38px,3.8vw,56px);font-weight:700;letter-spacing:-.04em;line-height:.95}
+.headingSoft{padding:0 .04em .08em 0;background:linear-gradient(180deg,#70757e 0%,#5f646d 60%,#565b64 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.heading p{max-width:420px;margin-top:16px;color:#3b4250;font-size:15px;line-height:1.6}
+.bust{grid-area:bust;align-self:end;width:auto;height:clamp(230px,21vw,310px);margin:0 clamp(8px,2vw,32px) -2px 0;filter:drop-shadow(0 18px 24px #5a46301a);-webkit-mask-image:linear-gradient(180deg,#000 82%,transparent 100%);mask-image:linear-gradient(180deg,#000 82%,transparent 100%);pointer-events:none;user-select:none}
+
+/* Running meander: a continuous baseline with one squared spiral per tile. */
+.frieze{grid-area:frieze;position:relative;z-index:1;height:30px;border-block:1.5px solid var(--stone);background:#f2f3f4 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='20' viewBox='0 0 28 20'%3E%3Cpath d='M0 19H28M24 19V1H5V15H18V7H11V11' fill='none' stroke='%23b9ad9a' stroke-width='1.5'/%3E%3C/svg%3E") 0 50%/28px 20px repeat-x}
+
+.stages{grid-area:stages;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin:0;padding:22px 0 0;list-style:none}
 .stages li{min-width:0}
-.stages button{display:flex;align-items:center;gap:10px;width:100%;height:100%;padding:14px 0 18px;background:none;border:0;border-bottom:2px solid var(--border);text-align:left;color:var(--muted);font-size:12px;line-height:1.5;transition:color .18s,border-color .18s}
-.stages button:hover{color:var(--ink);border-color:#9fcfe7}
-.stages button[aria-pressed=true]{color:var(--ink);border-color:var(--cyan);font-weight:600}
-.number{display:grid;place-items:center;flex-shrink:0;width:30px;height:30px;border-radius:50%;background:#f3f6f8;color:#728095;font-size:11px;transition:background .18s,color .18s}
-.stages button[aria-pressed=true] .number{background:var(--ink);color:white}
-.detail{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:40px;min-height:260px;padding:32px 0 24px}
-.technologyLabel{display:flex;align-items:center;gap:10px;color:#287398;font-size:12px;font-weight:500;margin-bottom:17px}
-.explanation h3{font-size:22px;font-weight:600;line-height:1.4;letter-spacing:-.3px;max-width:500px}
-.explanation p{margin-top:12px;color:var(--muted);font-size:13px;line-height:1.9;max-width:580px}
-.checks{padding:4px 0 0 28px;border-left:1px solid var(--border)}
-.checks h4{margin:0 0 14px;color:var(--ink);font-size:12px;font-weight:500}
-.checks ul{display:grid;gap:12px;list-style:none;margin:0;padding:0}
-.checks li{position:relative;padding-left:14px;color:var(--muted);font-size:12px;line-height:1.7}
-.checks li::before{content:'';position:absolute;top:8px;left:0;width:4px;height:4px;border-radius:50%;background:var(--cyan)}
-.navigation{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
-.navigation button{display:inline-flex;align-items:center;gap:10px;min-height:40px;background:none;border:0;padding:8px 0;color:var(--ink);font-size:12px;font-weight:500}
-.navigation button:hover{color:#287398}
-@media(max-width:950px){.stages{gap:8px}.stages button{flex-direction:column;align-items:flex-start;gap:8px}.detail{gap:24px}.checks{padding-left:20px}}
-@media(max-width:680px){.technology{padding:30px 0}.heading h2{font-size:24px}.stages{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:20px;gap:8px 12px}.stages button{font-size:11px;padding:12px 0}.detail{grid-template-columns:minmax(0,1fr);gap:24px;min-height:0;padding:26px 0}.explanation h3{font-size:21px}.checks{padding:20px 0 0;border-left:0;border-top:1px solid var(--border)}}
-@media(prefers-reduced-motion:reduce){.stages button,.number{transition:none}}
+/* Two-step stylobate under the columns. */
+.stages::after{content:'';grid-column:1/-1;height:10px;background:linear-gradient(var(--stone) 0 4px,transparent 4px 6px,#ebe7e0 6px 10px)}
+.stages button{display:flex;flex-direction:column;align-items:center;width:100%;height:100%;padding:0 6px 16px;border:0;background:none;color:var(--slate);font-size:13px;line-height:1.35;text-align:center;transition:color .18s}
+.column{position:relative;display:grid;place-items:center;width:clamp(52px,4.8vw,70px);height:clamp(104px,9vw,132px);margin:10px 0 8px;background:repeating-linear-gradient(90deg,#f8f8f8 0 7px,#ebe9e5 7px 8px);box-shadow:inset 9px 0 10px -7px #0000000f,inset -9px 0 10px -7px #0000000f;transition:box-shadow .2s}
+/* Capital and base. */
+.column::before,.column::after{content:'';position:absolute;left:-10px;right:-10px;background:var(--stone);transition:background .18s}
+.column::before{top:-10px;height:10px;border-radius:3px 3px 1px 1px}
+.column::after{bottom:-8px;left:-6px;right:-6px;height:8px;border-radius:1px 1px 3px 3px}
+.numeral{display:grid;place-items:center;min-width:38px;height:38px;padding:0 7px;border-radius:99px;background:#f2f3f4;color:var(--slate);font-size:15px;font-weight:600;letter-spacing:.04em;box-shadow:0 0 0 1px var(--stone);transition:background .18s,color .18s}
+.stageLabel{max-width:150px;margin-top:10px;font-weight:500}
+.stages button:hover{color:#0b0d12}
+.stages button:hover .column::before,.stages button:hover .column::after{background:#cfc6b8}
+.stages button[aria-pressed=true]{color:#0b0d12}
+.stages button[aria-pressed=true] .column{background:repeating-linear-gradient(90deg,#fff 0 7px,#ebe8e3 7px 8px);box-shadow:inset 9px 0 10px -7px #0000000f,inset -9px 0 10px -7px #0000000f,0 20px 30px -14px #5a463040}
+.stages button[aria-pressed=true] .column::before,.stages button[aria-pressed=true] .column::after{background:#0b0d12}
+.stages button[aria-pressed=true] .numeral{background:#0b0d12;color:#fff;box-shadow:none}
+.stages button[aria-pressed=true] .stageLabel{font-weight:600}
+
+.tablet{grid-area:tablet;margin-top:26px;padding:34px 38px 22px;border:1px solid #fff;border-radius:26px;background:#fff;box-shadow:0 1px 2px #1018280a,0 24px 60px #1c26380d}
+.detail{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:44px;min-height:236px}
+.technologyLabel{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+.technologyIcon{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#f1f2f4;color:#0b0d12}
+.technologyIcon :global(.icon){--icon-accent:currentColor;--icon-soft:transparent;--icon-paper:transparent}
+.technologyLabel ul{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.technologyLabel li{display:inline-flex;align-items:center;height:26px;padding:0 12px;border:1px solid #e8e4dd;border-radius:99px;background:#fafaf9;color:#3b4250;font-size:12px;font-weight:500}
+.explanation h3{max-width:520px;color:#0b0d12;font-size:clamp(22px,2vw,27px);font-weight:600;letter-spacing:-.02em;line-height:1.25}
+.explanation p{max-width:580px;margin-top:12px;color:#4a5160;font-size:14.5px;line-height:1.75}
+.checks{align-self:start;padding:22px 24px;border-radius:18px;background:linear-gradient(135deg,#f6f6f7 0%,#f0f0f1 100%)}
+.checks h4{margin:0 0 14px;color:#0b0d12;font-size:13px;font-weight:600}
+.checks ul{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.checks li{position:relative;padding-left:20px;color:#3b4250;font-size:13.5px;line-height:1.6}
+.checks li::before{content:'';position:absolute;top:.6em;left:2px;width:6px;height:6px;background:var(--vein);transform:rotate(45deg)}
+.navigation{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:22px;padding-top:18px;border-top:1px solid #ecebe8}
+.progress{display:flex;align-items:center;gap:14px;color:var(--slate);font-size:12.5px}
+.progressBars{display:flex;gap:5px}
+.progressBars span{width:22px;height:3px;border-radius:99px;background:var(--stone);transition:background .18s}
+.progressBars span[data-active=true]{background:#0b0d12}
+.navigation button{display:inline-flex;align-items:center;gap:12px;height:44px;padding:0 20px 0 24px;border:0;border-radius:99px;background:#141b29;color:#fff;font-size:13.5px;font-weight:500;box-shadow:0 12px 26px #0d14221f;transition:background .18s}
+.navigation button:hover{background:#273246}
+.navigation button :global(.icon){--icon-accent:currentColor}
+
+@media(max-width:950px){
+  .technology{grid-template-columns:minmax(0,1fr);grid-template-areas:"heading" "frieze" "stages" "tablet";padding-top:48px}
+  .bust{display:none}
+  .stageLabel{font-size:12px}
+  .tablet{padding:28px 26px 20px}
+  .detail{gap:28px}
+}
+@media(max-width:680px){
+  .technology{padding:36px 0 32px}
+  .heading{padding-bottom:22px}
+  .heading h2{font-size:clamp(32px,10vw,40px)}
+  .heading p{font-size:14px}
+  .frieze{height:24px;background-size:22px 16px}
+  .stages{padding-top:18px}
+  .stages button{padding:0 2px 12px}
+  .column{width:34px;height:70px;margin:8px 0 6px}
+  .column::before{top:-8px;height:8px;left:-7px;right:-7px}
+  .column::after{bottom:-6px;height:6px;left:-4px;right:-4px}
+  .numeral{min-width:26px;height:26px;padding:0 4px;font-size:11.5px}
+  .stageLabel{margin-top:8px;font-size:11px}
+  .tablet{margin-top:20px;padding:22px 18px 16px;border-radius:20px}
+  .detail{grid-template-columns:minmax(0,1fr);gap:22px;min-height:0}
+  .explanation h3{font-size:21px}
+  .explanation p{font-size:14px}
+  .checks{padding:18px}
+  .navigation{flex-wrap:wrap}
+  .navigation button{height:42px;padding:0 18px 0 20px}
+}
+@media(prefers-reduced-motion:reduce){.stages button,.column,.column::before,.column::after,.numeral,.progressBars span,.navigation button{transition:none}}

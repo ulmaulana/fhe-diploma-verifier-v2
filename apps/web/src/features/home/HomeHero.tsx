@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRightIcon, HistoryIcon, InstitutionIcon, VerifyRecordIcon } from '@/features/shared/icons';
-import scene from './images/hero-scene.webp';
 import statues from './images/hero-statues.webp';
 import verifyArt from './images/card-verify.webp';
 import issuerArt from './images/card-issuer.webp';
@@ -17,9 +16,8 @@ const services = [
 export function HomeHero() {
   return <>
     <section className={styles.hero} aria-labelledby="home-title">
-      {/* The scene is a statue-free crop of the temple asset, so the cut-out statues stand alone in front of it. */}
-      <Image src={scene} alt="" priority placeholder="blur" sizes="100vw" className={styles.scene}/>
-      <Image src={statues} alt="" priority sizes="(max-width: 680px) 110vw, 62vw" className={styles.statues}/>
+      {/* v4: the cut-out statues stand on the bare marble canvas, without the temple scene. */}
+      <Image src={statues} alt="" priority sizes="(max-width: 680px) 110vw, 70vw" className={styles.statues}/>
       <div className={styles.content}>
         <p className={styles.eyebrow}>Validasi ijazah<br/>lebih pasti</p>
         <h1 id="home-title" className={styles.title}><span>Verifikasi</span> <span className={styles.titleSoft}>Ijazah</span></h1>
@@ -40,7 +38,7 @@ export function HomeHero() {
             <span className={styles.cardText}>{text}</span>
             <span className={styles.cardArrow}><ArrowRightIcon size={14}/></span>
           </span>
-          <Image src={art} alt="" sizes="(max-width: 680px) 35vw, 180px" className={styles.cardArt}/>
+          <span className={styles.cardArt}><Image src={art} alt="" sizes="(max-width: 680px) 30vw, 140px"/></span>
         </Link>
       </li>)}</ul>
     </section>

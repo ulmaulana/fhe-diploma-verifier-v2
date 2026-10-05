@@ -1,7 +1,9 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import { ArrowRightIcon, EncryptionIcon, MatchAttributeIcon, ReadDocumentIcon, ShieldCheckIcon, VerifyRecordIcon } from '@/features/shared/icons';
+import bust from './images/tech-bust.webp';
 import styles from './VerificationTechnology.module.css';
 
 const stages = [
@@ -42,6 +44,8 @@ const stages = [
   },
 ];
 
+const numerals = ['I', 'II', 'III', 'IV', 'V'];
+
 export function VerificationTechnology() {
   const [activeStage, setActiveStage] = useState(0);
   const stage = stages[activeStage]!;
@@ -49,33 +53,45 @@ export function VerificationTechnology() {
 
   return <section className={styles.technology} aria-labelledby="technology-title">
     <header className={styles.heading}>
-      <h2 id="technology-title">Teknologi di balik verifikasi</h2>
+      <h2 id="technology-title"><span>Teknologi di balik</span> <span className={styles.headingSoft}>verifikasi</span></h2>
       <p>Dari dokumen yang diunggah hingga hasil pencocokan. Pilih tahap untuk melihat cara kerjanya.</p>
     </header>
+    {/* The gesturing statue faces the colonnade, as if explaining the stages below. */}
+    <Image src={bust} alt="" sizes="(max-width: 950px) 1px, 300px" className={styles.bust}/>
+    {/* Stoa: a meander frieze over five marble columns, one per stage. */}
+    <div className={styles.frieze} aria-hidden="true"/>
     <ol className={styles.stages} aria-label="Tahapan teknologi verifikasi">
       {stages.map((item, index) => <li key={item.label}>
         <button type="button" aria-pressed={activeStage === index} aria-controls="technology-detail" onClick={() => setActiveStage(index)}>
-          <span className={styles.number} aria-hidden="true">0{index + 1}</span>
-          <span>{item.label}</span>
+          <span className={styles.column} aria-hidden="true"><span className={styles.numeral}>{numerals[index]}</span></span>
+          <span className={styles.stageLabel}><span className="visually-hidden">Tahap {index + 1}: </span>{item.label}</span>
         </button>
       </li>)}
     </ol>
-    <div id="technology-detail" className={styles.detail} aria-live="polite" aria-atomic="true">
-      <div className={styles.explanation}>
-        <div className={styles.technologyLabel}><Icon size={26}/><span>{stage.technology}</span></div>
-        <h3>{stage.title}</h3>
-        <p>{stage.description}</p>
+    <div className={styles.tablet}>
+      <div id="technology-detail" className={styles.detail} aria-live="polite" aria-atomic="true">
+        <div className={styles.explanation}>
+          <div className={styles.technologyLabel}>
+            <span className={styles.technologyIcon}><Icon size={22}/></span>
+            <ul aria-label="Teknologi yang dipakai">{stage.technology.split(' · ').map(name => <li key={name}>{name}</li>)}</ul>
+          </div>
+          <h3>{stage.title}</h3>
+          <p>{stage.description}</p>
+        </div>
+        <div className={styles.checks}>
+          <h4>{stage.detailTitle}</h4>
+          <ul>{stage.details.map(detail => <li key={detail}>{detail}</li>)}</ul>
+        </div>
       </div>
-      <div className={styles.checks}>
-        <h4>{stage.detailTitle}</h4>
-        <ul>{stage.details.map(detail => <li key={detail}>{detail}</li>)}</ul>
+      <div className={styles.navigation}>
+        <span className={styles.progress}>
+          <span>Tahap {activeStage + 1} dari {stages.length}</span>
+          <span className={styles.progressBars} aria-hidden="true">{stages.map((item, index) => <span key={item.label} data-active={index <= activeStage}/>)}</span>
+        </span>
+        <button type="button" onClick={() => setActiveStage((activeStage + 1) % stages.length)}>
+          {activeStage === stages.length - 1 ? 'Kembali ke tahap awal' : 'Tahap berikutnya'}<ArrowRightIcon size={17}/>
+        </button>
       </div>
-    </div>
-    <div className={styles.navigation}>
-      <span>Tahap {activeStage + 1} dari {stages.length}</span>
-      <button type="button" onClick={() => setActiveStage((activeStage + 1) % stages.length)}>
-        {activeStage === stages.length - 1 ? 'Kembali ke tahap awal' : 'Tahap berikutnya'}<ArrowRightIcon size={17}/>
-      </button>
     </div>
   </section>;
 }
