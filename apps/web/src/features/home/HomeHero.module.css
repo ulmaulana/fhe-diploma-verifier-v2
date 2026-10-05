@@ -31,7 +31,7 @@
 .card:hover .cardArrow{background:#141b29;color:#fff}
 /* Marble plate behind the transparent bust, cut on the same diagonal as the v4 cards. */
 .cardArt{position:absolute;top:0;right:0;width:40%;height:100%;overflow:hidden;background:linear-gradient(115deg,#fbfbfb 10%,#efeff0 55%,#e6e6e7 100%);clip-path:polygon(32% 0,100% 0,100% 100%,0 100%)}
-.cardArt img{position:absolute;top:6%;right:0;width:auto;height:142%;max-width:none;filter:drop-shadow(-6px 8px 10px #5a46301a);transition:transform .3s}
+.cardArt img{position:absolute;top:5%;right:0;width:auto;height:118%;max-width:none;filter:drop-shadow(-6px 8px 10px #5a46301a);transition:transform .3s}
 .card:hover .cardArt img{transform:translateY(-3px)}
 
 @media(max-width:1190px){
