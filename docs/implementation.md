@@ -48,7 +48,7 @@ Laporan dibuat saat diunduh tanpa cache publik. PDF menyertakan digest file, com
 
 ## UI
 
-Sidebar 240 px dengan logo heksagon dan wordmark hitam, pill navigasi abu-abu, serta tab tepi untuk meringkas sidebar (redesain v3, `docs/redesign ui v2/v3.png`, 5 Oktober 2026). Beranda memakai hero patung marmer dengan topbar melayang dan tiga kartu layanan; halaman lain belum diubah. Font Hind lokal, ikon SVG dua warna navy/biru, tombol pill hitam, serta dua panel 38:62 mempertahankan hierarki gambar pengguna. Status awal tidak berisi hasil hijau. Mobile memakai drawer dengan Escape, fokus keyboard, dan background inert; hasil berubah menjadi baris atribut. Pencarian lokal, panduan, riwayat, unduh, ganti/hapus, dan contoh enam status memiliki perilaku nyata. Motion terbatas pada hasil baru, spinner proses aktual, dan drawer/tombol; reduced-motion dihormati.
+Sidebar 16vw (248–288 px) berlapis putih dengan pelat logo bergelombang, lipatan kurva-S, logo heksagon dan wordmark hitam, pill navigasi navy, serta tab cekung di tepi untuk meringkas sidebar (redesain v3, `docs/redesign ui v2/v3.png`, 5 Oktober 2026). Beranda memakai hero patung marmer dengan topbar melayang dan tiga kartu layanan; halaman lain belum diubah. Font Hind lokal, ikon SVG dua warna navy/biru, tombol pill hitam, serta dua panel 38:62 mempertahankan hierarki gambar pengguna. Status awal tidak berisi hasil hijau. Mobile memakai drawer dengan Escape, fokus keyboard, dan background inert; hasil berubah menjadi baris atribut. Pencarian lokal, panduan, riwayat, unduh, ganti/hapus, dan contoh enam status memiliki perilaku nyata. Motion terbatas pada hasil baru, spinner proses aktual, dan drawer/tombol; reduced-motion dihormati.
 
 
 ## Pengesahan dan jalur rekaman v1.2

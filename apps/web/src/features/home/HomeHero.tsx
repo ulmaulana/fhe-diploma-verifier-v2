@@ -30,17 +30,17 @@ export function HomeHero() {
     <section className={styles.services} aria-labelledby="services-title">
       <div className={styles.servicesHeader}>
         <h2 id="services-title" className={styles.chip}><span className={styles.chipToggle} aria-hidden="true"/>Layanan Utama</h2>
-        <Link href="/panduan" className={styles.seeAll} aria-label="Lihat semua layanan di Panduan">Lihat Semua<ArrowRightIcon size={16}/></Link>
+        <Link href="/panduan" className={styles.seeAll} aria-label="Lihat semua layanan di Panduan">Lihat Semua<ArrowRightIcon size={13}/></Link>
       </div>
       <ul className={styles.cards}>{services.map(({ href, title, text, icon: Icon, art }) => <li key={href}>
         <Link href={href} className={styles.card}>
           <span className={styles.cardBody}>
-            <span className={styles.cardIcon}><Icon size={24}/></span>
+            <span className={styles.cardIcon}><Icon size={18}/></span>
             <h3>{title}</h3>
             <span className={styles.cardText}>{text}</span>
-            <span className={styles.cardArrow}><ArrowRightIcon size={18}/></span>
+            <span className={styles.cardArrow}><ArrowRightIcon size={14}/></span>
           </span>
-          <Image src={art} alt="" sizes="(max-width: 680px) 45vw, 220px" className={styles.cardArt}/>
+          <Image src={art} alt="" sizes="(max-width: 680px) 35vw, 180px" className={styles.cardArt}/>
         </Link>
       </li>)}</ul>
     </section>
