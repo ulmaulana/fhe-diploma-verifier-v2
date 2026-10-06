@@ -40,9 +40,14 @@ const config: NextConfig = {
   outputFileTracingRoot: resolve(__dirname, "../.."),
   // Workflow's generated dynamic require is opaque to Next's static tracer, and the
   // OCR package resolves language data and zxing's WASM at runtime from the app
-  // directory. Include each external subtree, including its WASM and data files.
+  // directory. Include each external subtree, including its WASM and data files,
+  // only where OCR/FHE runs: the Workflow routes and maintenance (which imports the
+  // job steps). Shipping ~160 MiB into every route made Vercel packaging fail.
   outputFileTracingIncludes: {
-    '/*': [...runtimeTraceIncludes(), './src/server/assets/**/*'],
+    '/.well-known/workflow/**/*': runtimeTraceIncludes(),
+    '/api/internal/maintenance': runtimeTraceIncludes(),
+    // Diploma PDF generation embeds the font files.
+    '/api/credentials/**/*': ['./src/server/assets/**/*'],
   },
   devIndicators: false,
   agentRules: false,
