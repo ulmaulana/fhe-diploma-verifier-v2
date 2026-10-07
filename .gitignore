@@ -45,3 +45,5 @@ docs/uas/evidence/sepolia/**/video-raw/
 
 # Project documentation stays local.
 /docs/
+# UAS submission attachments (reports, logs with local paths) stay local.
+/Lampiran UAS/
