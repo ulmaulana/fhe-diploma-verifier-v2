@@ -1,4 +1,4 @@
-# Verifikasi Ijazah — Ethereum Sepolia & Zama FHEVM
+# Verifikasi Ijazah - Ethereum Sepolia & Zama FHEVM
 
 ## Deskripsi
 
@@ -77,8 +77,8 @@ Semua konfigurasi dibaca dari `.env` di root repository. Daftar lengkapnya ada d
 | `DATABASE_URL` | Koneksi PostgreSQL runtime; boleh kosong pada demo lokal |
 | `DATABASE_MIGRATION_URL` | Koneksi PostgreSQL untuk `pnpm db:migrate` |
 | `DATABASE_POOL_MAX` | Ukuran pool koneksi, default `1` |
-| `STORAGE_PROVIDER` | `local`, `neon`, `netlify`, atau adapter lain; isi `local` untuk demo tanpa layanan cloud |
-| `PRIVATE_DATA_DIR` | Folder penyimpanan privat saat `STORAGE_PROVIDER=local`, default `.private-data` |
+| `STORAGE_PROVIDER` | `neon` (Neon Object Storage) atau `netlify` (Netlify Blobs); nilai lain, misalnya `local`, memakai folder lokal bila `S3_BUCKET` dan `BLOB_READ_WRITE_TOKEN` kosong |
+| `PRIVATE_DATA_DIR` | Folder penyimpanan privat untuk mode folder lokal, default `.private-data` |
 | `S3_BUCKET`, `NEON_STORAGE_*` | Bucket dan kredensial Neon Object Storage saat `STORAGE_PROVIDER=neon` |
 
 **Blockchain (mode testnet)**
