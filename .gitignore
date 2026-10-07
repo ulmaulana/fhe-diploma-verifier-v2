@@ -23,12 +23,8 @@ playwright-report/
 .vercel/
 .workflow-data/
 apps/web/src/app/.well-known/workflow/
-# Graphify machine paths, scan cache, and local query history.
-graphify-out/.graphify_python
-graphify-out/.graphify_root
-graphify-out/.needs_update
-graphify-out/manifest.json
-graphify-out/memory/
+# Graphify knowledge-graph output stays local.
+graphify-out/
 
 .vercel
 .env*
@@ -45,5 +41,3 @@ docs/uas/evidence/sepolia/**/video-raw/
 
 # Project documentation stays local.
 /docs/
-# UAS submission attachments (reports, logs with local paths) stay local.
-/Lampiran UAS/
